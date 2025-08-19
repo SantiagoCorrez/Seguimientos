@@ -1,0 +1,93 @@
+<!-- src/app/components/compromiso-list/compromiso-list.component.html -->
+<div class="min-h-screen bg-gray-100">
+    <header class="text-white shadow-md py-4" style="background-color: #112b42;">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <a routerLink="/" class="text-2xl font-bold tracking-tight">Sistema de Gestión de Compromisos</a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li>
+                        <a routerLink="/compromisos"
+                            class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
+                    </li>
+                    <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="py-8">
+        <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Listado de Compromisos</h2>
+
+            <div *ngIf="loading" class="text-center text-blue-600">Cargando compromisos...</div>
+            <div *ngIf="error" class="text-center text-red-600">{{ error }}</div>
+
+            <div class="flex justify-end mb-6">
+                <a routerLink="/compromisos/nuevo"
+                    class=" text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out" style="background-color: #112b42;">
+                    Crear Nuevo Compromiso
+                </a>
+            </div>
+
+            <div *ngIf="compromisos.length > 0" class="overflow-x-auto rounded-lg shadow-md">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-blue-100">
+                        <tr>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider rounded-tl-lg">
+                                Código</th>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                Entidad</th>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                Provincia</th>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                Municipio</th>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                Compromiso Específico</th>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                Estado</th>
+                            <th
+                                class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider rounded-tr-lg">
+                                Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let compromiso of compromisos" class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-3 px-4 text-sm text-gray-800">{{ compromiso.codigo }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-800">{{ compromiso.entidad_lider }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-800">{{ compromiso.provincia }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-800">{{ compromiso.municipio }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-800">{{ compromiso.tema + ' - ' + compromiso.subtema}}</td>
+                            <td class="py-3 px-4 text-sm text-gray-800">{{ compromiso.estado }}</td>
+                            <td class="py-3 px-4 text-sm">
+                                <div class="flex space-x-2">
+                                    <a [routerLink]="['/compromisos', compromiso.codigo]"
+                                        class="bg-blue-600 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Ver</a>
+                                    <a [routerLink]="['/compromisos/editar', compromiso.codigo]"
+                                        class="bg-yellow-300 hover:bg-yellow-300 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Actualizar</a>
+                                    <button (click)="deleteCompromiso(compromiso.codigo)"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div *ngIf="compromisos.length === 0 && !loading && !error" class="text-center text-gray-600 mt-8">
+                No hay compromisos registrados.
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto text-center text-sm">
+            &copy; {{ '2024' }} Sistema de Gestión de Compromisos. Todos los derechos reservados.
+        </div>
+    </footer>
+</div>

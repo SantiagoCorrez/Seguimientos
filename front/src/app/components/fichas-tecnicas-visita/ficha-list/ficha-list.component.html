@@ -1,0 +1,59 @@
+<!-- src/app/components/fichas-tecnicas-visita/ficha-list.component.html -->
+
+<div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Fichas Técnicas de Visita</h2>
+
+    <div *ngIf="loading" class="text-center text-blue-600">Cargando fichas técnicas...</div>
+    <div *ngIf="error" class="text-center text-red-600">{{ error }}</div>
+
+    <div class="flex justify-end mb-6">
+        <a [routerLink]="['/fichas-tecnicas-visita', municipio, 'nueva']"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
+            Crear Nueva Ficha
+        </a>
+    </div>
+
+    <div *ngIf="fichas.length > 0" class="overflow-x-auto rounded-lg shadow-md">
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead class="bg-blue-100">
+                <tr>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider rounded-tl-lg">ID</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Fecha de Visita</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Participantes</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Documento</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider rounded-tr-lg">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ficha of fichas" class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-3 px-4 text-sm text-gray-800">{{ ficha.id }}</td>
+                    <td class="py-3 px-4 text-sm text-gray-800">{{ ficha.fecha_visita | date:'longDate' }}</td>
+                    <td class="py-3 px-4 text-sm text-gray-800">{{ ficha.participantes | slice:0:50 }}...</td>
+                    <td class="py-3 px-4 text-sm text-gray-800">
+                        <a *ngIf="ficha.url_documento" [href]="ficha.url_documento" target="_blank" class="text-blue-600 hover:underline">Ver Documento</a>
+                        <span *ngIf="!ficha.url_documento" class="text-gray-500">N/A</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm">
+                        <div class="flex space-x-2">
+                            <a [routerLink]="['/fichas-tecnicas-visita/editar', ficha.id]"
+                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Actualizar</a>
+                            <button (click)="deleteFicha(ficha.id!)"
+                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="fichas.length === 0 && !loading && !error" class="text-center text-gray-600 mt-8">
+        No hay fichas técnicas registradas para este municipio.
+    </div>
+
+    <div class="flex justify-start mt-6">
+        <a routerLink="/compromisos"
+            class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
+            Volver
+        </a>
+    </div>
+</div>

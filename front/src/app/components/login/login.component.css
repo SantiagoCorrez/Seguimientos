@@ -1,0 +1,17 @@
+.fondo {
+    /* background-color: #112b42; */
+    background-image: url('/assets/fondo_Mesa de trabajo 1.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+}
+
+.rounded-lg{
+    border-radius: 25px;
+}
+
+.logo-gobernacion {
+    margin-left: 15%;
+}

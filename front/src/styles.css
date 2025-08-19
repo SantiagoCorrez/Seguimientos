@@ -1,0 +1,21 @@
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Antonio, sans-serif; }
+
+
+:root .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-floating-label{
+    color: #fff !important
+}
+
+:root .mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input {
+    color: #fff !important
+}
+
+:root .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: rgb(17 43 66 / 80%) !important;
+    height: 50px !important;
+    margin-bottom: 10px;
+}
+:root .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before{
+    display: none !important;
+}

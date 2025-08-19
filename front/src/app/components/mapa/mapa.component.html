@@ -1,0 +1,250 @@
+<div class="w-full p-0">
+    <div class="flex flex-wrap">
+        <div class="w-full lg:w-3/4">
+            <div class="capas">
+                <img src="/assets/CAPAS FILTRO-01.png" alt="" class="w-auto" />
+                <img src="/assets/CAPAS FILTRO-02.png" alt="" (click)="showCapas('s')" class="w-auto cursor-pointer" />
+                <img src="/assets/CAPAS FILTRO-03.png" alt="" (click)="showCapas('')" class="w-auto cursor-pointer" />
+                <img src="/assets/CAPA FILTRO 4-04.png" alt="" (click)="showCapas('r')" class="w-auto cursor-pointer" />
+            </div>
+            <div id="tooltip"></div>
+            <div id="map"></div>
+            <div class="filtro">
+                <div class="buttons">
+                    <div class="button">COMPROMISOS</div>
+                    <div class="button inactive">ESTRATEGICOS</div>
+                </div>
+                <mat-form-field>
+                    <mat-label>Provincia</mat-label>
+                    <input type="text" placeholder="Provincia" aria-label="Number" matInput
+                        [matAutocomplete]="provinciasAuto" [formControl]="provincia">
+                    <mat-autocomplete placeholder="Seleccione una provincia" #provinciasAuto="matAutocomplete"
+                        (optionSelected)="selectProvincia($event)">
+                        @for (item of filteredprovincia| async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Municipio</mat-label>
+                    <input type="text" placeholder="Municipio" aria-label="Number" matInput
+                        [matAutocomplete]="municipiosAuto" [formControl]="municipio">
+                    <mat-autocomplete placeholder="Seleccione un municipio" (optionSelected)="selectMunicipio($event)"
+                        #municipiosAuto="matAutocomplete">
+                        @for (item of filteredmunicipio | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Entidad</mat-label>
+                    <input type="text" placeholder="Entidad" matInput [matAutocomplete]="entidadesAuto"
+                        [formControl]="entidad">
+                    <mat-autocomplete placeholder="Seleccione una entidad" (optionSelected)="selectEntidad($event)"
+                        #entidadesAuto="matAutocomplete">
+                        @for (item of filteredentidad | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Tema</mat-label>
+                    <input type="text" placeholder="Tema" matInput [matAutocomplete]="temaAuto" [formControl]="tema">
+                    <mat-autocomplete placeholder="Seleccione un tema" #temaAuto="matAutocomplete">
+                        @for (item of filteredtema | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Subtema</mat-label>
+                    <input type="text" placeholder="Subtema" matInput [matAutocomplete]="subtemaAuto"
+                        [formControl]="subtema">
+                    <mat-autocomplete placeholder="Seleccione un subtema" #subtemaAuto="matAutocomplete">
+                        @for (item of subfilteredtema | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <img src="/assets/cumpliendo.png" alt="">
+            </div>
+        </div>
+        <div class="analitics"  [class.show]="hide" [style.top]="alto">
+            <div class="analitics-title">
+                <h2>{{analitic.titulo}}</h2>
+            </div>
+            <div class="analitics-content">
+                <div class="analitics-content">
+                    <div class="analitics-text">
+                        <h2> NO SE HA INICIADO </h2><span>{{analitic.estados["NO SE HA INICIADO"]||0}}</span>
+                    </div>
+                </div>
+                <div class="analitics-content">
+                    <div class="analitics-text">
+                        <h2> EN CURSO </h2><span>{{analitic.estados["EN CURSO"] ||0}}</span>
+                    </div>
+                </div>
+                <div class="analitics-content">
+                    <div class="analitics-text">
+                        <h2> COMPLETADO </h2><span>{{analitic.estados["COMPLETADO"] ||0}}</span>
+                    </div>
+                </div>
+                <div class="analitics-content">
+                    <div class="analitics-text">
+                        <h2> EN ESPERA </h2><span>{{analitic.estados["EN ESPERA"] ||0}}</span>
+                    </div>
+                </div>
+                <div class="analitics-content">
+                    <div class="analitics-text">
+                        <h2> NO SE VA A HACER </h2><span>{{analitic.estados["NO SE VA A HACER"] ||0}}</span>
+                    </div>
+                </div>
+                <div class="analitics-content">
+                    <div class="analitics-text">
+                        <h2> ATRASADO </h2><span>{{analitic.estados["ATRASADO"] ||0}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="lg:w-1/4 indicadores">
+            <div class="lg:w-1/2 b-1">
+                <div class="logo">
+                    <img src="/assets/iconos mapa-07.png" />
+                </div>
+                <div class="valor">
+                    ${{ total >= 1000000000 ? ((total / 1000000000) | number:'1.2-2') + ' MM' : total >= 1000000 ?
+                    ((total / 1000000) | number:'1.2-2') + ' M' : (total | currency:'':'':'1.0-0') }}
+                </div>
+                <div class="texto">INVERSIÓN TOTAL</div>
+            </div>
+            <div class="lg:w-1/2 b-2">
+                <div class="logo">
+                    <img src="/assets/iconos mapa-06.png" />
+                </div>
+                <div class="valor">{{numPro}}</div>
+                <div class="texto">COMPROMISOS</div>
+            </div>
+            <div class="lg:w-1/2 b-2" (mouseenter)="showAnalystics('EPC','25%')" (mouseleave)="hide = false">
+                <div class="logo">
+                    <img src="/assets/epc.png" />
+                </div>
+                <div class="valor">{{categoryCounts["EPC"]}}</div>
+                <div class="texto">EPC</div>
+            </div>
+            <div class="lg:w-1/2 b-1" (mouseenter)="showAnalystics('IDACO','25%')" (mouseleave)="hide = false">
+                <div class="logo">
+                    <img src="/assets/idaco.png" />
+                </div>
+                <div class="valor">{{categoryCounts["IDACO"]}}</div>
+                <div class="texto">IDACO</div>
+            </div>
+            <div class="lg:w-1/2 b-1" (mouseenter)="showAnalystics('SALUD','50%')" (mouseleave)="hide = false">
+                <div class="logo">
+                    <img src="/assets/salud.png" />
+                </div>
+                <div class="valor">{{categoryCounts["SALUD"]}}</div>
+                <div class="texto">SALUD</div>
+            </div>
+            <div class="lg:w-1/2 b-2 " (mouseenter)="showAnalystics('EDUCACION','50%')" (mouseleave)="hide = false">
+                <div class="logo">
+                    <img src="/assets/educacion.png" />
+                </div>
+                <div class="valor">{{categoryCounts["EDUCACION"]}}</div>
+                <div class="texto">EDUCACION</div>
+            </div>
+            <div class="lg:w-1/2 b-2" (mouseenter)="showAnalystics('ICCU','70%')" (mouseleave)="hide = false">
+                <div class="logo">
+                    <img src="/assets/iccu.png" />
+                </div>
+                <div class="valor">{{categoryCounts["ICCU"]}}</div>
+                <div class="texto">ICCU</div>
+            </div>
+            <div class="lg:w-1/2 b-1 " (mouseenter)="showAnalystics('INDEPORTES','70%')" (mouseleave)="hide = false">
+                <div class="logo">
+                    <img src="/assets/indeportes.png" />
+                </div>
+                <div class="valor">{{categoryCounts["INDEPORTES"]}}</div>
+                <div class="texto">INDEPORTES</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modals: Si usas modales de Tailwind, reemplaza aquí. Si usas modales personalizados, agrega tu estructura y clases de Tailwind -->
+<!-- Main modal -->
+<div id="default-modal" tabindex="-1" aria-hidden="true" [class.hidden]="showModal"
+    class="flex  overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-4xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow-sm">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    Proyectos
+                </h3>
+                <button type="button"
+                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                    (click)="showModal = true">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 md:p-5 space-y-4">
+                <h3>Municipio: {{nombreModal}}</h3>
+                <p>Total de proyectos: {{projects.length}}</p>
+                <p>Inversión total: {{totalModal|currency:'$':'symbol':'3.0-0'}}</p>
+                <table class="table-auto w-full text-sm text-left text-gray-500">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Proyecto</th>
+                            <th>Entidad Lider</th>
+                            <th>Inversión</th>
+                            <th>Estado</th>
+                            <th>Prioridad</th>
+                            <th>Avance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of projects; track $index) {
+                        <tr [routerLink]="['/compromisos', item.codigo]">
+                            <td>{{item.codigo}}</td>
+                            <td>{{item.tema}}-{{item.subtema}}</td>
+                            <td>{{item.entidad_lider}}</td>
+                            <td>{{item.valor_total|currency:'':'symbol':'3.0-0'}}</td>
+                            <td>{{item.estado}}</td>
+                            <td>{{item.prioridad}}</td>
+                            <td><progress value="65" max="100">65%</progress></td>
+                        </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
