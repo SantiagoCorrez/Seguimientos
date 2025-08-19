@@ -11,7 +11,7 @@ import { FichaTecnicaVisita } from '../models/ficha-tecnica-visita.model';
     providedIn: 'root'
 })
 export class CompromisosService {
-    private apiUrl = 'http://localhost:3000/api'; // URL base de tu backend Node.js
+    private apiUrl = '/api'; // URL base de tu backend Node.js
 
     constructor(private http: HttpClient) { }
 
