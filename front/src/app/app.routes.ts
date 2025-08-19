@@ -22,5 +22,5 @@ export const routes: Routes = [
     { path: 'compromisos/:codigo', component: CompromisoDetailComponent },
     { path: 'compromisos/:codigo/reportes-avance/nuevo', component: ReporteAvanceFormComponent },
     { path: 'reportes-avance/editar/:id', component: ReporteAvanceFormComponent },
-    { path: '**', redirectTo: '/home' } // Wildcard route for any other URL
+    { path: '**', redirectTo: '/login' } // Wildcard route for any other URL
 ];
