@@ -8,18 +8,26 @@
                 <img src="/assets/CAPA FILTRO 4-04.png" alt="" (click)="showCapas('r')" class="w-auto cursor-pointer" />
             </div>
             <div id="tooltip"></div>
+            <div class="flex justify-end mb-4" id="resetMap">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    (click)="resetMapa()">
+                    Reiniciar mapa
+                </button>
+            </div>
             <div id="map"></div>
             <div class="filtro">
-                <div class="buttons">
-                    <div class="button">COMPROMISOS</div>
-                    <div class="button inactive">ESTRATEGICOS</div>
-                </div>
-                <mat-form-field>
+                <mat-form-field class="w-full">
                     <mat-label>Provincia</mat-label>
                     <input type="text" placeholder="Provincia" aria-label="Number" matInput
                         [matAutocomplete]="provinciasAuto" [formControl]="provincia">
+                    @if(provincia.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="provincia.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
+
                     <mat-autocomplete placeholder="Seleccione una provincia" #provinciasAuto="matAutocomplete"
-                        (optionSelected)="selectProvincia($event)">
+                        (optionSelected)="selectProvincia($event)" selec>
                         @for (item of filteredprovincia| async; track $index) {
                         <mat-option [value]="item">
                             {{item}}
@@ -29,10 +37,15 @@
                     </mat-autocomplete>
                 </mat-form-field>
 
-                <mat-form-field>
+                <mat-form-field class="w-full">
                     <mat-label>Municipio</mat-label>
                     <input type="text" placeholder="Municipio" aria-label="Number" matInput
                         [matAutocomplete]="municipiosAuto" [formControl]="municipio">
+                    @if(municipio.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="municipio.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
                     <mat-autocomplete placeholder="Seleccione un municipio" (optionSelected)="selectMunicipio($event)"
                         #municipiosAuto="matAutocomplete">
                         @for (item of filteredmunicipio | async; track $index) {
@@ -44,10 +57,16 @@
                     </mat-autocomplete>
                 </mat-form-field>
 
-                <mat-form-field>
+                <mat-form-field class="w-full">
                     <mat-label>Entidad</mat-label>
                     <input type="text" placeholder="Entidad" matInput [matAutocomplete]="entidadesAuto"
                         [formControl]="entidad">
+
+                    @if(entidad.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="entidad.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
                     <mat-autocomplete placeholder="Seleccione una entidad" (optionSelected)="selectEntidad($event)"
                         #entidadesAuto="matAutocomplete">
                         @for (item of filteredentidad | async; track $index) {
@@ -59,9 +78,14 @@
                     </mat-autocomplete>
                 </mat-form-field>
 
-                <mat-form-field>
+                <mat-form-field class="w-full">
                     <mat-label>Tema</mat-label>
                     <input type="text" placeholder="Tema" matInput [matAutocomplete]="temaAuto" [formControl]="tema">
+                    @if(tema.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="tema.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
                     <mat-autocomplete placeholder="Seleccione un tema" #temaAuto="matAutocomplete">
                         @for (item of filteredtema | async; track $index) {
                         <mat-option [value]="item">
@@ -72,10 +96,15 @@
                     </mat-autocomplete>
                 </mat-form-field>
 
-                <mat-form-field>
+                <mat-form-field class="w-full">
                     <mat-label>Subtema</mat-label>
                     <input type="text" placeholder="Subtema" matInput [matAutocomplete]="subtemaAuto"
                         [formControl]="subtema">
+                    @if(subtema.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="subtema.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
                     <mat-autocomplete placeholder="Seleccione un subtema" #subtemaAuto="matAutocomplete">
                         @for (item of subfilteredtema | async; track $index) {
                         <mat-option [value]="item">
@@ -86,10 +115,10 @@
                     </mat-autocomplete>
                 </mat-form-field>
 
-                <img src="/assets/cumpliendo.png" alt="">
+                <img src="/assets/cumpliendo.png" alt="" class="w-full">
             </div>
         </div>
-        <div class="analitics"  [class.show]="hide" [style.top]="alto">
+        <div class="analitics" [class.show]="hide" [style.top]="alto">
             <div class="analitics-title">
                 <h2>{{analitic.titulo}}</h2>
             </div>

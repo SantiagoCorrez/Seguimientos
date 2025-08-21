@@ -21,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatIconModule } from "@angular/material/icon";
 import { map, Observable, startWith } from 'rxjs';
 import { getCenter } from 'ol/extent';
 import { Point } from 'ol/geom';
@@ -32,7 +33,8 @@ import * as turf from '@turf/turf';
   templateUrl: './mapa.component.html',
   styleUrl: './mapa.component.css',
   providers: [CompromisosService],
-  imports: [CurrencyPipe, MatFormFieldModule, MatSelectModule, MatInputModule, FormsModule, MatAutocompleteModule, ReactiveFormsModule,
+  imports: [CurrencyPipe, MatFormFieldModule, MatSelectModule, MatInputModule,
+    FormsModule, MatAutocompleteModule, ReactiveFormsModule, MatIconModule,
     AsyncPipe, DecimalPipe, RouterLink]
 })
 export class MapaComponent {
@@ -626,8 +628,25 @@ export class MapaComponent {
     style: (feature) => {
       //this.labelStyle.getText()?.setText(feature.get("munnombre"))
 
-      this.estilosProvincias.getFill()?.setColor(this.conteoProyectosMunicipio[feature.get("munnombre").toUpperCase()] ? `rgba(0, 169, 230, ${0.2 + (0.5 * this.conteoProyectosMunicipio[feature.get("munnombre").toUpperCase()] / this.maxProyectosMunicipio)})` : 'rgba(0, 169, 230, 0.1)')
-      return this.style
+      // Escala de colores personalizada según la cantidad de proyectos
+      const cantidad = this.conteoProyectosMunicipio[feature.get("munnombre").toUpperCase()] || 0;
+      let color = 'rgba(0, 0, 92, 0.7)'; // color por defecto (más bajo)
+      if (cantidad > 0) {
+        const ratio = cantidad / this.maxProyectosMunicipio;
+        if (ratio > 0.8) {
+          color = 'rgba(69, 37, 209, 0.7)'; // #4525d1
+        } else if (ratio > 0.6) {
+          color = 'rgba(52, 28, 183, 0.7)'; // #341cb7
+        } else if (ratio > 0.4) {
+          color = 'rgba(21, 9, 166, 0.7)'; // #1509a6
+        } else if (ratio > 0.2) {
+          color = 'rgba(11, 5, 129, 0.7)'; // #0b0581
+        } else {
+          color = 'rgba(0, 0, 92, 0.7)'; // #00005c
+        }
+      }
+      this.estilosProvincias.getFill()?.setColor(color);
+      return this.style[0]
     },
     visible: false, // inicialmente oculta
   });
@@ -638,7 +657,7 @@ export class MapaComponent {
       format: new GeoJSON()
     }),
     style: (feature) => {
-      return this.style
+      return this.style[0]
     },
     visible: true, // inicialmente oculta
   });
@@ -649,8 +668,25 @@ export class MapaComponent {
       format: new GeoJSON()
     }),
     style: (feature) => {
-      this.labelStyle.getText()?.setText(feature.get("PROVINCIA"))
-      this.estilosProvincias.getFill()?.setColor(this.conteoProyectos[feature.get("PROVINCIA")] ? `rgba(0, 169, 230, ${0.2 + (0.5 * this.conteoProyectos[feature.get("PROVINCIA")] / this.maxProyectos)})` : 'rgba(0, 169, 230, 0.1)')
+      const cantidad = this.conteoProyectos[feature.get("PROVINCIA").toUpperCase()] || 0;
+      let color = 'rgba(0, 0, 92, 0.7)'; // color por defecto (más bajo)
+      if (cantidad > 0) {
+        const ratio = cantidad / this.maxProyectos;
+        console.log(ratio, cantidad, this.maxProyectos)
+        if (ratio > 0.8) {
+          color = 'rgba(69, 37, 209, 0.7)'; // #4525d1
+        } else if (ratio > 0.6) {
+          color = 'rgba(52, 28, 183, 0.7)'; // #341cb7
+        } else if (ratio > 0.4) {
+          color = 'rgba(22, 9, 166, 0.5)'; // #1509a6
+        } else if (ratio > 0.2) {
+          color = '#00a9e636'; // #0b0581
+        } else {
+          color = 'rgba(0, 0, 92, 0.7)'; // #00005c
+        }
+      }
+      this.estilosProvincias.getFill()?.setColor(color);
+      this.labelStyle.getText()?.setText(feature.get("PROVINCIA") + "-"+ cantidad)
       return this.style
     },
     visible: false, // inicialmente oculta
@@ -1286,7 +1322,19 @@ export class MapaComponent {
 
 
   }
-
+  resetMapa() {
+    this.map.getView().setCenter(this.vistaInicial.center);
+    this.map.getView().setZoom(this.vistaInicial.zoom);
+    this.map.render()
+    this.layerDepartamento.setVisible(true)
+    this.layerProvincia.setVisible(false)
+    this.layerMunicipios.setVisible(false)
+    this.filterType('','','','')
+    this.layerMunicipios.setStyle(this.estilosProvincias)
+    this.map.removeLayer(this.proyectosLayer);
+    
+    // Si quieres limpiar filtros, capas, etc., hazlo aquí también
+  }
   proyectosFeatures: Feature[] = [];
   generarProyectosDesdeMunicipios(tema = this.temaFilter, subtema = this.subtemaFilter, entidad = this.entidadFilter) {
 

@@ -254,3 +254,9 @@ th {
     color: #112b42;
     border-bottom: 1px solid #112b42;
 }
+
+#resetMap{
+    position: absolute;
+    z-index: 1000;
+    right: 50%;
+}
