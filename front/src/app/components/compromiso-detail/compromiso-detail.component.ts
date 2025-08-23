@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CompromisosService } from '../../services/compromisos.service';
 import { Compromiso } from '../../models/compromiso';
 import { ReporteAvance } from '../../models/reporte-avance';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-compromiso-detail',
@@ -24,7 +25,8 @@ export class CompromisoDetailComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private compromisosService: CompromisosService
+        private compromisosService: CompromisosService,
+        public authService: AuthService
     ) { }
 
     ngOnInit(): void {
