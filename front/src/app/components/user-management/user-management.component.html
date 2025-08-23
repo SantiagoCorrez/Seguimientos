@@ -1,0 +1,38 @@
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Gestión de Usuarios</h1>
+
+    <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <table class="min-w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                <tr *ngFor="let user of users">
+                    <td class="px-6 py-4 whitespace-nowrap">{{ user.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ user.nombre }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ user.email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span *ngFor="let role of user.roles" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1">
+                            {{ role }}
+                            <button (click)="removeRole(user, role)" class="ml-1 text-red-500 hover:text-red-700">x</button>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button (click)="updateUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-2">Editar</button>
+                        <select #roleSelect (change)="assignRole(user, roleSelect.value)" class="p-1 border rounded">
+                            <option value="">Asignar Rol</option>
+                            <!-- This will be populated dynamically -->
+                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { CompromisosService } from '../../services/compromisos.service';
 import { Compromiso } from '../../models/compromiso';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-compromiso-list',
@@ -20,7 +21,7 @@ export class CompromisoListComponent implements OnInit {
     loading: boolean = true;
     error: string | null = null;
 
-    constructor(private compromisosService: CompromisosService) { }
+    constructor(private compromisosService: CompromisosService, public authService: AuthService) { }
 
     ngOnInit(): void {
         this.loadCompromisos();

@@ -1,17 +1,21 @@
 // Importar módulos necesarios
 const express = require('express');
-const { Pool } = require('pg');
 const dotenv = require('dotenv');
-const cors = require('cors'); // Para permitir solicitudes desde diferentes orígenes
+const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const pool = require('./db'); // Importar la configuración de la base de datos
+const authRoutes = require('./routes/auth'); // Importar rutas de autenticación
+const usersRoutes = require('./routes/users'); // Importar rutas de gestión de usuarios
+const verifyToken = require('./middleware/verifyToken');
+const checkRole = require('./middleware/checkRole');
 
 // Cargar variables de entorno desde .env
 dotenv.config();
 
 // Inicializar la aplicación Express
 const app = express();
-const port = process.env.PORT || 3000; // Puerto donde se ejecutará el servidor
+const port = process.env.PORT || 3000;
 
 // Middleware para parsear JSON en las solicitudes
 app.use(express.json());
@@ -19,44 +23,30 @@ app.use(express.json());
 // Middleware para habilitar CORS
 app.use(cors());
 
-// Configuración de la conexión a la base de datos PostgreSQL
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
-});
-
-// Configuración de almacenamiento
+// Configuración de almacenamiento para Multer
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Carpeta donde se guardan las imágenes
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
     },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); // Nombre único        app.use('/uploads', express.static('uploads'));        app.use('/uploads', express.static('uploads'));
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });
 
-// Probar la conexión a la base de datos
-pool.connect((err, client, release) => {
-    if (err) {
-        return console.error('Error al conectar a la base de datos:', err.stack);
-    }
-    client.query('SELECT NOW()', (err, result) => {
-        release(); // Liberar el cliente de vuelta al pool
-        if (err) {
-            return console.error('Error al ejecutar la consulta de prueba:', err.stack);
-        }
-        console.log('Conexión exitosa a PostgreSQL:', result.rows[0].now);
-    });
-});
+// Servir archivos estáticos desde la carpeta 'uploads'
+app.use('/uploads', express.static('uploads'));
+
+// --- Rutas de la API ---
+
+// Rutas de autenticación
+app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
 
 // --- Rutas de la API para Compromisos ---
 
 // 1. Obtener todos los compromisos
-app.get('/api/compromisos', async (req, res) => {
+app.get('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM compromisos ORDER BY codigo ASC');
         res.status(200).json(result.rows);
@@ -67,7 +57,7 @@ app.get('/api/compromisos', async (req, res) => {
 });
 
 // 2. Obtener un compromiso por su código
-app.get('/api/compromisos/:codigo', async (req, res) => {
+app.get('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
     const { codigo } = req.params;
     try {
         const result = await pool.query('SELECT * FROM compromisos WHERE codigo = $1', [codigo]);
@@ -82,7 +72,7 @@ app.get('/api/compromisos/:codigo', async (req, res) => {
 });
 
 // 3. Crear un nuevo compromiso
-app.post('/api/compromisos', async (req, res) => {
+app.post('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
     const {
         codigo, provincia, municipio, compromiso_especifico, tema, subtema,
         detalle_especifico, meta_del_plan_de_desarrollo, descripcion_meta_producto,
@@ -133,7 +123,7 @@ app.post('/api/compromisos', async (req, res) => {
 });
 
 // 4. Actualizar un compromiso existente
-app.put('/api/compromisos/:codigo', async (req, res) => {
+app.put('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
     const { codigo } = req.params;
     const {
         provincia, municipio, compromiso_especifico, tema, subtema,
@@ -214,7 +204,7 @@ app.put('/api/compromisos/:codigo', async (req, res) => {
 });
 
 // 5. Eliminar un compromiso
-app.delete('/api/compromisos/:codigo', async (req, res) => {
+app.delete('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador']), async (req, res) => {
     const { codigo } = req.params;
     try {
         const result = await pool.query('DELETE FROM compromisos WHERE codigo = $1 RETURNING *', [codigo]);
@@ -231,7 +221,7 @@ app.delete('/api/compromisos/:codigo', async (req, res) => {
 // --- Rutas de la API para Reportes de Avance ---
 
 // 1. Obtener todos los reportes de avance para un compromiso específico
-app.get('/api/compromisos/:codigo/reportes-avance', async (req, res) => {
+app.get('/api/compromisos/:codigo/reportes-avance', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
     const { codigo } = req.params;
     try {
         const result = await pool.query(
@@ -246,7 +236,7 @@ app.get('/api/compromisos/:codigo/reportes-avance', async (req, res) => {
 });
 
 // 2. Obtener un reporte de avance específico por su ID
-app.get('/api/reportes-avance/:id', async (req, res) => {
+app.get('/api/reportes-avance/:id', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('SELECT * FROM reportes_avance WHERE id = $1', [id]);
@@ -261,7 +251,7 @@ app.get('/api/reportes-avance/:id', async (req, res) => {
 });
 
 // 3. Crear un nuevo reporte de avance
-app.post('/api/reportes-avance', upload.single('imagen'), async (req, res) => {
+app.post('/api/reportes-avance', verifyToken, checkRole(['Administrador', 'Editor']), upload.single('imagen'), async (req, res) => {
     const {
         compromiso_codigo, mes_reporte, reporte_avance_fisico,
         reporte_avance_financiero, observaciones_reporte
@@ -302,7 +292,7 @@ app.post('/api/reportes-avance', upload.single('imagen'), async (req, res) => {
 });
 
 // 4. Actualizar un reporte de avance existente
-app.put('/api/reportes-avance/:id', async (req, res) => {
+app.put('/api/reportes-avance/:id', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
     const { id } = req.params;
     const {
         reporte_avance_fisico, reporte_avance_financiero,
@@ -337,7 +327,7 @@ app.put('/api/reportes-avance/:id', async (req, res) => {
 });
 
 // 5. Eliminar un reporte de avance
-app.delete('/api/reportes-avance/:id', async (req, res) => {
+app.delete('/api/reportes-avance/:id', verifyToken, checkRole(['Administrador']), async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query('DELETE FROM reportes_avance WHERE id = $1 RETURNING *', [id]);

@@ -6,10 +6,21 @@
             <nav>
                 <ul class="flex space-x-6">
                     <li>
+                        <a routerLink="/home"
+                            class="hover:text-blue-200 transition duration-300 ease-in-out">Home</a>
+                    </li>
+                    <li>
                         <a routerLink="/compromisos"
                             class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
                     </li>
-                    <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
+                    <li *ngIf="authService.hasRole('Administrador')">
+                        <a routerLink="/user-management"
+                            class="hover:text-blue-200 transition duration-300 ease-in-out">Gestión de Usuarios</a>
+                    </li>
+                    <li>
+                        <button (click)="authService.logout()"
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Salir</button>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -72,7 +83,7 @@
                 </div>
 
                 <div class="flex justify-end space-x-4 mt-6">
-                    <a [routerLink]="['/compromisos/editar', compromiso.codigo]"
+                    <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')" [routerLink]="['/compromisos/editar', compromiso.codigo]"
                         class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out">Actualizar
                         Compromiso</a>
                     <a routerLink="/compromisos"
@@ -84,7 +95,7 @@
             <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center mt-10">Reportes de Avance</h3>
 
             <div class="flex justify-end mb-6" *ngIf="compromiso">
-                <a [routerLink]="['/compromisos', compromiso.codigo, 'reportes-avance','nuevo']"
+                <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')" [routerLink]="['/compromisos', compromiso.codigo, 'reportes-avance','nuevo']"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
                     Añadir Reporte de Avance
                 </a>
@@ -108,7 +119,7 @@
                             alt="Imagen de Avance" class="w-full h-48 object-cover rounded-md shadow-sm">
                     </div>
                     <div class="flex justify-end space-x-2">
-                        <a [routerLink]="['/reportes-avance/editar', reporte.id]"
+                        <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')" [routerLink]="['/reportes-avance/editar', reporte.id]"
                             class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Actualizar</a>
                     </div>
                 </div>

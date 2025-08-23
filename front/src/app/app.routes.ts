@@ -9,18 +9,22 @@ import { MapaComponent } from './components/mapa/mapa.component';
 import { HomeComponent } from './components/home/home.component';
 import { FichaTecnicaVisitaListComponent } from './components/fichas-tecnicas-visita/ficha-list/ficha-list.component';
 import { LoginComponent } from './components/login/login.component';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
+import { UserManagementComponent } from './components/user-management/user-management.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent },
-    { path: 'home', component: HomeComponent },
-    { path: 'mapa', component: MapaComponent },
-    { path: 'ficha-tecnica', component: FichaTecnicaVisitaListComponent },
-    { path: 'compromisos', component: CompromisoListComponent },
-    { path: 'compromisos/nuevo', component: CompromisoFormComponent },
-    { path: 'compromisos/editar/:codigo', component: CompromisoFormComponent },
-    { path: 'compromisos/:codigo', component: CompromisoDetailComponent },
-    { path: 'compromisos/:codigo/reportes-avance/nuevo', component: ReporteAvanceFormComponent },
-    { path: 'reportes-avance/editar/:id', component: ReporteAvanceFormComponent },
+    { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+    { path: 'mapa', component: MapaComponent, canActivate: [AuthGuard] },
+    { path: 'ficha-tecnica', component: FichaTecnicaVisitaListComponent, canActivate: [AuthGuard] },
+    { path: 'compromisos', component: CompromisoListComponent, canActivate: [AuthGuard] },
+    { path: 'compromisos/nuevo', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
+    { path: 'compromisos/editar/:codigo', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
+    { path: 'compromisos/:codigo', component: CompromisoDetailComponent, canActivate: [AuthGuard] },
+    { path: 'compromisos/:codigo/reportes-avance/nuevo', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
+    { path: 'reportes-avance/editar/:id', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
+    { path: 'user-management', component: UserManagementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador'] } },
     { path: '**', redirectTo: '/login' } // Wildcard route for any other URL
 ];
