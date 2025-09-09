@@ -25,6 +25,10 @@ export class CompromisosService {
         return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`);
     }
 
+    getCompromisosByMunicipio(municipio: string): Observable<Compromiso[]> {
+        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos/municipio/${municipio}`);
+    }
+
     createCompromiso(compromiso: Compromiso): Observable<Compromiso> {
         return this.http.post<Compromiso>(`${this.apiUrl}/compromisos`, compromiso);
     }

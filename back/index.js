@@ -71,6 +71,18 @@ app.get('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Ed
     }
 });
 
+// Obtener compromisos por municipio
+app.get('/api/compromisos/municipio/:municipio', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
+    const { municipio } = req.params;
+    try {
+        const result = await pool.query('SELECT * FROM compromisos WHERE municipio = $1 ORDER BY codigo ASC', [municipio]);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error(`Error al obtener los compromisos para el municipio ${municipio}:`, err.message);
+        res.status(500).json({ error: 'Error interno del servidor al obtener compromisos.' });
+    }
+});
+
 // 3. Crear un nuevo compromiso
 app.post('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
     const {
