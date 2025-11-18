@@ -1,0 +1,71 @@
+<app-header></app-header>
+<div class="container mx-auto p-6 bg-gray-50 min-h-screen">
+  <h2 class="text-3xl font-bold text-gray-800 mb-8">Administración de Usuarios</h2>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <!-- Columna de la Lista de Usuarios -->
+    <div>
+      <h3 class="text-2xl font-semibold text-gray-700 mb-4">Listado de Usuarios</h3>
+      <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <ul class="divide-y divide-gray-200">
+          <li *ngFor="let user of users" class="p-4 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200">
+            <div class="flex flex-col">
+              <span class="font-semibold text-gray-900">{{ user.nombre }}</span>
+              <span class="text-sm text-gray-500">{{ user.email }}</span>
+            </div>
+            <div class="flex-shrink-0 space-x-2">
+              <button class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" (click)="onSelectUser(user)">Editar</button>
+              <button class="px-3 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" (click)="onDeleteUser(user.id)">Eliminar</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <button class="mt-6 w-full px-4 py-2 font-semibold text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" (click)="onNewUser()">
+        + Nuevo Usuario
+      </button>
+    </div>
+
+    <!-- Columna del Formulario -->
+    <div class="bg-white p-8 rounded-lg shadow-md">
+      <h3 class="text-2xl font-semibold text-gray-700 mb-6">{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+      <form (ngSubmit)="onSaveUser()" class="space-y-6">
+        <div>
+          <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+          <input type="text" id="nombre" name="nombre" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" [(ngModel)]="selectedUser.nombre" required>
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" [(ngModel)]="selectedUser.email" required>
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+          <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" [(ngModel)]="selectedUser.password" [required]="!isEditMode">
+          <p *ngIf="isEditMode" class="mt-2 text-xs text-gray-500">Dejar en blanco para no cambiar.</p>
+        </div>
+        <div>
+          <label for="secretaria" class="block text-sm font-medium text-gray-700">Secretaría</label>
+          <select id="secretaria" name="secretaria" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" [(ngModel)]="selectedUser.secretaria_id">
+            <option [ngValue]="null">-- Sin Secretaría --</option>
+            <option *ngFor="let sec of secretarias" [value]="sec.id">{{ sec.nombre }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Roles</label>
+          <div class="mt-2 space-y-2">
+            <div *ngFor="let role of roles" class="flex items-center">
+              <input [id]="'role' + role.id" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" [checked]="selectedUser.roles?.includes(role.nombre)" (change)="toggleRole(role.nombre)">
+              <label [for]="'role' + role.id" class="ml-3 block text-sm text-gray-900">{{ role.nombre }}</label>
+            </div>
+          </div>
+        </div>
+        <div class="pt-4">
+          <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            {{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

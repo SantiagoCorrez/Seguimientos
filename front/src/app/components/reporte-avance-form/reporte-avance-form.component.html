@@ -60,11 +60,11 @@
                     </div>
                     <div>
                         <label for="reporte_avance_fisico" class="block text-sm font-medium text-gray-700">Avance Físico
-                            (%)
+                            (%): {{ reporteForm.get('reporte_avance_fisico')?.value }}%
                             <span class="text-red-500">*</span></label>
-                        <input type="number" id="reporte_avance_fisico" formControlName="reporte_avance_fisico" min="0"
+                        <input type="range" id="reporte_avance_fisico" formControlName="reporte_avance_fisico" min="0"
                             max="100"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            class="mt-1 block w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                             [ngClass]="{'border-red-500': reporteForm.get('reporte_avance_fisico')?.invalid && reporteForm.get('reporte_avance_fisico')?.touched}">
                         <div *ngIf="reporteForm.get('reporte_avance_fisico')?.invalid && reporteForm.get('reporte_avance_fisico')?.touched"
                             class="text-red-500 text-xs mt-1">
@@ -74,10 +74,10 @@
                     <div>
                         <label for="reporte_avance_financiero" class="block text-sm font-medium text-gray-700">Avance
                             Financiero
-                            (%) <span class="text-red-500">*</span></label>
-                        <input type="number" id="reporte_avance_financiero" formControlName="reporte_avance_financiero"
+                            (%): {{ reporteForm.get('reporte_avance_financiero')?.value }}% <span class="text-red-500">*</span></label>
+                        <input type="range" id="reporte_avance_financiero" formControlName="reporte_avance_financiero"
                             min="0" max="100"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            class="mt-1 block w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                             [ngClass]="{'border-red-500': reporteForm.get('reporte_avance_financiero')?.invalid && reporteForm.get('reporte_avance_financiero')?.touched}">
                         <div *ngIf="reporteForm.get('reporte_avance_financiero')?.invalid && reporteForm.get('reporte_avance_financiero')?.touched"
                             class="text-red-500 text-xs mt-1">

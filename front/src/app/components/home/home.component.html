@@ -5,7 +5,6 @@
         <div class="enlace"><a href="https://archivodigital.cundinamarca.gov.co/iccu/" target="_blank">MAPA DE ICCU</a> </div>
         <div class="enlace" [routerLink]="['/compromisos']">REGISTRO DE COMPROMISOS</div>
         <div class="enlace" [routerLink]="['/ficha-tecnica']">FICHAS TECNICAS VISITA</div>
-        <div class="enlace">BASE DE DATOS - IMPRESION</div>
         <div class="enlace" *ngIf="authService.hasRole('Administrador')" [routerLink]="['/user-management']">GESTIÓN DE USUARIOS</div>
         <div class="enlace"><button (click)="authService.logout()">SALIR</button></div>
     </div>

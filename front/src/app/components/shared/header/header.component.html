@@ -1,0 +1,37 @@
+<nav class="navbar navbar-expand-lg barra-superior-govco" aria-label="Barra superior">
+    <div class="container p-3">
+        <a href="https://www.gov.co/" target="_blank" aria-label="Portal del Estado Colombiano - GOV.CO"></a>
+
+    </div>
+</nav>
+
+<header class="text-white shadow-md py-4" style="background-color: #112b42;">
+    <div class="container mx-auto flex justify-between items-center px-6">
+        <a routerLink="/" class="text-2xl font-bold tracking-tight">Sistema de Gestión de Compromisos</a>
+        <nav>
+            <ul class="flex space-x-6">
+                <li>
+                    <a routerLink="/home" class="hover:text-blue-200 transition duration-300 ease-in-out">Home</a>
+                </li>
+                <li>
+                    <a routerLink="/compromisos"
+                        class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
+                </li>
+                @if (authService.hasRole('Administrador')) {
+                <li>
+                    <a routerLink="/admin/users"
+                        class="hover:text-blue-200 transition duration-300 ease-in-out">Administrar Usuarios</a>
+                </li>
+                <li>
+                    <a routerLink="/ficha-tecnica" class="hover:text-blue-200 transition duration-300 ease-in-out">Ficha
+                        Tecnica</a>
+                </li>
+                }
+                <li>
+                    <button (click)="authService.logout()"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Salir</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>

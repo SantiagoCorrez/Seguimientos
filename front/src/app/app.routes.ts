@@ -11,7 +11,7 @@ import { FichaTecnicaVisitaListComponent } from './components/fichas-tecnicas-vi
 import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
-import { UserManagementComponent } from './components/user-management/user-management.component';
+import { UserAdminComponent } from './components/user-admin/user-admin.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -25,6 +25,6 @@ export const routes: Routes = [
     { path: 'compromisos/:codigo', component: CompromisoDetailComponent, canActivate: [AuthGuard] },
     { path: 'compromisos/:codigo/reportes-avance/nuevo', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
     { path: 'reportes-avance/editar/:id', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
-    { path: 'user-management', component: UserManagementComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador'] } },
+    { path: 'admin/users', component: UserAdminComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador'] } },
     { path: '**', redirectTo: '/login' } // Wildcard route for any other URL
 ];

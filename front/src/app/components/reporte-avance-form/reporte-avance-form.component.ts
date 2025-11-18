@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompromisosService } from '../../services/compromisos.service';
-import { ReporteAvance } from '../../models/reporte-avance';
 
 @Component({
   selector: 'app-reporte-avance-form',
@@ -22,6 +21,8 @@ export class ReporteAvanceFormComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
   success: string | null = null;
+  imagenFile: File | null = null;
+  imagenPreview: string | ArrayBuffer | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -52,12 +53,30 @@ export class ReporteAvanceFormComponent implements OnInit {
     } else if (this.compromisoCodigo) {
       this.reporteForm.patchValue({ compromiso_codigo: this.compromisoCodigo });
       this.reporteForm.get('compromiso_codigo')?.disable(); // Deshabilitar para que no se cambie
+      this.loadLatestReport(this.compromisoCodigo);
     } else {
       this.error = 'No se pudo determinar el compromiso asociado.';
     }
   }
-  imagenFile: File | null = null;
-  imagenPreview: string | ArrayBuffer | null = null;
+
+  loadLatestReport(codigo: string): void {
+    this.compromisosService.getReportesAvance(codigo).subscribe({
+      next: (reportes) => {
+        if (reportes && reportes.length > 0) {
+          // Ordenar por fecha para asegurarse de que el último es el más reciente
+          const latestReport = reportes.sort((a, b) => new Date(b.mes_reporte).getTime() - new Date(a.mes_reporte).getTime())[0];
+          this.reporteForm.patchValue({
+            reporte_avance_fisico: latestReport.reporte_avance_fisico,
+            reporte_avance_financiero: latestReport.reporte_avance_financiero
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar el último reporte de avance:', err);
+        // No se considera un error fatal, el formulario puede usarse con valores por defecto.
+      }
+    });
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -72,6 +91,7 @@ export class ReporteAvanceFormComponent implements OnInit {
       reader.readAsDataURL(this.imagenFile);
     }
   }
+
   loadReporteAvance(id: number): void {
     this.loading = true;
     this.compromisosService.getReporteAvanceById(id).subscribe({

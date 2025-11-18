@@ -10,6 +10,8 @@ const usersRoutes = require('./routes/users'); // Importar rutas de gestión de 
 const verifyToken = require('./middleware/verifyToken');
 const checkRole = require('./middleware/checkRole');
 
+const secretariasRoutes = require('./routes/secretarias'); // Importar rutas de secretarías
+
 // Cargar variables de entorno desde .env
 dotenv.config();
 
@@ -42,6 +44,7 @@ app.use('/uploads', express.static('uploads'));
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/secretarias', secretariasRoutes); // Añadir esta línea
 
 // --- Rutas de la API para Compromisos ---
 

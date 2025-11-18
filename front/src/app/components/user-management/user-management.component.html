@@ -1,4 +1,24 @@
+<app-header></app-header>
 <div class="container mx-auto p-4">
+    <!-- Formulario para añadir usuario -->
+    <form class="mb-6 bg-white p-4 rounded shadow" #addUserForm="ngForm" (ngSubmit)="addUser()">
+        <h2 class="text-xl font-semibold mb-2">Añadir Usuario</h2>
+        <div class="mb-2">
+            <label class="block text-sm font-medium text-gray-700">Nombre</label>
+            <input type="text" name="nombre" [(ngModel)]="newUser.nombre" required class="mt-1 p-2 border rounded w-full" />
+        </div>
+        <div class="mb-2">
+            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" [(ngModel)]="newUser.email" required class="mt-1 p-2 border rounded w-full" />
+        </div>
+        <div class="mb-2">
+            <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+            <input type="password" name="password" [(ngModel)]="newUser.password" required class="mt-1 p-2 border rounded w-full" />
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Añadir Usuario</button>
+        <div *ngIf="addUserError" class="text-red-500 mt-2">{{ addUserError }}</div>
+        <div *ngIf="addUserSuccess" class="text-green-500 mt-2">Usuario añadido correctamente.</div>
+    </form>
     <h1 class="text-2xl font-bold mb-4">Gestión de Usuarios</h1>
 
     <div class="overflow-x-auto bg-white rounded-lg shadow">
@@ -13,26 +33,49 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                <tr *ngFor="let user of users">
-                    <td class="px-6 py-4 whitespace-nowrap">{{ user.id }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ user.nombre }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ user.email }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span *ngFor="let role of user.roles" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1">
-                            {{ role }}
-                            <button (click)="removeRole(user, role)" class="ml-1 text-red-500 hover:text-red-700">x</button>
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <button (click)="updateUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-2">Editar</button>
-                        <select #roleSelect (change)="assignRole(user, roleSelect.value)" class="p-1 border rounded">
-                            <option value="">Asignar Rol</option>
-                            <!-- This will be populated dynamically -->
-                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
-                        </select>
-                    </td>
-                </tr>
+                            <tr *ngFor="let user of users">
+                                <td class="px-6 py-4 whitespace-nowrap">{{ user.id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <ng-container *ngIf="editUserId !== user.id; else editForm">
+                                        {{ user.nombre }}
+                                    </ng-container>
+                                    <ng-template #editForm>
+                                        <input type="text" [(ngModel)]="editUserData.nombre" class="p-1 border rounded w-full" />
+                                    </ng-template>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <ng-container *ngIf="editUserId !== user.id; else editEmail">
+                                        {{ user.email }}
+                                    </ng-container>
+                                    <ng-template #editEmail>
+                                        <input type="email" [(ngModel)]="editUserData.email" class="p-1 border rounded w-full" />
+                                    </ng-template>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span *ngFor="let role of user.roles" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1">
+                                        {{ role }}
+                                        <button (click)="removeRole(user, role)" class="ml-1 text-red-500 hover:text-red-700">x</button>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <ng-container *ngIf="editUserId !== user.id">
+                                        <button (click)="editUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-2">Editar</button>
+                                        <button (click)="deleteUser(user)" class="text-red-600 hover:text-red-900 mr-2">Eliminar</button>
+                                        <select #roleSelect (change)="assignRole(user, roleSelect.value)" class="p-1 border rounded">
+                                            <option value="">Asignar Rol</option>
+                                            <option *ngFor="let role of roles" [value]="role.id">{{ role.nombre }}</option>
+                                        </select>
+                                    </ng-container>
+                                    <ng-container *ngIf="editUserId === user.id">
+                                        <input type="password" [(ngModel)]="editUserData.password" placeholder="Nueva contraseña (opcional)" class="p-1 border rounded w-full mb-1" />
+                                        <button (click)="saveEditUser(user)" class="bg-green-600 text-white px-2 py-1 rounded mr-2">Guardar</button>
+                                        <button (click)="cancelEditUser()" class="bg-gray-400 text-white px-2 py-1 rounded">Cancelar</button>
+                                        <div *ngIf="editUserError" class="text-red-500 mt-1">{{ editUserError }}</div>
+                                    </ng-container>
+                                </td>
+                            </tr>
             </tbody>
         </table>
     </div>
 </div>
+<app-footer></app-footer>

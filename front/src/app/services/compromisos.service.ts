@@ -1,74 +1,83 @@
 // src/app/services/compromisos.service.ts
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpEvent } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Compromiso } from '../models/compromiso';
 import { ReporteAvance } from '../models/reporte-avance';
 import { FichaTecnicaVisita } from '../models/ficha-tecnica-visita.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CompromisosService {
-    private apiUrl = '/api'; // URL base de tu backend Node.js
+    private apiUrl = 'http://localhost:3000/api'; // URL base de tu backend Node.js
 
-    constructor(private http: HttpClient) { }
+    private getAuthHeaders(): HttpHeaders {
+        const token = this.authService.getToken();
+        return new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        });
+    }
+
+    constructor(private http: HttpClient, private authService: AuthService) { }
 
     // --- Métodos para Compromisos ---
 
     getCompromisos(): Observable<Compromiso[]> {
-        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos`);
+        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos`,{ headers: this.getAuthHeaders() });
     }
 
     getCompromisoByCodigo(codigo: string): Observable<Compromiso> {
-        return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`);
+        return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`,{ headers: this.getAuthHeaders() });
     }
 
     getCompromisosByMunicipio(municipio: string): Observable<Compromiso[]> {
-        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos/municipio/${municipio}`);
+        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos/municipio/${municipio}`,{ headers: this.getAuthHeaders() });
     }
 
     createCompromiso(compromiso: Compromiso): Observable<Compromiso> {
-        return this.http.post<Compromiso>(`${this.apiUrl}/compromisos`, compromiso);
+        return this.http.post<Compromiso>(`${this.apiUrl}/compromisos`, compromiso,{ headers: this.getAuthHeaders() });
     }
 
     updateCompromiso(codigo: string, compromiso: Compromiso): Observable<Compromiso> {
-        return this.http.put<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`, compromiso);
+        return this.http.put<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`, compromiso,{ headers: this.getAuthHeaders() });
     }
 
     deleteCompromiso(codigo: string): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/compromisos/${codigo}`);
+        return this.http.delete<any>(`${this.apiUrl}/compromisos/${codigo}`,{ headers: this.getAuthHeaders() });
     }
 
     // --- Métodos para Reportes de Avance ---
 
     getReportesAvance(compromisoCodigo: string): Observable<ReporteAvance[]> {
-        return this.http.get<ReporteAvance[]>(`${this.apiUrl}/compromisos/${compromisoCodigo}/reportes-avance`);
+        return this.http.get<ReporteAvance[]>(`${this.apiUrl}/compromisos/${compromisoCodigo}/reportes-avance`,{ headers: this.getAuthHeaders() });
     }
 
     getReporteAvanceById(id: number): Observable<ReporteAvance> {
-        return this.http.get<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`);
+        return this.http.get<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`,{ headers: this.getAuthHeaders() });
     }
 
     createReporteAvance(reporte: any): Observable<ReporteAvance> {
-        return this.http.post<ReporteAvance>(`${this.apiUrl}/reportes-avance`, reporte);
+        return this.http.post<ReporteAvance>(`${this.apiUrl}/reportes-avance`, reporte,{ headers: this.getAuthHeaders() });
     }
 
     updateReporteAvance(id: number, reporte: any): Observable<ReporteAvance> {
-        return this.http.put<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`, reporte);
+        return this.http.put<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`, reporte,{ headers: this.getAuthHeaders() });
     }
 
     deleteReporteAvance(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/reportes-avance/${id}`);
+        return this.http.delete<any>(`${this.apiUrl}/reportes-avance/${id}`,{ headers: this.getAuthHeaders() });
     }
 
     getFichasTecnicasVisita(municipio: string): Observable<FichaTecnicaVisita[]> {
-        return this.http.get<FichaTecnicaVisita[]>(`${this.apiUrl}/fichas-tecnicas-visita?municipio=${municipio}`);
+        return this.http.get<FichaTecnicaVisita[]>(`${this.apiUrl}/fichas-tecnicas-visita?municipio=${municipio}`,{ headers: this.getAuthHeaders() });
     }
 
     getFichaTecnicaVisitaById(id: number): Observable<FichaTecnicaVisita> {
-        return this.http.get<FichaTecnicaVisita>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`);
+        return this.http.get<FichaTecnicaVisita>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`,{ headers: this.getAuthHeaders() });
     }
 
     /**
@@ -87,7 +96,8 @@ export class CompromisosService {
         // Se configura reportProgress para obtener eventos de progreso
         return this.http.post<FichaTecnicaVisita>(`${this.apiUrl}/fichas-tecnicas-visita`, formData, {
             reportProgress: true,
-            observe: 'events'
+            observe: 'events',
+            headers: this.getAuthHeaders()
         });
     }
 
@@ -108,11 +118,21 @@ export class CompromisosService {
         // Se configura reportProgress para obtener eventos de progreso
         return this.http.put<FichaTecnicaVisita>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`, formData, {
             reportProgress: true,
-            observe: 'events'
+            observe: 'events',
+            headers: this.getAuthHeaders()
         });
     }
 
     deleteFichaTecnicaVisita(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`);
+        return this.http.delete<any>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`,{ headers: this.getAuthHeaders() });
+    }
+
+    getImageAsArrayBuffer(url: string): Observable<ArrayBuffer> {
+      return this.http.get(url, { responseType: 'arraybuffer' });
+    }
+
+    getInfoWikipedia(term: string): Observable<any> {
+      const wikipediaApiUrl = `https://es.wikipedia.org/w/api.php?action=parse&format=json&origin=*&page=${encodeURIComponent(term)}&prop=parsetree&formatversion=2`;
+      return this.http.get<any>(wikipediaApiUrl);
     }
 }

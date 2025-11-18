@@ -37,4 +37,5 @@ export interface Compromiso {
     dificultades: string;
     alternativas_de_solucion: string;
     observaciones: string;
+    entidad: string;
 }

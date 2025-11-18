@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Registrar un nuevo usuario
 router.post('/register', async (req, res) => {
-    const { nombre, email, password } = req.body;
+    const { nombre, email, password, secretaria_id } = req.body; // Añadir secretaria_id
 
     if (!nombre || !email || !password) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
@@ -29,19 +29,19 @@ router.post('/register', async (req, res) => {
         try {
             await client.query('BEGIN');
 
-            // Insertar nuevo usuario
-            const newUserQuery = 'INSERT INTO usuarios (nombre, email, password) VALUES ($1, $2, $3) RETURNING id';
-            const newUserResult = await client.query(newUserQuery, [nombre, email, hashedPassword]);
+            // Insertar nuevo usuario con secretaria_id
+            const newUserQuery = 'INSERT INTO usuarios (nombre, email, password, secretaria_id) VALUES ($1, $2, $3, $4) RETURNING id';
+            const newUserResult = await client.query(newUserQuery, [nombre, email, hashedPassword, secretaria_id]);
             const newUserId = newUserResult.rows[0].id;
 
-            // Asignar rol de "Visor" por defecto
-            const visorRole = await client.query('SELECT id FROM roles WHERE nombre = $1', ['Visor']);
-            if (visorRole.rows.length === 0) {
-                throw new Error('El rol "Visor" no se encuentra en la base de datos.');
+            // Asignar rol de "Lector" por defecto
+            const lectorRole = await client.query('SELECT id FROM roles WHERE nombre = $1', ['Lector']);
+            if (lectorRole.rows.length === 0) {
+                throw new Error('El rol "Lector" no se encuentra en la base de datos.');
             }
-            const visorRoleId = visorRole.rows[0].id;
+            const lectorRoleId = lectorRole.rows[0].id;
 
-            await client.query('INSERT INTO usuario_roles (usuario_id, rol_id) VALUES ($1, $2)', [newUserId, visorRoleId]);
+            await client.query('INSERT INTO usuario_roles (usuario_id, rol_id) VALUES ($1, $2)', [newUserId, lectorRoleId]);
 
             await client.query('COMMIT');
 
@@ -69,8 +69,15 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // Buscar usuario por email
-        const userResult = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+        // Buscar usuario por email y unir con secretarías
+        const userResult = await pool.query(
+            `SELECT u.*, s.nombre as secretaria_nombre 
+             FROM usuarios u 
+             LEFT JOIN secretarias s ON u.secretaria_id = s.id 
+             WHERE u.email = $1`,
+            [email]
+        );
+        
         if (userResult.rows.length === 0) {
             return res.status(401).json({ error: 'Credenciales inválidas.' });
         }
@@ -91,8 +98,16 @@ router.post('/login', async (req, res) => {
         const roles = rolesResult.rows.map(row => row.nombre);
 
         // Crear y firmar el token JWT
+        const tokenPayload = {
+            id: user.id,
+            email: user.email,
+            roles: roles,
+            secretaria_id: user.secretaria_id,
+            secretaria_nombre: user.secretaria_nombre
+        };
+
         const token = jwt.sign(
-            { id: user.id, email: user.email, roles: roles },
+            tokenPayload,
             process.env.JWT_SECRET || 'your_jwt_secret',
             { expiresIn: '1h' }
         );

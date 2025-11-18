@@ -2,17 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HeaderComponent } from '../shared/header/header.component';
+import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
   users: any[] = [];
   roles: any[] = [];
+  newUser = { nombre: '', email: '', password: '' };
+  addUserError: string = '';
+  addUserSuccess: boolean = false;
+  editUserId: number | null = null;
+  editUserData: { nombre: string; email: string; password: string } = { nombre: '', email: '', password: '' };
+  editUserError: string = '';
 
   constructor(private userService: UserService) { }
 
@@ -31,6 +39,69 @@ export class UserManagementComponent implements OnInit {
     this.userService.getUsers().subscribe(data => {
       this.users = data;
     });
+  }
+
+  addUser(): void {
+    this.addUserError = '';
+    this.addUserSuccess = false;
+    this.userService.createUser(this.newUser).subscribe({
+      next: () => {
+        this.addUserSuccess = true;
+        this.newUser = { nombre: '', email: '', password: '' };
+        this.loadUsers();
+        this.editUserId = null;
+        this.editUserData = { nombre: '', email: '', password: '' };
+        this.editUserError = '';
+      },
+      error: (err) => {
+        this.addUserError = err.error?.error || 'Error al añadir usuario.';
+      }
+    });
+  }
+  editUser(user: any): void {
+    this.editUserId = user.id;
+    this.editUserData = { nombre: user.nombre, email: user.email, password: '' };
+    this.editUserError = '';
+  }
+
+  cancelEditUser(): void {
+    this.editUserId = null;
+    this.editUserData = { nombre: '', email: '', password: '' };
+    this.editUserError = '';
+  }
+
+  saveEditUser(user: any): void {
+    this.editUserError = '';
+    const data: any = {
+      nombre: this.editUserData.nombre,
+      email: this.editUserData.email
+    };
+    if (this.editUserData.password) {
+      data.password = this.editUserData.password;
+    }
+    this.userService.updateUser(user.id, data).subscribe({
+      next: () => {
+        this.editUserId = null;
+        this.editUserData = { nombre: '', email: '', password: '' };
+        this.loadUsers();
+      },
+      error: (err) => {
+        this.editUserError = err.error?.error || 'Error al editar usuario.';
+      }
+    });
+  }
+
+  deleteUser(user: any): void {
+    if (confirm('¿Seguro que deseas eliminar este usuario?')) {
+      this.userService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.loadUsers();
+        },
+        error: (err) => {
+          alert(err.error?.error || 'Error al eliminar usuario.');
+        }
+      });
+    }
   }
 
   updateUser(user: any): void {

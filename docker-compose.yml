@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_DATABASE:-seguimientometas}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Si quieres inicializar la base de datos con tu esquema al arrancar:
+      # - ./back/auth_schema_v2.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./back
+    container_name: backend_app
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      DB_DATABASE: ${DB_DATABASE:-seguimientometas}
+      DB_PORT: 5432
+      JWT_SECRET: 'your_super_secret_jwt_key' # Cambia esto por una clave segura
+    volumes:
+      - ./back:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./front
+    container_name: frontend_app
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
