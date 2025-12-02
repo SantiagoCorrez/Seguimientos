@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
     providedIn: 'root'
 })
 export class CompromisosService {
-    private apiUrl = 'http://localhost:3000/api'; // URL base de tu backend Node.js
+    private apiUrl = '/api'; // URL base de tu backend Node.js
 
     private getAuthHeaders(): HttpHeaders {
         const token = this.authService.getToken();
@@ -27,53 +27,53 @@ export class CompromisosService {
     // --- Métodos para Compromisos ---
 
     getCompromisos(): Observable<Compromiso[]> {
-        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos`,{ headers: this.getAuthHeaders() });
+        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos`, { headers: this.getAuthHeaders() });
     }
 
     getCompromisoById(id: number): Observable<Compromiso> {
-        return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/id/${id}`,{ headers: this.getAuthHeaders() });
+        return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/id/${id}`, { headers: this.getAuthHeaders() });
     }
 
     createCompromiso(compromiso: Compromiso): Observable<Compromiso> {
-        return this.http.post<Compromiso>(`${this.apiUrl}/compromisos`, compromiso,{ headers: this.getAuthHeaders() });
+        return this.http.post<Compromiso>(`${this.apiUrl}/compromisos`, compromiso, { headers: this.getAuthHeaders() });
     }
 
     updateCompromisoById(id: number, compromiso: Compromiso): Observable<Compromiso> {
-        return this.http.put<Compromiso>(`${this.apiUrl}/compromisos/id/${id}`, compromiso,{ headers: this.getAuthHeaders() });
+        return this.http.put<Compromiso>(`${this.apiUrl}/compromisos/id/${id}`, compromiso, { headers: this.getAuthHeaders() });
     }
 
     deleteCompromiso(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/compromisos/id/${id}`,{ headers: this.getAuthHeaders() });
+        return this.http.delete<any>(`${this.apiUrl}/compromisos/id/${id}`, { headers: this.getAuthHeaders() });
     }
 
     // --- Métodos para Reportes de Avance ---
 
     getReportesAvance(compromisoCodigo: string): Observable<ReporteAvance[]> {
-        return this.http.get<ReporteAvance[]>(`${this.apiUrl}/compromisos/${compromisoCodigo}/reportes-avance`,{ headers: this.getAuthHeaders() });
+        return this.http.get<ReporteAvance[]>(`${this.apiUrl}/compromisos/${compromisoCodigo}/reportes-avance`, { headers: this.getAuthHeaders() });
     }
 
     getReporteAvanceById(id: number): Observable<ReporteAvance> {
-        return this.http.get<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`,{ headers: this.getAuthHeaders() });
+        return this.http.get<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`, { headers: this.getAuthHeaders() });
     }
 
     createReporteAvance(reporte: any): Observable<ReporteAvance> {
-        return this.http.post<ReporteAvance>(`${this.apiUrl}/reportes-avance`, reporte,{ headers: this.getAuthHeaders() });
+        return this.http.post<ReporteAvance>(`${this.apiUrl}/reportes-avance`, reporte, { headers: this.getAuthHeaders() });
     }
 
     updateReporteAvance(id: number, reporte: any): Observable<ReporteAvance> {
-        return this.http.put<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`, reporte,{ headers: this.getAuthHeaders() });
+        return this.http.put<ReporteAvance>(`${this.apiUrl}/reportes-avance/${id}`, reporte, { headers: this.getAuthHeaders() });
     }
 
     deleteReporteAvance(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/reportes-avance/${id}`,{ headers: this.getAuthHeaders() });
+        return this.http.delete<any>(`${this.apiUrl}/reportes-avance/${id}`, { headers: this.getAuthHeaders() });
     }
 
     getFichasTecnicasVisita(municipio: string): Observable<FichaTecnicaVisita[]> {
-        return this.http.get<FichaTecnicaVisita[]>(`${this.apiUrl}/fichas-tecnicas-visita?municipio=${municipio}`,{ headers: this.getAuthHeaders() });
+        return this.http.get<FichaTecnicaVisita[]>(`${this.apiUrl}/fichas-tecnicas-visita?municipio=${municipio}`, { headers: this.getAuthHeaders() });
     }
 
     getFichaTecnicaVisitaById(id: number): Observable<FichaTecnicaVisita> {
-        return this.http.get<FichaTecnicaVisita>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`,{ headers: this.getAuthHeaders() });
+        return this.http.get<FichaTecnicaVisita>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`, { headers: this.getAuthHeaders() });
     }
 
     /**
@@ -120,15 +120,15 @@ export class CompromisosService {
     }
 
     deleteFichaTecnicaVisita(id: number): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`,{ headers: this.getAuthHeaders() });
+        return this.http.delete<any>(`${this.apiUrl}/fichas-tecnicas-visita/${id}`, { headers: this.getAuthHeaders() });
     }
 
     getImageAsArrayBuffer(url: string): Observable<ArrayBuffer> {
-      return this.http.get(url, { responseType: 'arraybuffer' });
+        return this.http.get(url, { responseType: 'arraybuffer' });
     }
 
     getInfoWikipedia(term: string): Observable<any> {
-      const wikipediaApiUrl = `https://es.wikipedia.org/w/api.php?action=parse&format=json&origin=*&page=${encodeURIComponent(term)}&prop=parsetree&formatversion=2`;
-      return this.http.get<any>(wikipediaApiUrl);
+        const wikipediaApiUrl = `https://es.wikipedia.org/w/api.php?action=parse&format=json&origin=*&page=${encodeURIComponent(term)}&prop=parsetree&formatversion=2`;
+        return this.http.get<any>(wikipediaApiUrl);
     }
 }
