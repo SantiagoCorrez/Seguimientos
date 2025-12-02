@@ -6,14 +6,13 @@ import { FichaTecnicaVisita } from '../../../models/ficha-tecnica-visita.model';
 import { FormsModule } from '@angular/forms';
 import * as docx from 'docx';
 import { saveAs } from 'file-saver';
-import * as xml2js from 'xml2js';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { FooterComponent } from '../../shared/footer/footer.component';
 
 @Component({
     selector: 'app-ficha-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, FormsModule, NgFor, HeaderComponent,FooterComponent],
+    imports: [CommonModule, RouterLink, FormsModule, NgFor, HeaderComponent, FooterComponent],
     templateUrl: './ficha-list.component.html',
     styleUrls: ['./ficha-list.component.css']
 })
@@ -110,331 +109,312 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
                     alert('No hay compromisos para el municipio seleccionado.');
                     return;
                 }
-                let result: any;
-                let xmlData: string = '';
-                await this.compromisosService.getInfoWikipedia(this.selectedMunicipio.toLowerCase().replace(/\s/g, '%20')).subscribe(
-                    {
-                        next: (wikiData) => {
-                            xmlData = wikiData.parse.parsetree;
-                            console.log(xmlData);
-                            xml2js.parseString(xmlData, { explicitArray: false, ignoreAttrs: false, trim: false }, (err, data) => {
-                                if (err) {
-                                    console.error('Error parsing XML:', err);
-                                    return;
+                this.compromisosService.getImageAsArrayBuffer('./assets/logo-gobernacion.jpg').subscribe({
+                    next: (imageBuffer) => {
+                        const img = new docx.ImageRun(
+                            {
+                                type: 'png',
+                                data: imageBuffer,
+                                transformation:
+                                {
+                                    width: 400,
+                                    height: 100
                                 }
-                                result = data;
-                                console.log(result);
-
-                                this.compromisosService.getImageAsArrayBuffer('./assets/logo-gobernacion.jpg').subscribe({
-                                    next: (imageBuffer) => {
-                                        const img = new docx.ImageRun(
-                                            {
-                                                type: 'png',
-                                                data: imageBuffer,
-                                                transformation:
-                                                {
-                                                    width: 400,
-                                                    height: 100
-                                                }
-                                            }
-                                        )
-                                        const doc = new docx.Document({
-                                            sections: [{
-                                                properties: {},
-                                                headers: {
-                                                    default: new docx.Header({
-                                                        children: [
-                                                            new docx.Paragraph({
-                                                                children: [
-                                                                    img
-                                                                ],
-                                                                alignment: docx.AlignmentType.CENTER,
-                                                            }),
-                                                        ],
-                                                    }),
-                                                },
+                            }
+                        )
+                        const doc = new docx.Document({
+                            sections: [{
+                                properties: {},
+                                headers: {
+                                    default: new docx.Header({
+                                        children: [
+                                            new docx.Paragraph({
                                                 children: [
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `${this.selectedMunicipio} #`,
-                                                                bold: true,
-                                                                size: 32,
-                                                                font: 'Arial',
-                                                            })
-                                                        ],
-                                                        alignment: docx.AlignmentType.CENTER,
-                                                    }),
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Compromisos: ${compromisosMunicipio.length}`,
-                                                                size: 36,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.RIGHT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Fecha visita Nos Comprometemos A:  `,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Alcalde: `,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                            new docx.TextRun({
-                                                                text: `${result.root.template[0].part.filter((p: any) => p.name === " dirigentes_nombres ")[0].value.replace("<small>", "").replace("</small>", "") || ''}`,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Candidatos a la Alcaldía:  `,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Población:`,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                            new docx.TextRun({
-                                                                text: `${result.root.template[0].part.filter((p: any) => p.name === " población ")[0].value || ''}`,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Centro de Salud`,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Gerente: `,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Fecha Visita Mesa PDD: `,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
-                                                    new docx.Paragraph({}),
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `Temperatura promedio: `,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                                bold: true,
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
-                                                    }),
-
+                                                    img
                                                 ],
-                                            },
-                                            {
-                                                properties: {
-                                                    type: docx.SectionType.NEXT_PAGE
-                                                },
-                                                headers: {
-                                                    default: new docx.Header({
-                                                        children: [
-                                                            new docx.Paragraph({
-                                                                children: [
-                                                                    img
-                                                                ],
-                                                                alignment: docx.AlignmentType.CENTER,
-                                                            }),
-                                                        ],
-                                                    }),
-                                                },
+                                                alignment: docx.AlignmentType.CENTER,
+                                            }),
+                                        ],
+                                    }),
+                                },
+                                children: [
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `${this.selectedMunicipio} #`,
+                                                bold: true,
+                                                size: 32,
+                                                font: 'Arial',
+                                            })
+                                        ],
+                                        alignment: docx.AlignmentType.CENTER,
+                                    }),
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Compromisos: ${compromisosMunicipio.length}`,
+                                                size: 36,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.RIGHT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Fecha visita Nos Comprometemos A:  `,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Alcalde: `,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                            new docx.TextRun({
+                                                text: ``,
+                                                size: 28,
+                                                font: 'Arial',
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Candidatos a la Alcaldía:  `,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Población:`,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                            new docx.TextRun({
+                                                text: ``,
+                                                size: 28,
+                                                font: 'Arial',
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Centro de Salud`,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Gerente: `,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Fecha Visita Mesa PDD: `,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                    new docx.Paragraph({}),
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `Temperatura promedio: `,
+                                                size: 28,
+                                                font: 'Arial',
+                                                bold: true,
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+
+                                ],
+                            },
+                            {
+                                properties: {
+                                    type: docx.SectionType.NEXT_PAGE
+                                },
+                                headers: {
+                                    default: new docx.Header({
+                                        children: [
+                                            new docx.Paragraph({
                                                 children: [
-                                                    new docx.Paragraph({
-                                                        children: [
-                                                            new docx.TextRun({
-                                                                text: `1. Proyectos a firmar en territorio`,
-                                                                bold: true,
-                                                                size: 28,
-                                                                font: 'Arial',
-                                                            }),
-                                                        ],
-                                                        alignment: docx.AlignmentType.LEFT,
+                                                    img
+                                                ],
+                                                alignment: docx.AlignmentType.CENTER,
+                                            }),
+                                        ],
+                                    }),
+                                },
+                                children: [
+                                    new docx.Paragraph({
+                                        children: [
+                                            new docx.TextRun({
+                                                text: `1. Proyectos a firmar en territorio`,
+                                                bold: true,
+                                                size: 28,
+                                                font: 'Arial',
+                                            }),
+                                        ],
+                                        alignment: docx.AlignmentType.LEFT,
+                                    }),
+                                    new docx.Table({
+
+                                        rows: [
+                                            new docx.TableRow({
+                                                children: [
+                                                    new docx.TableCell({
+                                                        children: [new docx.Paragraph({
+                                                            children:
+                                                                [
+                                                                    new docx.TextRun({
+                                                                        text: "Proyecto",
+                                                                        bold: true,
+                                                                        font: 'Arial',
+                                                                        size: 26
+                                                                    })
+                                                                ]
+                                                        })],
                                                     }),
-                                                    new docx.Table({
-
-                                                        rows: [
-                                                            new docx.TableRow({
-                                                                children: [
-                                                                    new docx.TableCell({
-                                                                        children: [new docx.Paragraph({
-                                                                            children:
-                                                                                [
-                                                                                    new docx.TextRun({
-                                                                                        text: "Proyecto",
-                                                                                        bold: true,
-                                                                                        font: 'Arial',
-                                                                                        size: 26
-                                                                                    })
-                                                                                ]
-                                                                        })],
-                                                                    }),
-                                                                    new docx.TableCell({
-                                                                        children: [new docx.Paragraph({
-                                                                            children:
-                                                                                [
-                                                                                    new docx.TextRun({
-                                                                                        text: "Detalle",
-                                                                                        bold: true,
-                                                                                        font: 'Arial',
-                                                                                        size: 26
-                                                                                    })
-                                                                                ]
-                                                                        })],
-                                                                    }),
-                                                                ],
-                                                            }),
-                                                            ...compromisosMunicipio.map(c =>
+                                                    new docx.TableCell({
+                                                        children: [new docx.Paragraph({
+                                                            children:
+                                                                [
+                                                                    new docx.TextRun({
+                                                                        text: "Detalle",
+                                                                        bold: true,
+                                                                        font: 'Arial',
+                                                                        size: 26
+                                                                    })
+                                                                ]
+                                                        })],
+                                                    }),
+                                                ],
+                                            }),
+                                            ...compromisosMunicipio.map(c =>
 
 
-                                                                new docx.TableRow({
+                                                new docx.TableRow({
+                                                    children: [
+                                                        new docx.TableCell({
+                                                            children: [
+                                                                new docx.Paragraph({
                                                                     children: [
-                                                                        new docx.TableCell({
-                                                                            children: [
-                                                                                new docx.Paragraph({
-                                                                                    children: [
-                                                                                        new docx.TextRun({
-                                                                                            text: `Entidad: ${c.entidad}`, bold: true, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-                                                                                        new docx.TextRun({
-                                                                                            text: `${c.compromiso_especifico||'No hay información'}`, bold: true, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-                                                                                    ]
-                                                                                })
-                                                                            ]
+                                                                        new docx.TextRun({
+                                                                            text: `Entidad: ${c.entidad}`, bold: true, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
                                                                         }),
-                                                                        new docx.TableCell({
-                                                                            children: [
-
-                                                                                new docx.Paragraph({
-                                                                                    children: [
-                                                                                        new docx.TextRun({
-                                                                                            text: `Tipo de Contrato: ${c.tipo_documento||'No hay información'}`, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-                                                                                        new docx.TextRun({
-                                                                                            text: `Detalle Especifico: ${c.detalle_especifico||'No hay información'}`, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-                                                                                        new docx.TextRun({
-                                                                                            text: `Valor del Contrato: ${c.valor_documento||'No hay información'}`, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-                                                                                        new docx.TextRun({
-                                                                                            text: `Objeto de Contrato: ${c.objeto_documento||'No hay información'}`, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-                                                                                        new docx.TextRun({
-                                                                                            text: `Estado: ${c.estado||'No hay información'}`, break: 1,
-                                                                                            font: 'Arial',
-                                                                                            size: 26
-                                                                                        }),
-
-                                                                                    ]
-                                                                                })
-                                                                            ]
-                                                                        })
+                                                                        new docx.TextRun({
+                                                                            text: `${c.compromiso_especifico || 'No hay información'}`, bold: true, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
+                                                                        }),
                                                                     ]
                                                                 })
-                                                            )
-                                                        ]
-                                                    }),
+                                                            ]
+                                                        }),
+                                                        new docx.TableCell({
+                                                            children: [
+
+                                                                new docx.Paragraph({
+                                                                    children: [
+                                                                        new docx.TextRun({
+                                                                            text: `Tipo de Contrato: ${c.tipo_documento || 'No hay información'}`, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
+                                                                        }),
+                                                                        new docx.TextRun({
+                                                                            text: `Detalle Especifico: ${c.detalle_especifico || 'No hay información'}`, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
+                                                                        }),
+                                                                        new docx.TextRun({
+                                                                            text: `Valor del Contrato: ${c.valor_documento || 'No hay información'}`, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
+                                                                        }),
+                                                                        new docx.TextRun({
+                                                                            text: `Objeto de Contrato: ${c.objeto_documento || 'No hay información'}`, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
+                                                                        }),
+                                                                        new docx.TextRun({
+                                                                            text: `Estado: ${c.estado || 'No hay información'}`, break: 1,
+                                                                            font: 'Arial',
+                                                                            size: 26
+                                                                        }),
+
+                                                                    ]
+                                                                })
+                                                            ]
+                                                        })
+                                                    ]
+                                                })
+                                            )
+                                        ]
+                                    }),
 
 
 
-                                                ]
-                                            }],
-                                        });
+                                ]
+                            }],
+                        });
 
-                                        docx.Packer.toBlob(doc).then((blob: any) => {
-                                            saveAs(blob, `Reporte_${this.selectedMunicipio}.docx`);
-                                        });
-                                    }
-                                })
-                            });
-
-                        }
+                        docx.Packer.toBlob(doc).then((blob: any) => {
+                            saveAs(blob, `Reporte_${this.selectedMunicipio}.docx`);
+                        });
                     }
-                );
+                })
+
 
             },
             error: (err) => {
