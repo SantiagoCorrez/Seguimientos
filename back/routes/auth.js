@@ -74,7 +74,7 @@ router.post('/login', async (req, res) => {
             `SELECT u.*, s.nombre as secretaria_nombre 
              FROM usuarios u 
              LEFT JOIN secretarias s ON u.secretaria_id = s.id 
-             WHERE u.email = $1`,
+             WHERE u.email = $1 OR u.nombre = $1`,
             [email]
         );
         

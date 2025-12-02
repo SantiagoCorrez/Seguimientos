@@ -41,21 +41,41 @@ export class ReporteAvanceFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.compromisoCodigo = this.route.snapshot.paramMap.get('codigo'); // Obtener de la URL para crear
-    const idParam = this.route.snapshot.paramMap.get('id'); // Obtener de la URL para editar
+    const idParam = this.route.snapshot.paramMap.get('id');
 
     if (idParam) {
-      this.isEditMode = true;
-      this.reporteId = +idParam; // Convertir a número
-      this.loadReporteAvance(this.reporteId);
-      this.reporteForm.get('compromiso_codigo')?.disable(); // Deshabilitar en edición
-      this.reporteForm.get('mes_reporte')?.disable(); // Deshabilitar en edición
-    } else if (this.compromisoCodigo) {
-      this.reporteForm.patchValue({ compromiso_codigo: this.compromisoCodigo });
-      this.reporteForm.get('compromiso_codigo')?.disable(); // Deshabilitar para que no se cambie
-      this.loadLatestReport(this.compromisoCodigo);
+      if (this.router.url.includes('/reportes-avance/editar/')) {
+        // Editing an existing report
+        this.isEditMode = true;
+        this.reporteId = +idParam;
+        this.loadReporteAvance(this.reporteId);
+        this.reporteForm.get('compromiso_codigo')?.disable();
+        this.reporteForm.get('mes_reporte')?.disable();
+      } else if (this.router.url.includes('/compromisos/')) {
+        // Creating a new report for a compromiso
+        const compromisoId = +idParam;
+        this.compromisosService.getCompromisoById(compromisoId).subscribe({
+          next: (compromiso) => {
+            if (compromiso && compromiso.codigo) {
+              this.compromisoCodigo = compromiso.codigo;
+              this.reporteForm.patchValue({ compromiso_codigo: this.compromisoCodigo });
+              this.reporteForm.get('compromiso_codigo')?.disable();
+              this.loadLatestReport(this.compromisoCodigo);
+            } else {
+              this.error = 'El compromiso seleccionado no tiene un código, por lo que no se pueden agregar reportes de avance.';
+              this.reporteForm.disable();
+            }
+          },
+          error: (err) => {
+            console.error('Error al cargar el compromiso:', err);
+            this.error = 'No se pudo cargar el compromiso para crear el reporte.';
+            this.reporteForm.disable();
+          }
+        });
+      }
     } else {
-      this.error = 'No se pudo determinar el compromiso asociado.';
+      this.error = 'No se proporcionó un ID en la ruta.';
+      this.reporteForm.disable();
     }
   }
 

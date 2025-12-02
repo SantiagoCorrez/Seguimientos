@@ -96,13 +96,13 @@
                         <th mat-header-cell *matHeaderCellDef> Acciones </th>
                         <td mat-cell *matCellDef="let compromiso">
                             <div class="flex space-x-2">
-                                <a [routerLink]="['/compromisos', compromiso.codigo]"
+                                <a [routerLink]="['/compromisos', compromiso.id]"
                                     class="bg-blue-600 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Ver</a>
                                 <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
-                                    [routerLink]="['/compromisos/editar', compromiso.codigo]"
+                                    [routerLink]="['/compromisos/editar', compromiso.id]"
                                     class="bg-yellow-300 hover:bg-yellow-300 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Actualizar</a>
                                 <button *ngIf="authService.hasRole('Administrador')"
-                                    (click)="deleteCompromiso(compromiso.codigo)"
+                                    (click)="deleteCompromiso(compromiso.id)"
                                     class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Eliminar</button>
                             </div>
                         </td>

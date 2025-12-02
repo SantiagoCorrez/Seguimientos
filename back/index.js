@@ -59,30 +59,18 @@ app.get('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor', '
     }
 });
 
-// 2. Obtener un compromiso por su código
-app.get('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
-    const { codigo } = req.params;
+// 2. Obtener un compromiso por su id
+app.get('/api/compromisos/id/:id', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
+    const { id } = req.params;
     try {
-        const result = await pool.query('SELECT * FROM compromisos WHERE codigo = $1', [codigo]);
+        const result = await pool.query('SELECT * FROM compromisos WHERE id = $1', [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Compromiso no encontrado.' });
         }
         res.status(200).json(result.rows[0]);
     } catch (err) {
-        console.error(`Error al obtener el compromiso con código ${codigo}:`, err.message);
+        console.error(`Error al obtener el compromiso con id ${id}:`, err.message);
         res.status(500).json({ error: 'Error interno del servidor al obtener el compromiso.' });
-    }
-});
-
-// Obtener compromisos por municipio
-app.get('/api/compromisos/municipio/:municipio', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
-    const { municipio } = req.params;
-    try {
-        const result = await pool.query('SELECT * FROM compromisos WHERE municipio = $1 ORDER BY codigo ASC', [municipio]);
-        res.status(200).json(result.rows);
-    } catch (err) {
-        console.error(`Error al obtener los compromisos para el municipio ${municipio}:`, err.message);
-        res.status(500).json({ error: 'Error interno del servidor al obtener compromisos.' });
     }
 });
 
@@ -138,8 +126,8 @@ app.post('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor'])
 });
 
 // 4. Actualizar un compromiso existente
-app.put('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
-    const { codigo } = req.params;
+app.put('/api/compromisos/id/:id', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
+    const { id } = req.params;
     const {
         provincia, municipio, compromiso_especifico, tema, subtema,
         detalle_especifico, meta_del_plan_de_desarrollo, descripcion_meta_producto,
@@ -150,7 +138,7 @@ app.put('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Ed
         numero_documento, objeto_documento, valor_documento, bien_o_servicio_entregado,
         fecha_estimada_inicio, fecha_estimada_finalizacion, accion_adelantada,
         acciones_pendientes, se_requiere_apoyo_despacho, dificultades,
-        alternativas_de_solucion, observaciones
+        alternativas_de_solucion, observaciones, codigo
     } = req.body;
 
     try {
@@ -191,8 +179,9 @@ app.put('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Ed
                 se_requiere_apoyo_despacho = $32,
                 dificultades = $33,
                 alternativas_de_solucion = $34,
-                observaciones = $35
-            WHERE codigo = $36
+                observaciones = $35,
+                codigo = $36
+            WHERE id = $37
             RETURNING *;
         `;
         const values = [
@@ -205,7 +194,7 @@ app.put('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Ed
             numero_documento, objeto_documento, valor_documento, bien_o_servicio_entregado,
             fecha_estimada_inicio, fecha_estimada_finalizacion, accion_adelantada,
             acciones_pendientes, se_requiere_apoyo_despacho, dificultades,
-            alternativas_de_solucion, observaciones, codigo
+            alternativas_de_solucion, observaciones, codigo, id
         ];
         const result = await pool.query(query, values);
         if (result.rows.length === 0) {
@@ -213,22 +202,22 @@ app.put('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador', 'Ed
         }
         res.status(200).json(result.rows[0]);
     } catch (err) {
-        console.error(`Error al actualizar el compromiso con código ${codigo}:`, err.message);
+        console.error(`Error al actualizar el compromiso con id ${id}:`, err.message);
         res.status(500).json({ error: 'Error interno del servidor al actualizar el compromiso.' });
     }
 });
 
 // 5. Eliminar un compromiso
-app.delete('/api/compromisos/:codigo', verifyToken, checkRole(['Administrador']), async (req, res) => {
-    const { codigo } = req.params;
+app.delete('/api/compromisos/id/:id', verifyToken, checkRole(['Administrador']), async (req, res) => {
+    const { id } = req.params;
     try {
-        const result = await pool.query('DELETE FROM compromisos WHERE codigo = $1 RETURNING *', [codigo]);
+        const result = await pool.query('DELETE FROM compromisos WHERE id = $1 RETURNING *', [id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Compromiso no encontrado para eliminar.' });
         }
         res.status(200).json({ message: 'Compromiso eliminado exitosamente.', deletedCompromiso: result.rows[0] });
     } catch (err) {
-        console.error(`Error al eliminar el compromiso con código ${codigo}:`, err.message);
+        console.error(`Error al eliminar el compromiso con id ${id}:`, err.message);
         res.status(500).json({ error: 'Error interno del servidor al eliminar el compromiso.' });
     }
 });
@@ -275,7 +264,7 @@ app.post('/api/reportes-avance', verifyToken, checkRole(['Administrador', 'Edito
 
     // Validar que el compromiso_codigo exista
     try {
-        const compromisoExists = await pool.query('SELECT 1 FROM compromisos WHERE codigo = $1', [compromiso_codigo]);
+        const compromisoExists = await pool.query('SELECT 1 FROM compromisos WHERE id = $1', [compromiso_codigo]);
         if (compromisoExists.rows.length === 0) {
             return res.status(400).json({ error: 'El código de compromiso proporcionado no existe.' });
         }

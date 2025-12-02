@@ -58,8 +58,8 @@
                 </mat-form-field>
 
                 <mat-form-field class="w-full">
-                    <mat-label>Entidad</mat-label>
-                    <input type="text" placeholder="Entidad" matInput [matAutocomplete]="entidadesAuto"
+                    <mat-label>Entidad Líder</mat-label>
+                    <input type="text" placeholder="Entidad Líder" matInput [matAutocomplete]="entidadesAuto"
                         [formControl]="entidad">
 
                     @if(entidad.value){
@@ -67,9 +67,69 @@
                         <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
                     </button>
                     }
-                    <mat-autocomplete placeholder="Seleccione una entidad" (optionSelected)="selectEntidad($event)"
-                        #entidadesAuto="matAutocomplete">
+                    <mat-autocomplete placeholder="Seleccione una entidad líder"
+                        (optionSelected)="selectEntidad($event)" #entidadesAuto="matAutocomplete">
                         @for (item of filteredentidad | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Estado del Compromiso</mat-label>
+                    <input type="text" placeholder="Estado" matInput [matAutocomplete]="estadoAuto"
+                        [formControl]="estado">
+                    @if(estado.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="estado.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
+                    <mat-autocomplete placeholder="Seleccione un estado" (optionSelected)="selectEstado($event)"
+                        #estadoAuto="matAutocomplete">
+                        @for (item of filteredestado | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Prioridad</mat-label>
+                    <input type="text" placeholder="Prioridad" matInput [matAutocomplete]="prioridadAuto"
+                        [formControl]="prioridad">
+                    @if(prioridad.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="prioridad.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
+                    <mat-autocomplete placeholder="Seleccione una prioridad" (optionSelected)="selectPrioridad($event)"
+                        #prioridadAuto="matAutocomplete">
+                        @for (item of filteredprioridad | async; track $index) {
+                        <mat-option [value]="item">
+                            {{item}}
+                        </mat-option>
+                        }
+
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Obligación Contraída</mat-label>
+                    <input type="text" placeholder="Obligación Contraída" matInput [matAutocomplete]="obligacionAuto"
+                        [formControl]="obligacion">
+                    @if(obligacion.value){
+                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="obligacion.setValue('')">
+                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+                    </button>
+                    }
+                    <mat-autocomplete placeholder="Seleccione una obligación"
+                        (optionSelected)="selectObligacion($event)" #obligacionAuto="matAutocomplete">
+                        @for (item of filteredobligacion | async; track $index) {
                         <mat-option [value]="item">
                             {{item}}
                         </mat-option>
@@ -114,8 +174,6 @@
 
                     </mat-autocomplete>
                 </mat-form-field>
-
-                <img src="/assets/cumpliendo.png" alt="" class="w-full">
             </div>
         </div>
         <div class="analitics" [class.show]="hide" [style.top]="alto">
@@ -260,14 +318,17 @@
                     </thead>
                     <tbody>
                         @for (item of projects; track $index) {
-                        <tr [routerLink]="['/compromisos', item.codigo]">
-                            <td>{{item.codigo}}</td>
+                        <tr [routerLink]="['/compromisos', item.id]">
+                            <td>{{item.id}}</td>
                             <td>{{item.tema}}-{{item.subtema}}</td>
                             <td>{{item.entidad_lider}}</td>
                             <td>{{item.valor_total|currency:'':'symbol':'3.0-0'}}</td>
                             <td>{{item.estado}}</td>
                             <td>{{item.prioridad}}</td>
-                            <td><progress value="65" max="100">65%</progress></td>
+                            <td>
+                                <progress [value]="item.avance_real" max="100"></progress>
+                                <span>{{item.avance_real | number:'1.0-0'}}%</span>
+                            </td>
                         </tr>
                         }
 

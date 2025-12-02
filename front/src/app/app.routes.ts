@@ -21,9 +21,9 @@ export const routes: Routes = [
     { path: 'ficha-tecnica', component: FichaTecnicaVisitaListComponent, canActivate: [AuthGuard] },
     { path: 'compromisos', component: CompromisoListComponent, canActivate: [AuthGuard] },
     { path: 'compromisos/nuevo', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
-    { path: 'compromisos/editar/:codigo', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
-    { path: 'compromisos/:codigo', component: CompromisoDetailComponent, canActivate: [AuthGuard] },
-    { path: 'compromisos/:codigo/reportes-avance/nuevo', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
+    { path: 'compromisos/editar/:id', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
+    { path: 'compromisos/:id', component: CompromisoDetailComponent, canActivate: [AuthGuard] },
+    { path: 'compromisos/:id/reportes-avance/nuevo', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
     { path: 'reportes-avance/editar/:id', component: ReporteAvanceFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
     { path: 'admin/users', component: UserAdminComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador'] } },
     { path: '**', redirectTo: '/login' } // Wildcard route for any other URL

@@ -30,24 +30,20 @@ export class CompromisosService {
         return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos`,{ headers: this.getAuthHeaders() });
     }
 
-    getCompromisoByCodigo(codigo: string): Observable<Compromiso> {
-        return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`,{ headers: this.getAuthHeaders() });
-    }
-
-    getCompromisosByMunicipio(municipio: string): Observable<Compromiso[]> {
-        return this.http.get<Compromiso[]>(`${this.apiUrl}/compromisos/municipio/${municipio}`,{ headers: this.getAuthHeaders() });
+    getCompromisoById(id: number): Observable<Compromiso> {
+        return this.http.get<Compromiso>(`${this.apiUrl}/compromisos/id/${id}`,{ headers: this.getAuthHeaders() });
     }
 
     createCompromiso(compromiso: Compromiso): Observable<Compromiso> {
         return this.http.post<Compromiso>(`${this.apiUrl}/compromisos`, compromiso,{ headers: this.getAuthHeaders() });
     }
 
-    updateCompromiso(codigo: string, compromiso: Compromiso): Observable<Compromiso> {
-        return this.http.put<Compromiso>(`${this.apiUrl}/compromisos/${codigo}`, compromiso,{ headers: this.getAuthHeaders() });
+    updateCompromisoById(id: number, compromiso: Compromiso): Observable<Compromiso> {
+        return this.http.put<Compromiso>(`${this.apiUrl}/compromisos/id/${id}`, compromiso,{ headers: this.getAuthHeaders() });
     }
 
-    deleteCompromiso(codigo: string): Observable<any> {
-        return this.http.delete<any>(`${this.apiUrl}/compromisos/${codigo}`,{ headers: this.getAuthHeaders() });
+    deleteCompromiso(id: number): Observable<any> {
+        return this.http.delete<any>(`${this.apiUrl}/compromisos/id/${id}`,{ headers: this.getAuthHeaders() });
     }
 
     // --- Métodos para Reportes de Avance ---

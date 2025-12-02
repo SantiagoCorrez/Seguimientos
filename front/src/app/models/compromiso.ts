@@ -1,6 +1,7 @@
 // src/app/models/compromiso.model.ts
 
 export interface Compromiso {
+    id: number;
     codigo: string;
     provincia: string;
     municipio: string;
@@ -38,4 +39,5 @@ export interface Compromiso {
     alternativas_de_solucion: string;
     observaciones: string;
     entidad: string;
+    obligacion_contraida: string;
 }

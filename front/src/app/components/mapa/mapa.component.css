@@ -156,7 +156,7 @@ p strong {
 
 .capas {
     position: absolute;
-    top: 20%;
+    top: 10%;
     left: 0%;
     height: 10%;
     display: flex;
@@ -190,7 +190,7 @@ th {
 .filtro {
     width: 15%;
     position: absolute;
-    top: 32%;
+    top: 22%;
     left: 5px;
     padding: 10px;
     background: #fff;
@@ -238,7 +238,8 @@ th {
     display: none;
 }
 
-.analitics.show,.analitics:hover {
+.analitics.show,
+.analitics:hover {
     display: block;
 }
 
@@ -255,7 +256,7 @@ th {
     border-bottom: 1px solid #112b42;
 }
 
-#resetMap{
+#resetMap {
     position: absolute;
     z-index: 1000;
     right: 50%;

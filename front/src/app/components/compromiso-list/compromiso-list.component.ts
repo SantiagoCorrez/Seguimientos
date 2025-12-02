@@ -111,11 +111,11 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
         });
     }
 
-    deleteCompromiso(codigo: string): void {
-        if (confirm(`¿Estás seguro de que quieres eliminar el compromiso con código ${codigo}?`)) {
-            this.compromisosService.deleteCompromiso(codigo).subscribe({
+    deleteCompromiso(id: number): void {
+        if (confirm(`¿Estás seguro de que quieres eliminar este compromiso?`)) {
+            this.compromisosService.deleteCompromiso(id).subscribe({
                 next: () => {
-                    this.compromisos = this.compromisos.filter(c => c.codigo !== codigo);
+                    this.compromisos = this.compromisos.filter(c => c.id !== id);
                     this.aplicarFiltros();
                     alert('Compromiso eliminado exitosamente.');
                 },

@@ -22,7 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from "@angular/material/icon";
-import { map, Observable, startWith } from 'rxjs';
+import { forkJoin, map, Observable, startWith } from 'rxjs';
 import { getCenter } from 'ol/extent';
 import { Point } from 'ol/geom';
 import Icon from 'ol/style/Icon';
@@ -629,7 +629,7 @@ export class MapaComponent {
       //this.labelStyle.getText()?.setText(feature.get("munnombre"))
 
       // Escala de colores personalizada según la cantidad de proyectos
-      const cantidad = this.conteoProyectosMunicipio[feature.get("munnombre").toUpperCase()] || 0;
+      const cantidad = this.conteoProyectosMunicipio[this.normalizeString(feature.get("munnombre"))] || 0;
       let color = 'rgba(0, 0, 92, 0.7)'; // color por defecto (más bajo)
       if (cantidad > 0) {
         const ratio = cantidad / this.maxProyectosMunicipio;
@@ -668,7 +668,7 @@ export class MapaComponent {
       format: new GeoJSON()
     }),
     style: (feature) => {
-      const cantidad = this.conteoProyectos[feature.get("PROVINCIA").toUpperCase()] || 0;
+      const cantidad = this.conteoProyectos[this.normalizeString(feature.get("PROVINCIA"))] || 0;
       let color = 'rgba(0, 0, 92, 0.7)'; // color por defecto (más bajo)
       if (cantidad > 0) {
         const ratio = cantidad / this.maxProyectos;
@@ -686,7 +686,7 @@ export class MapaComponent {
         }
       }
       this.estilosProvincias.getFill()?.setColor(color);
-      this.labelStyle.getText()?.setText(feature.get("PROVINCIA") + "-"+ cantidad)
+      this.labelStyle.getText()?.setText(feature.get("PROVINCIA") + "-" + cantidad)
       return this.style
     },
     visible: false, // inicialmente oculta
@@ -763,6 +763,22 @@ export class MapaComponent {
   subtemas: string[] = [];
   subtema = new FormControl('');
   subfilteredtema!: Observable<string[]>;
+  estados: string[] = [];
+  estado = new FormControl('');
+  filteredestado!: Observable<string[]>;
+  prioridades: string[] = [];
+  prioridad = new FormControl('');
+  filteredprioridad!: Observable<string[]>;
+  obligaciones: string[] = [];
+  obligacion = new FormControl('');
+  filteredobligacion!: Observable<string[]>;
+
+  private normalizeString(str: string): string {
+    if (!str) {
+      return '';
+    }
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  }
 
   conteoProyectos: Record<string, number> = {};
   conteoProyectosMunicipio: Record<string, number> = {};
@@ -783,6 +799,16 @@ export class MapaComponent {
       this.temas = this.temas.filter((ele: any) => ele !== null && ele !== undefined && ele !== "")
       this.entidades = this.entidades.filter((ele: any) => ele !== null && ele !== undefined && ele !== "")
 
+      this.estados = Array.from(new Set(data.map((obj: any) => obj.estado))).filter(e => e != null)
+        .map(id => data.find((obj: any) => obj.estado === id && id !== null && id !== undefined && obj !== undefined))
+        .map((obj: any) => obj.estado).filter((e: any) => e);
+      this.prioridades = Array.from(new Set(data.map((obj: any) => obj.prioridad))).filter(e => e != null)
+        .map(id => data.find((obj: any) => obj.prioridad === id && id !== null && id !== undefined && obj !== undefined))
+        .map((obj: any) => obj.prioridad).filter((e: any) => e);
+      this.obligaciones = Array.from(new Set(data.map((obj: any) => obj.obligacion_contraida))).filter(e => e != null)
+        .map(id => data.find((obj: any) => obj.obligacion_contraida === id && id !== null && id !== undefined && obj !== undefined))
+        .map((obj: any) => obj.obligacion_contraida).filter((e: any) => e);
+
 
       this.categoryCounts = data.reduce((acc: any, item: any) => {
         acc[item.entidad] = (acc[item.entidad] || 0) + 1;
@@ -791,9 +817,9 @@ export class MapaComponent {
 
 
       data.forEach((p: any) => {
-        const nombre = p.municipio != null ? p.municipio.toUpperCase() : '';
-        const provincia = p.provincia != null ? p.provincia.toUpperCase() : '';
-        this.conteoProyectosMunicipio[nombre] = (this.conteoProyectos[nombre] || 0) + 1;
+        const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
+        const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
+        this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
         this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
       });
       console.log(this.conteoProyectos);
@@ -823,11 +849,23 @@ export class MapaComponent {
         startWith(''),
         map(value => this._filterS(value || '', this.subtemas, "subtema")),
       );
+      this.filteredestado = this.estado.valueChanges.pipe(
+        startWith(''),
+        map(value => this._filterS(value || '', this.estados, "estado", true)),
+      );
+      this.filteredprioridad = this.prioridad.valueChanges.pipe(
+        startWith(''),
+        map(value => this._filterS(value || '', this.prioridades, "prioridad", true)),
+      );
+      this.filteredobligacion = this.obligacion.valueChanges.pipe(
+        startWith(''),
+        map(value => this._filterS(value || '', this.obligaciones, "obligacion_contraida", true)),
+      );
 
       this.proyectosPorMunicipio = {};
 
       this.info.forEach((p: any) => {
-        const key = p.municipio.toUpperCase();
+        const key = this.normalizeString(p.municipio);
         if (!this.proyectosPorMunicipio[key]) {
           this.proyectosPorMunicipio[key] = [];
         }
@@ -928,10 +966,13 @@ export class MapaComponent {
     }
     this.hide = !this.hide;
   };
-  private _filterS(value: string, array: any, field: string): string[] {
-    const filterValue = value.toLowerCase();
+  private _filterS(value: string, array: any, field: string, isSimpleArray: boolean = false): string[] {
+    const filterValue = this.normalizeString(value);
+    if (isSimpleArray) {
+      return array.filter((option: string) => this.normalizeString(option).includes(filterValue));
+    }
     return array
-      .filter((option: any) => option[field].toLowerCase().includes(filterValue))
+      .filter((option: any) => option[field] && this.normalizeString(option[field]).includes(filterValue))
       .map((option: any) => option[field]);
   }
 
@@ -942,13 +983,13 @@ export class MapaComponent {
     this.map.getView().setZoom(8.6);
     setTimeout(() => {
       this.layerProvincia.getSource()?.getFeatures().forEach((feature: any) => {
-        if (feature.get('PROVINCIA') === selectedValue) {
+        if (this.normalizeString(feature.get('PROVINCIA')) === this.normalizeString(selectedValue)) {
           e = feature;
         }
       })
       this.filterType(selectedValue, "PROVINCIA", this.globalFilter, e);
     }, 1000);
-    let valueProv = selectedValue != "" ? this.municipios.filter((ele: any) => ele.provincia == selectedValue) : this.municipios
+    let valueProv = selectedValue != "" ? this.municipios.filter((ele: any) => ele.provincia && this.normalizeString(ele.provincia) == this.normalizeString(selectedValue)) : this.municipios
 
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
 
@@ -965,7 +1006,7 @@ export class MapaComponent {
     this.map.getView().setZoom(9.1);
     setTimeout(() => {
       this.layerMunicipios.getSource()?.getFeatures().forEach((feature: any) => {
-        if (feature.get('munnombre') === selectedValue) {
+        if (this.normalizeString(feature.get('munnombre')) === this.normalizeString(selectedValue)) {
           e = feature;
         }
       })
@@ -979,7 +1020,25 @@ export class MapaComponent {
   selectEntidad(event: any) {
     this.entidadFilter = event.option.value;
     const selectedValue = event.option.value;
-    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, selectedValue);
+    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, selectedValue, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
+    this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
+  }
+
+  selectEstado(event: any) {
+    this.estadoFilter = event.option.value;
+    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
+    this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
+  }
+
+  selectPrioridad(event: any) {
+    this.prioridadFilter = event.option.value;
+    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
+    this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
+  }
+
+  selectObligacion(event: any) {
+    this.obligacionFilter = event.option.value;
+    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
@@ -988,6 +1047,9 @@ export class MapaComponent {
   temaFilter: string = "";
   subtemaFilter: string = "";
   entidadFilter: string = "";
+  estadoFilter: string = "";
+  prioridadFilter: string = "";
+  obligacionFilter: string = "";
 
   projects: any = [];
   totalModal: any;
@@ -1002,7 +1064,7 @@ export class MapaComponent {
     if (feature && feature.get("municipio")) {
       this.totalModal = 0;
       let value = this.info
-      this.projects = value.filter((ele: any) => ele.municipio == feature.get("municipio"))
+      this.projects = value.filter((ele: any) => ele.municipio && feature.get("municipio") && this.normalizeString(ele.municipio) == this.normalizeString(feature.get("municipio")))
       if (this.entidadFilter != "") {
         this.projects = this.projects.filter((ele: any) => ele.entidad == this.entidadFilter)
       }
@@ -1012,19 +1074,45 @@ export class MapaComponent {
       if (this.subtemaFilter != "") {
         this.projects = this.projects.filter((ele: any) => ele.subtema == this.subtemaFilter)
       }
-      this.projects.sort(function (a: any, b: any) {
-        if (a.valor_total < b.valor_total) {
-          return -1;
-        }
-        if (a.valor_total > b.valor_total) {
-          return 1;
-        }
-        // a must be equal to b
-        return 0;
+      if (this.estadoFilter != "") {
+        this.projects = this.projects.filter((ele: any) => ele.estado == this.estadoFilter)
+      }
+      if (this.prioridadFilter != "") {
+        this.projects = this.projects.filter((ele: any) => ele.prioridad == this.prioridadFilter)
+      }
+      if (this.obligacionFilter != "") {
+        this.projects = this.projects.filter((ele: any) => ele.obligacion_contraida == this.obligacionFilter)
+      }
+
+      const reportObservables = this.projects.map((project: any) => {
+        return this.data.getReportesAvance(project.codigo);
       });
-      this.projects.map((ele: any) => { this.totalModal += parseFloat(ele.valor_total) })
-      this.nombreModal = feature.get("municipio")
-      this.showModal = false;
+
+      forkJoin(reportObservables).subscribe((reportesArrays: any) => {
+        this.projects.forEach((project: any, index: number) => {
+          const reportes = reportesArrays[index];
+          if (reportes.length > 0) {
+            reportes.sort((a: any, b: any) => new Date(b.mes_reporte).getTime() - new Date(a.mes_reporte).getTime());
+            project.avance_real = reportes[0].reporte_avance_fisico;
+          } else {
+            project.avance_real = 0;
+          }
+        });
+
+        this.projects.sort(function (a: any, b: any) {
+          if (a.valor_total < b.valor_total) {
+            return -1;
+          }
+          if (a.valor_total > b.valor_total) {
+            return 1;
+          }
+          return 0;
+        });
+
+        this.projects.map((ele: any) => { this.totalModal += parseFloat(ele.valor_total) })
+        this.nombreModal = feature.get("municipio")
+        this.showModal = false;
+      });
     }
   }
   onMapPointerMove(evt: MapBrowserEvent): any {
@@ -1038,14 +1126,18 @@ export class MapaComponent {
     // Si hay un feature nuevo, resalta y desresalta el anterior
     if (hoveredFeature !== this.featureDestacado) {
       if (this.featureDestacado) {
-        //this.featureDestacado.setStyle(this.style);
-        this.featureDestacado.setStyle(null); // Quitar estilo de resaltado
+        const isProjectFeature = this.featureDestacado.get('id');
+        if (!isProjectFeature) {
+          this.featureDestacado.setStyle(null); // Quitar estilo de resaltado para polígonos
+        }
       }
       if (hoveredFeature) {
-        if (!hoveredFeature.get('munnombre')) {
-          hoveredFeature.setStyle(this.estiloFalsaExtrusion(hoveredFeature));
+        const isProjectFeature = hoveredFeature.get('id');
+        if (!isProjectFeature) {
+          if (!hoveredFeature.get('munnombre')) {
+            hoveredFeature.setStyle(this.estiloFalsaExtrusion(hoveredFeature));
+          }
         }
-
       }
       this.featureDestacado = hoveredFeature;
     }
@@ -1200,27 +1292,32 @@ export class MapaComponent {
     if (this.entidadFilter && this.entidadFilter != "") { value = value.filter((ele: any) => ele.entidad == this.entidadFilter) }
     if (this.temaFilter && this.temaFilter != "") { value = value.filter((ele: any) => ele.tema == this.temaFilter) }
     if (this.subtemaFilter && this.subtemaFilter != "") { value = value.filter((ele: any) => ele.subtema == this.subtemaFilter) }
+    if (this.estadoFilter && this.estadoFilter != "") { value = value.filter((ele: any) => ele.estado == this.estadoFilter) }
+    if (this.prioridadFilter && this.prioridadFilter != "") { value = value.filter((ele: any) => ele.prioridad == this.prioridadFilter) }
+    if (this.obligacionFilter && this.obligacionFilter != "") { value = value.filter((ele: any) => ele.obligacion_contraida == this.obligacionFilter) }
     console.log(value)
     switch (tipo) {
       case "PROVINCIA":
 
         this.layerPuntos.setVisible(false);
         let pro_nombre: string = valor;
-        value = value.filter((ele: any) => ele.provincia == pro_nombre)
+        value = value.filter((ele: any) => ele.provincia && this.normalizeString(ele.provincia) == this.normalizeString(pro_nombre))
         console.log(e)
         value.map((ele: any) => { if (ele.valor_total != null) { this.total += parseFloat(ele.valor_total) } })
         this.numPro = value.length
-        var extent = e.getGeometry().getExtent();
-        this.map.getView().fit(extent);
-        this.hideMunicipio(pro_nombre, extent)
+        if (e && e.getGeometry) {
+          var extent = e.getGeometry().getExtent();
+          this.map.getView().fit(extent);
+          this.hideMunicipio(pro_nombre, extent)
+        }
         this.map.getView().padding = [20, 50, 30, 150]
         this.filtrarValores(value);
         this.conteoProyectosMunicipio = {};
         this.conteoProyectos = {};
         value.forEach((p: any) => {
-          const nombre = p.municipio != null ? p.municipio.toUpperCase() : '';
-          const provincia = p.provincia != null ? p.provincia.toUpperCase() : '';
-          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectos[nombre] || 0) + 1;
+          const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
+          const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
+          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
           this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
         });
         console.log(this.conteoProyectos);
@@ -1232,22 +1329,26 @@ export class MapaComponent {
         break;
       case "MUNICIPIO":
         let mun_nombre: string = valor;
-        value = value.filter((ele: any) => ele.municipio == mun_nombre.toLocaleUpperCase())
+        value = value.filter((ele: any) => ele.municipio && this.normalizeString(ele.municipio) == this.normalizeString(mun_nombre))
+
         value.map((ele: any) => { if (ele.valor_total != null) { this.total += parseFloat(ele.valor_total) } })
-        this.generarProyectosDesdeMunicipios(this.entidadFilter, this.temaFilter, this.subtemaFilter);
+        this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter, mun_nombre);
         this.numPro = value.length
-        var extent = e.getGeometry().getExtent();
-        this.map.getView().fit(extent, {
-          padding: [20, 50, 30, 150]
-        });
-        this.hideMunicipioUnico(mun_nombre, extent)
+
+        if (e && e.getGeometry) {
+          var extent = e.getGeometry().getExtent();
+          this.map.getView().fit(extent, {
+            padding: [20, 50, 30, 150]
+          });
+          this.hideMunicipioUnico(mun_nombre, extent)
+        }
         this.filtrarValores(value);
         this.conteoProyectosMunicipio = {};
         this.conteoProyectos = {};
         value.forEach((p: any) => {
-          const nombre = p.municipio != null ? p.municipio.toUpperCase() : '';
-          const provincia = p.provincia != null ? p.provincia.toUpperCase() : '';
-          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectos[nombre] || 0) + 1;
+          const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
+          const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
+          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
           this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
         });
         console.log(this.conteoProyectos);
@@ -1260,12 +1361,13 @@ export class MapaComponent {
 
       default:
         value.map((ele: any) => { if (ele.valor_total != null) { this.total += parseFloat(ele.valor_total) } })
+        console.log(this.total);
         this.conteoProyectosMunicipio = {};
         this.conteoProyectos = {};
         value.forEach((p: any) => {
-          const nombre = p.municipio != null ? p.municipio.toUpperCase() : '';
-          const provincia = p.provincia != null ? p.provincia.toUpperCase() : '';
-          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectos[nombre] || 0) + 1;
+          const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
+          const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
+          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
           this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
         });
         console.log(this.conteoProyectos);
@@ -1287,12 +1389,12 @@ export class MapaComponent {
   }
 
   hideMunicipio(mun: string, feature: any) {
-    let provincia = this.provincias.find(ele => ele.NOMBRE_PROVINCIA == mun)
+    let provincia = this.provincias.find(ele => this.normalizeString(ele.NOMBRE_PROVINCIA) == this.normalizeString(mun))
     console.log(provincia)
 
-    this.layerMunicipios.setStyle(function (feature, resolution) {
+    this.layerMunicipios.setStyle((feature, resolution) => {
       // Define different styles based on feature properties or resolution
-      if (provincia?.MUNICIPIOS.find(ele => ele.NOMBRE_MPIO == feature.get('munnombre'))) {
+      if (provincia?.MUNICIPIOS.find(ele => this.normalizeString(ele.NOMBRE_MPIO) == this.normalizeString(feature.get('munnombre')))) {
         return new Style({
           stroke: new Stroke({
             color: 'rgba(0,0,0,0.5)', // sombra negra con transparencia
@@ -1329,14 +1431,20 @@ export class MapaComponent {
     this.layerDepartamento.setVisible(true)
     this.layerProvincia.setVisible(false)
     this.layerMunicipios.setVisible(false)
-    this.filterType('','','','')
+    this.filterType('', '', '', '')
+    this.estado.setValue('');
+    this.prioridad.setValue('');
+    this.obligacion.setValue('');
+    this.estadoFilter = "";
+    this.prioridadFilter = "";
+    this.obligacionFilter = "";
     this.layerMunicipios.setStyle(this.estilosProvincias)
     this.map.removeLayer(this.proyectosLayer);
-    
+
     // Si quieres limpiar filtros, capas, etc., hazlo aquí también
   }
   proyectosFeatures: Feature[] = [];
-  generarProyectosDesdeMunicipios(tema = this.temaFilter, subtema = this.subtemaFilter, entidad = this.entidadFilter) {
+  generarProyectosDesdeMunicipios(tema = this.temaFilter, subtema = this.subtemaFilter, entidad = this.entidadFilter, estado = this.estadoFilter, prioridad = this.prioridadFilter, obligacion = this.obligacionFilter, municipioNombre: string | null = null) {
 
 
     this.map.removeLayer(this.proyectosLayer);
@@ -1345,30 +1453,39 @@ export class MapaComponent {
 
       return;
     }
-    let filteredProyectos = this.proyectosPorMunicipio;
-    if (entidad) {
-      filteredProyectos = Object.fromEntries(
-        Object.entries(filteredProyectos).filter(([municipio, listaProyectos]: [any, any]) => {
-          return listaProyectos.some((proyecto: any) => proyecto.entidad === entidad);
-        })
-      )
+
+    let tempProyectosPorMunicipio = this.proyectosPorMunicipio;
+
+    if (municipioNombre) {
+      const normalizedMunNombre = this.normalizeString(municipioNombre);
+      const projs = this.proyectosPorMunicipio[normalizedMunNombre];
+      tempProyectosPorMunicipio = projs ? { [normalizedMunNombre]: projs } : {};
     }
 
-    if (tema) {
-      filteredProyectos = Object.fromEntries(
-        Object.entries(filteredProyectos).filter(([municipio, listaProyectos]: [any, any]) => {
-          return listaProyectos.some((proyecto: any) => proyecto.tema === tema);
-        })
-      )
-    }
-
-    if (subtema) {
-      filteredProyectos = Object.fromEntries(
-        Object.entries(filteredProyectos).filter(([municipio, listaProyectos]: [any, any]) => {
-          return listaProyectos.some((proyecto: any) => proyecto.subtema === subtema);
-        })
-      )
-    }
+    const filteredProyectos = Object.fromEntries(
+      Object.entries(tempProyectosPorMunicipio).map(([municipio, listaProyectos]: [any, any]) => {
+        let filteredList = listaProyectos;
+        if (entidad) {
+          filteredList = filteredList.filter((p: any) => p.entidad === entidad);
+        }
+        if (tema) {
+          filteredList = filteredList.filter((p: any) => p.tema === tema);
+        }
+        if (subtema) {
+          filteredList = filteredList.filter((p: any) => p.subtema === subtema);
+        }
+        if (estado) {
+          filteredList = filteredList.filter((p: any) => p.estado === estado);
+        }
+        if (prioridad) {
+          filteredList = filteredList.filter((p: any) => p.prioridad === prioridad);
+        }
+        if (obligacion) {
+          filteredList = filteredList.filter((p: any) => p.obligacion_contraida === obligacion);
+        }
+        return [municipio, filteredList];
+      }).filter(([_, listaProyectos]) => listaProyectos.length > 0)
+    );
 
 
     const municipiosFeatures = sourceMunicipios.getFeatures();
@@ -1376,24 +1493,31 @@ export class MapaComponent {
     this.proyectosFeatures = []; // Limpiar las features previas
     Object.entries(filteredProyectos).forEach(([municipio, listaProyectos]: [any, any]) => {
       const municipioFeature = municipiosFeatures.find(
-        f => f.get('munnombre')?.toUpperCase() === municipio
+        f => f.get('munnombre') && this.normalizeString(f.get('munnombre')) === this.normalizeString(municipio)
       );
 
       if (!municipioFeature) {
         return;
       }
-
       listaProyectos.forEach((proyecto: any, i: any) => {
-        const municipioGeoJSON = new GeoJSON().writeFeatureObject(municipioFeature);
+        const municipioGeoJSON: any = new GeoJSON().writeFeatureObject(municipioFeature);
 
         // Generar punto aleatorio dentro del polígono
         // Generar un punto aleatorio dentro del bbox y validar que esté dentro del polígono
+
         let puntoTurf;
         let intentos = 0;
         const maxIntentos = 10;
-        const polygon = turf.polygon(
-          (municipioGeoJSON.geometry as GeoJSON.Polygon).coordinates
-        );
+        console.log(municipio, municipioGeoJSON);
+        let polygon: any;
+        if (municipioGeoJSON.geometry.type === "MultiPolygon") {
+          polygon = turf.multiPolygon(municipioGeoJSON.geometry.coordinates);
+        } else {
+          polygon = turf.polygon(
+            municipioGeoJSON.geometry.coordinates
+          );
+        }
+
 
         do {
           puntoTurf = turf.randomPoint(1, { bbox: turf.bbox(municipioGeoJSON) }).features[0].geometry.coordinates;
@@ -1444,9 +1568,9 @@ export class MapaComponent {
 
   hideMunicipioUnico(mun_nombre: string, extent: any) {
 
-    this.layerMunicipios.setStyle(function (feature, resolution) {
+    this.layerMunicipios.setStyle((feature, resolution) => {
       // Define different styles based on feature properties or resolution
-      if (mun_nombre == feature.get('munnombre')) {
+      if (this.normalizeString(mun_nombre) == this.normalizeString(feature.get('munnombre'))) {
         return new Style({
           stroke: new Stroke({
             color: 'rgba(0,0,0,0.5)', // sombra negra con transparencia

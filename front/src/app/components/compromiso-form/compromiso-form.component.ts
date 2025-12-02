@@ -17,7 +17,7 @@ import { Compromiso } from '../../models/compromiso';
 export class CompromisoFormComponent implements OnInit {
     compromisoForm: FormGroup;
     isEditMode: boolean = false;
-    compromisoCodigo: string | null = null;
+    compromisoId: number | null = null;
     loading: boolean = false;
     error: string | null = null;
     success: string | null = null;
@@ -69,17 +69,18 @@ export class CompromisoFormComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.compromisoCodigo = this.route.snapshot.paramMap.get('codigo');
-        if (this.compromisoCodigo) {
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
             this.isEditMode = true;
-            this.compromisoForm.get('codigo')?.disable(); // Deshabilitar el código en modo edición
-            this.loadCompromiso(this.compromisoCodigo);
+            this.compromisoId = +id;
+            //this.compromisoForm.get('codigo')?.disable(); // Deshabilitar el código en modo edición
+            this.loadCompromiso(this.compromisoId);
         }
     }
 
-    loadCompromiso(codigo: string): void {
+    loadCompromiso(id: number): void {
         this.loading = true;
-        this.compromisosService.getCompromisoByCodigo(codigo).subscribe({
+        this.compromisosService.getCompromisoById(id).subscribe({
             next: (data) => {
                 this.compromisoForm.patchValue({
                     ...data,
@@ -110,12 +111,12 @@ export class CompromisoFormComponent implements OnInit {
             ...this.compromisoForm.getRawValue() // Usa getRawValue para incluir campos deshabilitados
         };
 
-        if (this.isEditMode && this.compromisoCodigo) {
-            this.compromisosService.updateCompromiso(this.compromisoCodigo, compromisoData).subscribe({
+        if (this.isEditMode && this.compromisoId) {
+            this.compromisosService.updateCompromisoById(this.compromisoId, compromisoData).subscribe({
                 next: () => {
                     this.success = 'Compromiso actualizado exitosamente.';
                     this.loading = false;
-                    this.router.navigate(['/compromisos', this.compromisoCodigo]); // Volver al detalle
+                    this.router.navigate(['/compromisos', this.compromisoId]); // Volver al detalle
                 },
                 error: (err) => {
                     console.error('Error al actualizar compromiso:', err);
@@ -128,7 +129,7 @@ export class CompromisoFormComponent implements OnInit {
                 next: (newCompromiso) => {
                     this.success = 'Compromiso creado exitosamente.';
                     this.loading = false;
-                    this.router.navigate(['/compromisos', newCompromiso.codigo]); // Ir al detalle del nuevo compromiso
+                    this.router.navigate(['/compromisos', newCompromiso.id]); // Ir al detalle del nuevo compromiso
                 },
                 error: (err) => {
                     console.error('Error al crear compromiso:', err);

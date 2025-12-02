@@ -30,24 +30,29 @@ export class CompromisoDetailComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        const codigo = this.route.snapshot.paramMap.get('codigo');
-        if (codigo) {
-            this.loadCompromiso(codigo);
-            this.loadReportesAvance(codigo);
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+            this.loadCompromisoAndReportes(+id);
         } else {
-            this.errorCompromiso = 'Código de compromiso no proporcionado.';
+            this.errorCompromiso = 'ID de compromiso no proporcionado.';
             this.loadingCompromiso = false;
             this.loadingReportes = false;
         }
     }
 
-    loadCompromiso(codigo: string): void {
+    loadCompromisoAndReportes(id: number): void {
         this.loadingCompromiso = true;
         this.errorCompromiso = null;
-        this.compromisosService.getCompromisoByCodigo(codigo).subscribe({
+        this.compromisosService.getCompromisoById(id).subscribe({
             next: (data) => {
                 this.compromiso = data;
                 this.loadingCompromiso = false;
+                if (this.compromiso && this.compromiso.codigo) {
+                    this.loadReportesAvance(this.compromiso.codigo);
+                } else {
+                    this.loadingReportes = false;
+                    this.reportesAvance = [];
+                }
             },
             error: (err) => {
                 console.error('Error al cargar el compromiso:', err);
