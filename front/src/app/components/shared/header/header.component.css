@@ -1,10 +1,2 @@
-.barra-superior-govco {
-    background-color: #3366cc;
-    width: 100%;
-    height: 3rem;
-}
-.barra-superior-govco a {
-    content: url(https://www.cundinamarca.gov.co/contenthandler/dav/fs-type1/themes/CundinamarcaGovCo/images/logo.svg);
-    height: 1.875rem;
-    width: 8.5rem;
-}
+/* Header Component Styles */
+/* Styling is handled via Tailwind classes in the HTML. */

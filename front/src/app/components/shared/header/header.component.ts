@@ -9,6 +9,14 @@ import { RouterModule } from '@angular/router';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  constructor(public authService: AuthService) { }
+  userName: string = '';
+
+  constructor(public authService: AuthService) {
+    console.log(this.authService.isLoggedIn());
+    if (this.authService.isLoggedIn()) {
+      this.userName = this.authService.getUserName();
+    }
+  }
 
 }
+

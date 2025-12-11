@@ -1,12 +1,133 @@
-<section>
-    <div class="enlaces">
-        <img src="/assets/cumpliendo.png" alt="">
-        <div class="enlace" [routerLink]="['/mapa']">MAPA DE COMPROMISOS</div>
-        <div class="enlace"><a href="https://archivodigital.cundinamarca.gov.co/iccu/" target="_blank">MAPA DE ICCU</a> </div>
-        <div class="enlace" [routerLink]="['/compromisos']">REGISTRO DE COMPROMISOS</div>
-        <div class="enlace" [routerLink]="['/ficha-tecnica']">FICHAS TECNICAS VISITA</div>
-        <div class="enlace" *ngIf="authService.hasRole('Administrador')" [routerLink]="['/user-management']">GESTIÓN DE USUARIOS</div>
-        <div class="enlace"><button (click)="authService.logout()">SALIR</button></div>
+<app-header></app-header>
+
+<div class="bg-[#F8FAFC] relative overflow-hidden" id="home">
+    <!-- Decorative Circles (Top Left) -->
+    <div class="absolute top-0 left-0 pointer-events-none">
+        <!-- SVG matching the login/design style -->
+        <svg width="263" height="177" viewBox="0 0 263 177" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g opacity="0.7">
+                <path
+                    d="M44.0383 110.972L34.9041 105.1C38.8612 100.03 41.444 94.1844 42.443 88.0391C43.442 81.8939 42.8292 75.6217 40.6541 69.7314C37.7949 62.0287 32.3762 55.3171 25.1419 50.5179C17.9076 45.7187 9.2122 43.0671 0.249399 42.9272C-8.7134 42.7873 -17.5043 45.1658 -24.9166 49.7364C-32.3289 54.3069 -37.9992 60.8454 -41.1493 68.4543L-51.6276 64.8906C-46.8712 53.4183 -37.5918 43.9525 -25.5838 38.3235C-13.5759 32.6945 0.30772 31.3023 13.3823 34.416C26.4568 37.5297 37.7935 44.9282 45.2002 55.1808C52.6069 65.4334 55.5575 77.8119 53.4813 89.9225C52.1599 97.5081 48.9273 104.715 44.0349 110.984"
+                    fill="#E91C27" />
+                <path
+                    d="M62.4225 2.52255L67.4951 3.35053C67.0249 5.98374 67.1535 8.68121 67.8725 11.2639C68.5915 13.8467 69.8844 16.2556 71.6654 18.3309C73.4465 20.4062 75.6749 22.1004 78.2029 23.3011C80.7308 24.5018 83.5005 25.1815 86.3281 25.2952C89.1558 25.4089 91.9767 24.9539 94.6038 23.9604C97.2308 22.967 99.604 21.4577 101.566 19.5329C103.527 17.6081 105.033 15.3116 105.982 12.796C106.931 10.2803 107.302 7.60298 107.071 4.94158L112.202 4.52271C112.738 10.3661 110.959 16.1895 107.208 20.8669C103.457 25.5442 98.0017 28.7434 91.8961 29.846C85.7905 30.9485 79.4685 29.8761 74.1523 26.836C68.836 23.7959 64.9032 19.0041 63.1142 13.387C62.0031 9.86351 61.7676 6.14583 62.4259 2.52255"
+                    fill="#26496A" />
+                <path
+                    d="M26.0462 154.924L35.0157 146.761C40.0546 152.201 46.3146 156.385 53.2878 158.975C60.2611 161.565 67.7513 162.487 75.1508 161.666C84.827 160.573 93.9253 156.535 101.198 150.107C108.47 143.679 113.561 135.176 115.771 125.763C117.981 116.351 117.203 106.49 113.543 97.5339C109.883 88.5777 103.52 80.9645 95.3281 75.7388L101.912 65.582C114.264 73.4678 123.232 85.6178 127.083 99.6837C130.933 113.75 129.393 128.733 122.76 141.737C116.127 154.742 104.871 164.845 91.1687 170.093C77.4664 175.341 62.2902 175.362 48.5732 170.151C39.9853 166.86 32.2769 161.65 26.0462 154.924Z"
+                    fill="#93CCFF" />
+                <path
+                    d="M263 108.912L254.264 114.897C250.393 109.839 245.317 105.717 239.448 102.865C233.58 100.013 227.084 98.5117 220.487 98.4828C211.854 98.4551 203.424 100.959 196.354 105.651C189.285 110.344 183.922 116.993 181.004 124.688C178.085 132.382 177.754 140.743 180.055 148.623C182.356 156.503 187.177 163.514 193.856 168.695L187.016 176.566C176.966 168.744 170.335 157.672 168.402 145.489C166.47 133.307 169.373 120.878 176.552 110.604C183.731 100.331 194.675 92.9413 207.271 89.8632C219.867 86.7852 233.221 88.2371 244.753 93.9384C251.969 97.5354 258.213 102.659 263 108.912Z"
+                    fill="#064877" />
+                <mask id="mask0_129_11405" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="113" y="25"
+                    width="66" height="75">
+                    <path
+                        d="M113.387 33.6414L118.401 39.9015C122.018 37.2593 126.184 35.3837 130.621 34.4C135.058 33.4163 139.665 33.3472 144.132 34.1971C148.6 35.0471 152.826 36.7966 156.528 39.3289C160.23 41.8611 163.324 45.1179 165.602 48.8816C167.88 52.6453 169.29 56.8293 169.737 61.1543C170.185 65.4793 169.661 69.8457 168.199 73.9619C166.737 78.0781 164.371 81.8493 161.26 85.0238C158.149 88.1983 154.363 90.703 150.156 92.3705L153.335 99.6415C159.206 97.3138 164.414 93.6918 168.534 89.0726C172.654 84.4533 175.567 78.9684 177.035 73.0674C178.264 68.1582 178.466 63.0661 177.63 58.0823C176.795 53.0985 174.937 48.3207 172.165 44.0222C169.392 39.7237 165.758 35.9888 161.472 33.0311C157.185 30.0734 152.329 27.9509 147.182 26.785C144.115 26.0885 140.974 25.7353 137.822 25.7326C128.998 25.7391 120.422 28.5186 113.42 33.6414"
+                        fill="white" />
+                </mask>
+                <g mask="url(#mask0_129_11405)">
+                    <path d="M178.479 25.7326L113.387 25.7326L113.387 99.6447L178.479 99.6447L178.479 25.7326Z"
+                        fill="#FADB28" />
+                </g>
+                <path
+                    d="M212.815 0.0131327L217.317 5.45968C214.203 7.85173 211.654 10.8568 209.839 14.2745C208.025 17.6921 206.987 21.4437 206.795 25.279C206.602 29.1142 207.26 32.9449 208.725 36.5155C210.189 40.086 212.426 43.3143 215.286 45.9849C218.146 48.6556 221.564 50.7072 225.311 52.0028C229.059 53.2984 233.049 53.8083 237.017 53.4984C240.985 53.1885 244.839 52.066 248.321 50.2058C251.804 48.3455 254.835 45.7903 257.213 42.7106L263 46.8722C257.792 53.6096 250.179 58.2458 241.634 59.8847C233.088 61.5237 224.216 60.0491 216.732 55.7459C209.247 51.4427 203.683 44.6165 201.113 36.5863C198.543 28.5561 199.15 19.8921 202.817 12.2687C205.128 7.49173 208.551 3.29341 212.818 0.000215796"
+                    fill="#93CCFF" />
+            </g>
+        </svg>
+
     </div>
-    <img src="/assets/gobernacion_home.png" alt="" class="logo-gobernacion" />
-</section>
+
+    <div class="container mx-auto px-4 pt-16 relative z-10">
+        <!-- Welcome Section -->
+        <div class="text-center mb-16 max-w-4xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#003366] mb-4">
+                Bienvenido a <span class="font-black">“Me comprometo a”</span>
+            </h1>
+            <p class="text-xl text-gray-700 leading-relaxed">
+                Una herramienta en la que puedes consultar los compromisos adquiridos por la
+                Gobernación de Cundinamarca con cada uno de sus municipios.
+            </p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <!-- Card 1: Mapa -->
+            <div
+                class="bg-[#E7F2FF] rounded-3xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow border border-blue-100 position-relative">
+                <div
+                    class="bg-[#1F8BC4] text-white rounded-full w-20 h-20 flex items-center justify-center mb-4 text-3xl shadow-lg p-4 ball">
+                    <img src="/assets/Travel explore.png" alt="">
+                </div>
+                <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Mapa de compromisos</h3>
+                <p class="text-sm text-gray-600 mb-6 flex-grow">
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua.
+                </p>
+                <a [routerLink]="['/mapa']"
+                    class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
+                    Ir a Mapa de compromisos <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Card 2: Listado -->
+            <div
+                class="bg-[#E7F2FF] rounded-3xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow border border-blue-100 position-relative">
+                <div
+                    class="bg-[#1F8BC4] text-white rounded-full w-20 h-20 flex items-center justify-center mb-4 text-3xl shadow-lg p-4 ball">
+                    <img src="/assets/Travel explore-1.png" alt="">
+                </div>
+                <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Listado de compromisos</h3>
+                <p class="text-sm text-gray-600 mb-6 flex-grow">
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua.
+                </p>
+                <a [routerLink]="['/compromisos']"
+                    class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
+                    Ir a Listado de compromisos <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Card 3: Fichas -->
+            <div
+                class="bg-[#E7F2FF] rounded-3xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow border border-blue-100 position-relative">
+                <div
+                    class="bg-[#1F8BC4] text-white rounded-full w-20 h-20 flex items-center justify-center mb-4 text-3xl shadow-lg ball p-4">
+                    <img src="/assets/file_save.png" alt="">
+                </div>
+                <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Fichas técnicas de visita</h3>
+                <p class="text-sm text-gray-600 mb-6 flex-grow">
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua.
+                </p>
+                <a [routerLink]="['/ficha-tecnica']"
+                    class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
+                    Ir a Fichas técnicas de visitas <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Card 4: Admin (Conditional) -->
+            @if(authService.hasRole('Administrador')) {
+            <div
+                class="bg-[#E7F2FF] rounded-3xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow border border-blue-100 position-relative">
+                <div
+                    class="bg-[#1F8BC4] text-white rounded-full w-20 h-20 flex items-center justify-center mb-4 text-3xl shadow-lg ball p-4">
+                    <img src="/assets/manage_accounts.png" alt="">
+                </div>
+                <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Administración de usuarios</h3>
+                <p class="text-sm text-gray-600 mb-6 flex-grow">
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua.
+                </p>
+                <a [routerLink]="['/admin/users']"
+                    class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
+                    Ir a Administración de usuarios <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+            }
+
+
+        </div>
+    </div>
+</div>
+
+<app-footer></app-footer>

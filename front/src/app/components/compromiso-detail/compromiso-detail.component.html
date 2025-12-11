@@ -1,141 +1,258 @@
-<!-- src/app/components/compromiso-detail/compromiso-detail.component.html -->
-<div class="min-h-screen bg-gray-100">
-    <header class="bg-blue-700 text-white shadow-md py-4">
-        <div class="container mx-auto flex justify-between items-center px-6">
-            <a routerLink="/" class="text-2xl font-bold tracking-tight">Sistema de Gestión de Compromisos</a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li>
-                        <a routerLink="/home"
-                            class="hover:text-blue-200 transition duration-300 ease-in-out">Home</a>
-                    </li>
-                    <li>
-                        <a routerLink="/compromisos"
-                            class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
-                    </li>
-                    <li *ngIf="authService.hasRole('Administrador')">
-                        <a routerLink="/user-management"
-                            class="hover:text-blue-200 transition duration-300 ease-in-out">Gestión de Usuarios</a>
-                    </li>
-                    <li>
-                        <button (click)="authService.logout()"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Salir</button>
-                    </li>
-                </ul>
-            </nav>
+<app-header></app-header>
+
+<div class="min-h-screen bg-gray-50 font-roboto pb-12" *ngIf="compromiso">
+
+    <!-- Item Header (Dark Blue) -->
+    <div class="bg-[#004070] text-white py-4 px-6 shadow-md">
+        <div class="container mx-auto flex items-center gap-4">
+            <a routerLink="/compromisos" class="text-white hover:text-blue-200 transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div class="font-bold text-lg truncate flex-1 uppercase">
+                <span class="text-blue-300 mr-2">(# {{compromiso.id}})</span>
+                {{ compromiso.compromiso_especifico }}
+            </div>
         </div>
-    </header>
+    </div>
 
-    <main class="py-8">
-        <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Detalle del Compromiso</h2>
+    <main class="container mx-auto px-4 md:px-8 py-8 -mt-2">
 
-            <div *ngIf="loadingCompromiso" class="text-center text-blue-600">Cargando compromiso...</div>
-            <div *ngIf="errorCompromiso" class="text-center text-red-600">{{ errorCompromiso }}</div>
+        <!-- Main Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
 
-            <div *ngIf="compromiso" class="bg-white p-6 rounded-lg shadow-md mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <p class="text-gray-600 font-semibold">Código:</p>
-                        <p class="text-gray-900">{{ compromiso.codigo }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-semibold">Entidad Lider:</p>
-                        <p class="text-gray-900">{{ compromiso.entidad_lider }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-semibold">Provincia:</p>
-                        <p class="text-gray-900">{{ compromiso.provincia }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-semibold">Municipio:</p>
-                        <p class="text-gray-900">{{ compromiso.municipio }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-semibold">Estado:</p>
-                        <p class="text-gray-900">{{ compromiso.estado }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-semibold">Prioridad:</p>
-                        <p class="text-gray-900">{{ compromiso.prioridad }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-semibold">Valor Total:</p>
-                        <p class="text-gray-900">{{ compromiso.valor_total | currency:'USD':'symbol':'1.2-2' }}</p>
-                    </div>
+            <!-- Info Grid Row 1 -->
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-8 mb-6 border-b border-gray-100 pb-6">
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Código:</span>
+                    <span class="text-gray-600 font-normal">#{{ compromiso.id }}</span>
                 </div>
-
-                <div class="mb-4">
-                    <p class="text-gray-600 font-semibold">Compromiso Específico:</p>
-                    <p class="text-gray-900">{{ compromiso.compromiso_especifico }}</p>
+                <div class="lg:col-span-3">
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Nombre:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.compromiso_especifico }}</span>
                 </div>
-                <div class="mb-4">
-                    <p class="text-gray-600 font-semibold">Descripción Meta Producto:</p>
-                    <p class="text-gray-900">{{ compromiso.descripcion_meta_producto }}</p>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Provincia:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.provincia }}</span>
                 </div>
-                <div class="mb-4">
-                    <p class="text-gray-600 font-semibold">Acción Adelantada:</p>
-                    <p class="text-gray-900">{{ compromiso.accion_adelantada }}</p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-gray-600 font-semibold">Acciones Pendientes:</p>
-                    <p class="text-gray-900">{{ compromiso.acciones_pendientes }}</p>
-                </div>
-
-                <div class="flex justify-end space-x-4 mt-6">
-                    <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')" [routerLink]="['/compromisos/editar', compromiso.id]"
-                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out">Actualizar
-                        Compromiso</a>
-                    <a routerLink="/compromisos"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out">Volver
-                        al Listado</a>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Municipio:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.municipio }}</span>
                 </div>
             </div>
 
-            <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center mt-10">Reportes de Avance</h3>
-
-            <div class="flex justify-end mb-6" *ngIf="compromiso">
-                <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')" [routerLink]="['/compromisos', compromiso.id, 'reportes-avance','nuevo']"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
-                    Añadir Reporte de Avance
-                </a>
+            <!-- Info Grid Row 2 -->
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-8 mb-6 border-b border-gray-100 pb-6">
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-2">Prioridad:</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold border inline-block" [ngClass]="{
+                            'bg-green-100 text-green-700 border-green-200': compromiso.prioridad === 'Baja' || compromiso.prioridad === 'BAJA',
+                            'bg-yellow-100 text-yellow-700 border-yellow-200': compromiso.prioridad === 'Media' || compromiso.prioridad === 'MEDIA',
+                            'bg-red-100 text-red-700 border-red-200': compromiso.prioridad === 'High' || compromiso.prioridad === 'Alta' || compromiso.prioridad === 'ALTA'
+                          }">
+                        {{ compromiso.prioridad || 'MEDIA' }}
+                    </span>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-2">Estado:</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full" [ngClass]="{
+                                'bg-gray-400': compromiso.estado === 'No iniciado' || compromiso.estado === 'NO SE HA INICIADO',
+                                'bg-orange-400': compromiso.estado === 'En curso' || compromiso.estado === 'EN CURSO',
+                                'bg-blue-500': compromiso.estado === 'Finalizado' || compromiso.estado === 'FINALIZADO'
+                              }"></span>
+                        <span class="text-gray-600 text-sm">{{ compromiso.estado }}</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Avance:</span>
+                    <!-- Mocked value as it's not in base model, or use logic -->
+                    <span class="text-gray-600 font-normal">{{ compromiso.estado === 'Finalizado' || compromiso.estado
+                        === 'FINALIZADO' ? '100%' : (compromiso.avance_financiero || '0') + '%' }}</span>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Entidad líder:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.entidad }}</span>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Inversión:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.valor_total | currency : '$ ' : 'symbol' :
+                        '1.0-0' }}</span>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Tipo de riesgo:</span>
+                    <span class="text-gray-600 font-normal">-</span>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Fecha de inicio:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.fecha_estimada_inicio || '00/00/0000'
+                        }}</span>
+                </div>
+                <div>
+                    <span class="block text-gray-800 font-bold text-sm mb-1">Fecha de fin:</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.fecha_estimada_finalizacion || '00/00/0000'
+                        }}</span>
+                </div>
             </div>
 
-            <div *ngIf="loadingReportes" class="text-center text-blue-600">Cargando reportes de avance...</div>
-            <div *ngIf="errorReportes" class="text-center text-red-600">{{ errorReportes }}</div>
-
-            <div *ngIf="reportesAvance.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div *ngFor="let reporte of reportesAvance"
-                    class="bg-white p-5 rounded-lg shadow-md border border-gray-200">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-2">Reporte de {{ reporte.mes_reporte | date:'MMMM
-                        yyyy' }}</h4>
-                    <p class="text-gray-700 mb-1">Avance Físico: <span class="font-medium">{{
-                            reporte.reporte_avance_fisico }}%</span></p>
-                    <p class="text-gray-700 mb-3">Avance Financiero: <span class="font-medium">{{
-                            reporte.reporte_avance_financiero }}%</span></p>
-                    <p class="text-gray-600 text-sm mb-3">Observaciones: {{ reporte.observaciones_reporte }}</p>
-                    <div *ngIf="reporte.imagen_url" class="mb-4">
-                        <img [src]="'/'+reporte.imagen_url.replace('\\','/')"
-                            alt="Imagen de Avance" class="w-full h-48 object-cover rounded-md shadow-sm">
+            <!-- Description Columns -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 border-b border-gray-100 pb-8">
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-gray-800 font-bold text-sm">Tema: </span>
+                        <span class="text-gray-600 text-sm">{{ compromiso.tema }}</span>
                     </div>
-                    <div class="flex justify-end space-x-2">
-                        <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')" [routerLink]="['/reportes-avance/editar', reporte.id]"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Actualizar</a>
+                    <div>
+                        <span class="text-gray-800 font-bold text-sm">Subtema: </span>
+                        <span class="text-gray-600 text-sm">{{ compromiso.subtema }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-800 font-bold text-sm">Compromiso específico: </span>
+                        <span class="text-gray-600 text-sm">{{ compromiso.compromiso_especifico }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-800 font-bold text-sm">Bien o producto entregado: </span>
+                        <span class="text-gray-600 text-sm">{{ compromiso.bien_o_servicio_entregado }}</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-gray-800 font-bold text-sm">Descripción meta producto: </span>
+                        <span class="text-gray-600 text-sm block mt-1">{{ compromiso.descripcion_meta_producto }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-800 font-bold text-sm">Acción adelantada: </span>
+                        <span class="text-gray-600 text-sm block mt-1">{{ compromiso.accion_adelantada }}</span>
                     </div>
                 </div>
             </div>
 
-            <div *ngIf="reportesAvance.length === 0 && !loadingReportes && !errorReportes"
-                class="text-center text-gray-600 mt-8">
-                No hay reportes de avance para este compromiso.
+            <!-- Evidence Section -->
+            <div class="mb-8 relative">
+                <h4 class="text-gray-800 font-bold text-sm mb-4">Evidencia fotográfica:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Antes -->
+                    <div>
+                        <span class="text-xs text-gray-500 mb-2 block">Antes</span>
+                        <div class="bg-gray-200 rounded-xl h-64 flex items-center justify-center text-gray-400">
+                            <i class="far fa-image text-4xl"></i>
+                        </div>
+                    </div>
+                    <!-- Después -->
+                    <div>
+                        <span class="text-xs text-gray-500 mb-2 block">Después</span>
+                        <div class="bg-gray-200 rounded-xl h-64 flex items-center justify-center text-gray-400">
+                            <i class="far fa-image text-4xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Floating Button (Desktop: absolute, Mobile: static mt-4) -->
+                <div class="mt-6 flex justify-end">
+                    <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
+                        [routerLink]="['/compromisos/editar', compromiso.id]"
+                        class="border border-[#003366] text-[#003366] bg-white hover:bg-blue-50 px-6 py-2 rounded-full text-sm font-bold flex items-center transition-colors shadow-sm">
+                        Editar compromiso <i class="fas fa-pen ml-2 text-xs"></i>
+                    </a>
+                </div>
             </div>
+
+        </div>
+
+        <!-- Reports Heading -->
+        <h3 class="text-xl font-bold text-gray-800 mb-4 px-1">Reportes</h3>
+
+        <!-- Reports Empty State -->
+        <div *ngIf="reportesAvance.length === 0 && !loadingReportes"
+            class="bg-[#FFE8CC] border border-[#FFCC80] rounded-xl p-8 text-center mb-8 flex flex-col items-center justify-center">
+            <i class="fas fa-exclamation-triangle text-orange-400 text-3xl mb-4"></i>
+            <p class="text-[#8D6E63] font-medium mb-1">Aún no tienes reportes creados para este compromiso.</p>
+        </div>
+
+        <!-- Reports Table -->
+        <div *ngIf="reportesAvance.length > 0"
+            class="bg-[#E7F2FF] rounded-2xl p-0.5 shadow-sm border border-blue-100 mb-6 font-roboto overflow-hidden">
+            <div class="bg-white rounded-[14px] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[800px]">
+                        <thead>
+                            <tr class="bg-[#E7F2FF] text-[#003366] text-sm font-bold">
+                                <th class="py-4 px-6 text-left">Número de reporte</th>
+                                <th class="py-4 px-6 text-left">Fecha</th>
+                                <th class="py-4 px-6 text-center">Avance físico</th>
+                                <th class="py-4 px-6 text-center">Avance financiero</th>
+                                <th class="py-4 px-6 text-center">Evidencia</th>
+                                <th class="py-4 px-6 text-left">Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr *ngFor="let reporte of reportesAvance; let i = index"
+                                class="border-b border-gray-100 last:border-0 hover:bg-gray-50">
+                                <td class="py-4 px-6 font-medium text-gray-700"># {{ i + 1 }}</td>
+                                <td class="py-4 px-6 text-gray-500">{{ reporte.mes_reporte | date:'dd/MM/yyyy' }}</td>
+                                <td class="py-4 px-6 text-gray-500 text-center">{{ reporte.reporte_avance_fisico }}%
+                                </td>
+                                <td class="py-4 px-6 text-gray-500 text-center">{{ reporte.reporte_avance_financiero }}%
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    <button *ngIf="reporte.imagen_url"
+                                        class="inline-flex items-center text-[#003366] border border-blue-200 rounded-full px-4 py-1.5 text-xs font-bold hover:bg-blue-50 transition-colors">
+                                        Ver evidencia <i class="fas fa-eye ml-2"></i>
+                                    </button>
+                                    <span *ngIf="!reporte.imagen_url" class="text-gray-400 text-xs">-</span>
+                                </td>
+                                <td class="py-4 px-6 text-gray-500 max-w-xs truncate"
+                                    [title]="reporte.observaciones_reporte">
+                                    {{ reporte.observaciones_reporte }}
+                                    <a href="#" class="block text-[#003366] font-bold text-xs mt-1 hover:underline">Ver
+                                        más +</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- Pagination (Mock) -->
+                    <div class="bg-[#E7F2FF] p-3 flex justify-between items-center px-6">
+                        <span class="text-xs text-gray-600 font-medium">Total de reportes: {{ reportesAvance.length
+                            }}</span>
+                        <!-- Simple pagination Controls mock -->
+                        <div class="flex items-center space-x-2 text-xs text-gray-600">
+                            <button class="w-6 h-6 rounded-full hover:bg-white flex items-center justify-center"><i
+                                    class="fas fa-chevron-left"></i></button>
+                            <button
+                                class="w-6 h-6 rounded-full bg-blue-100 text-[#003366] font-bold flex items-center justify-center">1</button>
+                            <span class="mx-1">de 1</span>
+                            <button class="w-6 h-6 rounded-full hover:bg-white flex items-center justify-center"><i
+                                    class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <!-- Page size mock -->
+                        <div class="flex items-center bg-white rounded-full px-3 py-1 border border-blue-100">
+                            <span class="text-xs mr-2">5 / página</span>
+                            <i class="fas fa-chevron-down text-[10px] text-gray-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Report Button -->
+        <div class="flex justify-end" *ngIf="compromiso">
+            <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
+                [routerLink]="['/compromisos', compromiso.id, 'reportes-avance','nuevo']"
+                class="border border-[#003366] text-[#003366] hover:bg-blue-50 px-6 py-2 rounded-full text-sm font-bold flex items-center transition-colors shadow-sm bg-white">
+                Añadir reporte <i class="fas fa-plus ml-2"></i>
+            </a>
         </div>
 
     </main>
 
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto text-center text-sm">
-            &copy; {{ '2024' }} Sistema de Gestión de Compromisos. Todos los derechos reservados.
-        </div>
-    </footer>
+    <app-footer></app-footer>
+</div>
+
+<!-- Loading State matching list style -->
+<div *ngIf="loadingCompromiso" class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div class="text-center text-blue-600">
+        <i class="fas fa-spinner fa-spin fa-3x mb-4"></i>
+        <p class="font-medium">Cargando detalles...</p>
+    </div>
 </div>

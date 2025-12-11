@@ -1,94 +1,197 @@
-.govco-footer {
-    background: #FFF;
-}
+/* Footer Component Styles */
 
-.govco-footer-logo {
-    height: 96px;
+.footer-container {
     background-color: #3366cc;
+    /* Color extracted from image/analysis */
+    color: white;
     width: 100%;
-    margin-top: 20px !important;
-}
-
-.govco-data-front {
-    background: #fff;
-    width: calc(100% - 40px);
-    margin-left: 20px !important;
-    -webkit-box-shadow: 50px 30px 0px -30px #1B568F, -50px 30px 0px -30px #1B568F,
-        0px 20px 0px 0px #1B568F, 50px 50px 0px -30px #1B568F,
-        -50px 50px 0px -30px #1B568F;
-    box-shadow: 50px 30px 0px -30px #1B568F, -50px 30px 0px -30px #1B568F,
-        0px 20px 0px 0px #1B568F, 50px 50px 0px -30px #1B568F,
-        -50px 50px 0px -30px #1B568F;
-    /*#1B568F color fondo footer*/
-    top: 0;
-    border: 2px solid #e5eefb;
-    border-radius: 10px;
-    opacity: 1;
-}
-.govco-text-header-1 {
-	font-family: 'Montserrat-SemiBold';
-	color: #3366cc;
-	text-align: left;
-	font-size: 20px;
-	font-weight: 600;
-}
-.govco-logo-div-a {
-    text-align: center !important;
-}
-
-.govco-logo-entidad {
-    height: 264px;
-    display: inline-block;
-    content: url(https://www.cundinamarca.gov.co/contenthandler/dav/fs-type1/themes/CundinamarcaGovCo/images/logo-gobernacion_footer.png);
-}
-.govco-links-container {
-	margin-bottom: 50px !important;
-	margin-top: 30px !important;
-}
-.govco-footer-text {
-	margin-top: 50px !important;
-	margin-left: 80px !important;
-}
-.govco-texto-sedes,
-.govco-network {
-	padding: unset !important;
-}
-.govco-network,
-.govco-listado-sedes {
-	margin-top: 30px !important;
-}
-.govco-sedes {
-	margin-top: 20px !important;
-}
-.col-md-4 {
-    width: 33.33333333%;
-}
-.col-md-8 {
-    width: 66.66666667%;
-}
-.row{
+    padding: 10px 40px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 11px;
+    box-sizing: border-box;
     display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
+    justify-content: center;
+    height: 200px;
 }
-.govco-co {
-	height: 48px;
-	margin-top: 24px;
-	display: inline-block;
-	content: url(https://www.cundinamarca.gov.co/contenthandler/dav/fs-type1/themes/CundinamarcaGovCo/images/logo-colombia.svg);
+
+.footer-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1400px;
+    width: 100%;
+    gap: 20px;
 }
-.govco-separator {
-	border-left: 1px solid #e5eefb;
-	opacity: 1px;
-	height: 44px;
-	margin-left: 10px;
-	margin-right: 5px;
-	display: inline-block;
+
+/* --- Left Column: GOV.CO Logos --- */
+.footer-column.left-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 15%;
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    padding-right: 20px;
 }
+
+.govco-logo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 .govco-logo {
-	height: 30px;
-	display: inline-block;
-	content: url(https://www.cundinamarca.gov.co/contenthandler/dav/fs-type1/themes/CundinamarcaGovCo/images/logo.svg);
-	vertical-align: super;
+    height: 40px;
+}
+
+.co-logo {
+    height: 80px;
+    width: 80px;
+}
+
+/* --- Center Column: Info --- */
+.footer-column.center-info {
+    flex-grow: 1;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.entity-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0px;
+}
+
+.info-grid {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.info-left p,
+.info-right p {
+    margin: 3px 0;
+    line-height: 1.4;
+}
+
+.footer-links-social {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    padding-top: 5px;
+    margin-top: 5px;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    text-decoration: underline;
+    font-family: Roboto;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 10px;
+    line-height: 16px;
+    letter-spacing: 0%;
+
+}
+
+.footer-links .separator {
+    margin: 0 10px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    color: #3366cc;
+    background-color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+/* --- Right Column: Certifications --- */
+.footer-column.right-certs {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    padding-left: 20px;
+    padding-top: 15px;
+    text-align: center;
+}
+
+.main-logo-right {
+    margin-bottom: 20px;
+    width: 200px;
+}
+
+.cert-logos {
+    display: flex;
+    gap: 10px;
+}
+
+.cert-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.cert-item img {
+    height: 40px;
+    margin-bottom: 5px;
+    background: white;
+    /* Certification logos usually have white background or need container */
+    padding: 2px;
+    border-radius: 4px;
+}
+
+/* Responsiveness */
+@media (max-width: 992px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-column.left-logo,
+    .footer-column.right-certs {
+        width: 100%;
+        border: none;
+        align-items: center;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .footer-column.center-info {
+        padding: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .info-grid {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .footer-links-social {
+        flex-direction: column;
+        gap: 15px;
+    }
 }

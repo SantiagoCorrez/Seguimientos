@@ -1,34 +1,132 @@
-<div class="min-h-screen flex items-center justify-center fondo">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+<div class="min-h-screen flex flex-col bg-gray-50">
+    <!-- Header -->
+    <header class="bg-[#003366] py-3 px-6" id="header">
+        <div class="container mx-auto flex items-center">
+            <img src="/assets/logo_gobernacion_header.png" alt="Gobernación de Cundinamarca" class="h-12">
+        </div>
+    </header>
 
-        <img src="/assets/cumpliendo.png" alt="">
-        <br>
-        <h2 class="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <div class="mb-4">
-                <label for="email" class="block text-gray-700 mb-2">Correo Electrónico</label>
-                <input id="email" type="text" formControlName="email"
-                    class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500 text-sm mt-1">
-                    <span *ngIf="loginForm.get('email')?.errors?.['required']">El correo es requerido.</span>
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center relative overflow-hidden fondo-login-page">
+        <div
+            class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between h-full py-10 relative z-10">
+
+            <!-- Left Side: Welcome Text -->
+            <div class="w-full md:w-1/2 text-[#003366] px-4 mb-8 md:mb-0">
+                <h1 class="text-4xl md:text-6xl font-normal leading-tight">
+                    Bienvenido a <br>
+                    <span class="font-bold text-[#003366] block mt-2">“Me comprometo a”</span>
+                </h1>
+
+                <!-- Decorative Circles (Visual approximation) -->
+                <div class="decorative-circles mt-8 relative h-32 w-32 hidden md:block">
+                    <!-- CSS specific implementation for these shapes -->
+                    <svg width="340" height="194" viewBox="0 0 340 194" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <mask id="mask0_63_2428" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="268" y="153"
+                            width="72" height="41">
+                            <path
+                                d="M309.074 193.22C323.648 185.735 334.739 172.874 340 157.358L327.714 153.162C323.696 164.94 315.461 174.815 304.596 180.884C293.731 186.952 281.005 188.785 268.869 186.028L268.869 193.22L309.078 193.22L309.074 193.22Z"
+                                fill="white" />
+                        </mask>
+                        <g mask="url(#mask0_63_2428)">
+                            <path d="M269.047 196.702L341.978 193.11L339.837 149.65L266.906 153.242L269.047 196.702Z"
+                                fill="#26496A" />
+                        </g>
+                        <path
+                            d="M205.029 71.9163L214.583 78.354C210.444 83.9136 207.742 90.3221 206.697 97.0597C205.652 103.797 206.294 110.674 208.569 117.132C211.559 125.577 217.227 132.936 224.794 138.197C232.361 143.459 241.456 146.366 250.831 146.52C260.206 146.673 269.401 144.065 277.154 139.054C284.907 134.043 290.838 126.875 294.133 118.532L305.093 122.439C300.118 135.017 290.412 145.396 277.852 151.567C265.292 157.739 250.77 159.265 237.094 155.851C223.419 152.437 211.561 144.326 203.813 133.085C196.066 121.844 192.98 108.273 195.152 94.9948C196.534 86.6781 199.915 78.7761 205.032 71.9028"
+                            fill="#E91C27" />
+                        <path
+                            d="M185.799 190.819L180.494 189.911C180.985 187.024 180.851 184.067 180.099 181.235C179.347 178.403 177.994 175.762 176.132 173.487C174.269 171.212 171.938 169.354 169.294 168.038C166.649 166.721 163.752 165.976 160.795 165.851C157.837 165.727 154.886 166.226 152.139 167.315C149.391 168.404 146.908 170.059 144.857 172.169C142.805 174.279 141.23 176.797 140.237 179.555C139.244 182.313 138.856 185.249 139.098 188.167L133.731 188.626C133.17 182.219 135.032 175.835 138.955 170.707C142.878 165.578 148.584 162.071 154.971 160.862C161.357 159.653 167.97 160.829 173.53 164.162C179.091 167.495 183.205 172.749 185.076 178.907C186.238 182.77 186.484 186.846 185.796 190.819"
+                            fill="#FADB28" />
+                        <path
+                            d="M224.894 23.7281L215.512 32.678C210.242 26.7139 203.694 22.1262 196.4 19.2869C189.106 16.4476 181.271 15.4368 173.532 16.3364C163.411 17.5352 153.894 21.962 146.287 29.0094C138.68 36.0569 133.356 45.3799 131.044 55.6997C128.732 66.0195 129.546 76.8306 133.374 86.6501C137.203 96.4695 143.858 104.816 152.427 110.546L145.54 121.682C132.62 113.036 123.24 99.7147 119.212 84.293C115.184 68.8713 116.795 52.4439 123.734 38.1859C130.672 23.9279 142.445 12.8516 156.777 7.09773C171.11 1.34385 186.984 1.32097 201.331 7.03348C210.314 10.6417 218.377 16.3543 224.894 23.7281Z"
+                            fill="#93CCFF" />
+                        <path
+                            d="M-24 74.1755L-14.8625 67.6137C-10.8134 73.159 -5.50406 77.6784 0.634439 80.8052C6.77294 83.932 13.5677 85.578 20.4671 85.6097C29.4971 85.64 38.315 82.8944 45.7098 77.7501C53.1046 72.6057 58.7135 65.3149 61.7662 56.879C64.8188 48.4432 65.1653 39.276 62.7583 30.6368C60.3513 21.9975 55.3087 14.3099 48.3232 8.62981L55.4778 2.87621e-05C65.9893 8.57667 72.9256 20.7159 74.947 34.0726C76.9684 47.4294 73.9313 61.0558 66.4225 72.3196C58.9137 83.5834 47.4659 91.6853 34.2908 95.06C21.1156 98.4348 7.14794 96.843 -4.91393 90.5921C-12.4622 86.6484 -18.9933 81.0308 -24 74.1755Z"
+                            fill="#FADB28" />
+                        <mask id="mask1_63_2428" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="64" y="84"
+                            width="69" height="82">
+                            <path
+                                d="M132.492 156.701L127.247 149.837C123.464 152.734 119.106 154.79 114.465 155.869C109.824 156.947 105.006 157.023 100.333 156.091C95.66 155.159 91.2397 153.241 87.3671 150.465C83.4946 147.689 80.259 144.118 77.8763 139.992C75.4937 135.865 74.0189 131.278 73.5504 126.536C73.0819 121.794 73.6306 117.007 75.1596 112.494C76.6887 107.981 79.1631 103.846 82.4174 100.366C85.6718 96.8852 89.6314 94.1392 94.0316 92.3109L90.7065 84.3391C84.5662 86.8912 79.1182 90.8622 74.8091 95.9267C70.5001 100.991 67.4528 107.005 65.917 113.475C64.6318 118.857 64.4203 124.44 65.2944 129.904C66.1686 135.368 68.1112 140.606 71.0114 145.319C73.9116 150.032 77.7123 154.127 82.1962 157.37C86.6802 160.613 91.7593 162.94 97.1433 164.218C100.351 164.982 103.636 165.369 106.933 165.372C116.163 165.365 125.133 162.317 132.457 156.701"
+                                fill="white" />
+                        </mask>
+                        <g mask="url(#mask1_63_2428)">
+                            <path d="M64.4066 165.372L132.492 165.372L132.492 84.3356L64.4066 84.3356L64.4066 165.372Z"
+                                fill="#26496A" />
+                        </g>
+                        <path
+                            d="M28.4922 193.57L23.7832 187.599C27.0403 184.976 29.7069 181.681 31.6048 177.934C33.5028 174.187 34.5885 170.074 34.7896 165.869C34.9907 161.664 34.3024 157.464 32.7709 153.55C31.2393 149.635 28.8996 146.095 25.9079 143.167C22.9161 140.239 19.3411 137.99 15.4214 136.569C11.5018 135.149 7.32753 134.59 3.17722 134.93C-0.973094 135.269 -5.00405 136.5 -8.64664 138.54C-12.2892 140.579 -15.4597 143.381 -17.9466 146.757L-24 142.195C-18.5524 134.808 -10.5898 129.725 -1.65125 127.928C7.28734 126.131 16.5674 127.748 24.3957 132.466C32.2239 137.184 38.0446 144.668 40.7327 153.472C43.4209 162.276 42.7857 171.775 38.95 180.133C36.5324 185.371 32.9525 189.974 28.4887 193.584"
+                            fill="#93CCFF" />
+                    </svg>
+
                 </div>
             </div>
-            <div class="mb-6">
-                <label for="password" class="block text-gray-700 mb-2">Contraseña</label>
-                <input id="password" type="password" formControlName="password"
-                    class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500 text-sm mt-1">
-                    <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es requerida.</span>
+
+            <!-- Right Side: Login Form -->
+            <div class="w-full md:w-1/2 flex justify-center md:justify-end">
+                <div class="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl w-full" id="login">
+                    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Inicia sesión</h2>
+
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+                        <!-- Email Field -->
+                        <div class="relative">
+                            <label for="email" class="font-bold text-gray-700 block mb-1">Email<span
+                                    class="text-red-500">*</span></label>
+                            <input id="email" type="text" formControlName="email" placeholder="tucorreo@ejemplo.com"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors text-gray-600"
+                                [ngClass]="{'border-red-500': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}" />
+
+                            <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                                class="text-red-500 text-xs mt-1 ml-2">
+                                <span *ngIf="loginForm.get('email')?.errors?.['required']">El correo es
+                                    requerido.</span>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="relative">
+                            <label for="password" class="font-bold text-gray-700 block mb-1">Contraseña<span
+                                    class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input [type]="showPassword ? 'text' : 'password'" id="password"
+                                    formControlName="password" placeholder="tu contraseña"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors text-gray-600 placeholder-gray-400"
+                                    [ngClass]="{'border-red-500': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}" />
+
+                                <button type="button"
+                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                    (click)="togglePasswordVisibility()">
+                                    <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
+
+                            <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                                class="text-red-500 text-xs mt-1 ml-2">
+                                <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es
+                                    requerida.</span>
+                            </div>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div *ngIf="errorMessage"
+                            class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 text-sm rounded">
+                            {{ errorMessage }}
+                        </div>
+                        <br>
+                        <!-- Submit Button -->
+                        <button type="submit" [disabled]="loginForm.invalid"
+                            class="w-full bg-[#002845] text-white font-bold py-3 rounded-full hover:bg-[#003355] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-lg">
+                            Iniciar sesión
+                        </button>
+                    </form>
                 </div>
             </div>
+        </div>
 
-            <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">{{ errorMessage }}</span>
-            </div>
+        <!-- Background decoration could go here or in CSS -->
+    </main>
 
-            <button type="submit" [disabled]="loginForm.invalid"
-                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-300">Entrar</button>
-        </form>
-    </div>
-    <img src="/assets/gobernacion_home.png" alt="" class="logo-gobernacion" />
+    <!-- Footer -->
+    <app-footer></app-footer>
 </div>

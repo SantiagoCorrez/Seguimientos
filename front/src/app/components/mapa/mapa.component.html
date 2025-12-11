@@ -1,340 +1,349 @@
-<div class="w-full p-0">
-    <div class="flex flex-wrap">
-        <div class="w-full lg:w-3/4">
-            <div class="capas">
-                <img src="/assets/CAPAS FILTRO-01.png" alt="" class="w-auto" />
-                <img src="/assets/CAPAS FILTRO-02.png" alt="" (click)="showCapas('s')" class="w-auto cursor-pointer" />
-                <img src="/assets/CAPAS FILTRO-03.png" alt="" (click)="showCapas('')" class="w-auto cursor-pointer" />
-                <img src="/assets/CAPA FILTRO 4-04.png" alt="" (click)="showCapas('r')" class="w-auto cursor-pointer" />
-            </div>
-            <div id="tooltip"></div>
-            <div class="flex justify-end mb-4" id="resetMap">
-                <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                    (click)="resetMapa()">
-                    Reiniciar mapa
-                </button>
-            </div>
-            <div id="map"></div>
-            <div class="filtro">
-                <mat-form-field class="w-full">
-                    <mat-label>Provincia</mat-label>
-                    <input type="text" placeholder="Provincia" aria-label="Number" matInput
-                        [matAutocomplete]="provinciasAuto" [formControl]="provincia">
-                    @if(provincia.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="provincia.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
+<app-header></app-header>
+<div class="min-h-screen bg-gray-50 flex flex-col font-roboto">
+
+    <!-- Top Filters Section -->
+    <div class="bg-white p-4 shadow-sm border-b border-gray-200 z-20">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4" id="filters">
+                <!-- Provincia -->
+                <div class="flex flex-col w-full md:w-auto">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Provincia:</label>
+                    <mat-form-field appearance="outline" class="w-full md:w-40 dense-form-field text-sm">
+                        <input type="text" matInput [formControl]="provincia" [matAutocomplete]="provinciasAuto"
+                            placeholder="Todas">
+                        <mat-autocomplete #provinciasAuto="matAutocomplete" (optionSelected)="onSelectProvincia()">
+                            <mat-option *ngFor="let item of filteredprovincia | async" [value]="item">
+                                {{item}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <button *ngIf="provincia.value" matSuffix mat-icon-button aria-label="Limpiar"
+                            (click)="provincia.setValue('')">
+                            <mat-icon class="text-gray-400 text-sm">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                <!-- Municipio -->
+                <div class="flex flex-col w-full md:w-auto">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Municipio:</label>
+                    <mat-form-field appearance="outline" class="w-full md:w-40 dense-form-field text-sm">
+                        <input type="text" matInput [formControl]="municipio" [matAutocomplete]="municipiosAuto"
+                            placeholder="Todos">
+                        <mat-autocomplete #municipiosAuto="matAutocomplete" (optionSelected)="onSelectMunicipio()">
+                            <mat-option *ngFor="let item of filteredmunicipio | async" [value]="item">
+                                {{item}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <button *ngIf="municipio.value" matSuffix mat-icon-button aria-label="Limpiar"
+                            (click)="municipio.setValue('')">
+                            <mat-icon class="text-gray-400 text-sm">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                <!-- Entidad -->
+                <div class="flex flex-col w-full md:w-auto">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Entidad Líder:</label>
+                    <mat-form-field appearance="outline" class="w-full md:w-48 dense-form-field text-sm">
+                        <input type="text" matInput [formControl]="entidad" [matAutocomplete]="entidadesAuto"
+                            placeholder="Todas">
+                        <mat-autocomplete #entidadesAuto="matAutocomplete" (optionSelected)="onSelectEntidad()">
+                            <mat-option *ngFor="let item of filteredentidad | async" [value]="item">
+                                {{item}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <button *ngIf="entidad.value" matSuffix mat-icon-button aria-label="Limpiar"
+                            (click)="entidad.setValue('')">
+                            <mat-icon class="text-gray-400 text-sm">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                <!-- Prioridad -->
+                <div class="flex flex-col w-full md:w-auto">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Prioridad:</label>
+                    <mat-form-field appearance="outline" class="w-full md:w-32 dense-form-field text-sm">
+                        <input type="text" matInput [formControl]="prioridad" [matAutocomplete]="prioridadAuto"
+                            placeholder="Todas">
+                        <mat-autocomplete #prioridadAuto="matAutocomplete" (optionSelected)="onSelectPrioridad()">
+                            <mat-option *ngFor="let item of filteredprioridad | async" [value]="item">
+                                {{item}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <button *ngIf="prioridad.value" matSuffix mat-icon-button aria-label="Limpiar"
+                            (click)="prioridad.setValue('')">
+                            <mat-icon class="text-gray-400 text-sm">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                <!-- Estado -->
+                <div class="flex flex-col w-full md:w-auto">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Estado:</label>
+                    <mat-form-field appearance="outline" class="w-full md:w-32 dense-form-field text-sm">
+                        <input type="text" matInput [formControl]="estado" [matAutocomplete]="estadoAuto"
+                            placeholder="Todos">
+                        <mat-autocomplete #estadoAuto="matAutocomplete" (optionSelected)="onSelectEstado()">
+                            <mat-option *ngFor="let item of filteredestado | async" [value]="item">
+                                {{item}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <button *ngIf="estado.value" matSuffix mat-icon-button aria-label="Limpiar"
+                            (click)="estado.setValue('')">
+                            <mat-icon class="text-gray-400 text-sm">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                <!-- Obligacion -->
+                <div class="flex flex-col w-full md:w-auto">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Obligación:</label>
+                    <mat-form-field appearance="outline" class="w-full md:w-40 dense-form-field text-sm">
+                        <input type="text" matInput [formControl]="obligacion" [matAutocomplete]="obligacionAuto"
+                            placeholder="Todas">
+                        <mat-autocomplete #obligacionAuto="matAutocomplete" (optionSelected)="onSelectObligacion()">
+                            <mat-option *ngFor="let item of filteredobligacion | async" [value]="item">
+                                {{item}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <button *ngIf="obligacion.value" matSuffix mat-icon-button aria-label="Limpiar"
+                            (click)="obligacion.setValue('')">
+                            <mat-icon class="text-gray-400 text-sm">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="flex items-end h-full pb-1">
+                    <button (click)="resetMapa()"
+                        class="text-[#003366] text-xs font-semibold hover:underline flex items-center border border-[#003366] px-4 py-2 rounded-full hover:bg-blue-50 transition-colors bg-white">
+                        Limpiar filtros <i class="fas fa-undo ml-2 text-[10px]"></i>
                     </button>
-                    }
-
-                    <mat-autocomplete placeholder="Seleccione una provincia" #provinciasAuto="matAutocomplete"
-                        (optionSelected)="selectProvincia($event)" selec>
-                        @for (item of filteredprovincia| async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Municipio</mat-label>
-                    <input type="text" placeholder="Municipio" aria-label="Number" matInput
-                        [matAutocomplete]="municipiosAuto" [formControl]="municipio">
-                    @if(municipio.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="municipio.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione un municipio" (optionSelected)="selectMunicipio($event)"
-                        #municipiosAuto="matAutocomplete">
-                        @for (item of filteredmunicipio | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Entidad Líder</mat-label>
-                    <input type="text" placeholder="Entidad Líder" matInput [matAutocomplete]="entidadesAuto"
-                        [formControl]="entidad">
-
-                    @if(entidad.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="entidad.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione una entidad líder"
-                        (optionSelected)="selectEntidad($event)" #entidadesAuto="matAutocomplete">
-                        @for (item of filteredentidad | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Estado del Compromiso</mat-label>
-                    <input type="text" placeholder="Estado" matInput [matAutocomplete]="estadoAuto"
-                        [formControl]="estado">
-                    @if(estado.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="estado.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione un estado" (optionSelected)="selectEstado($event)"
-                        #estadoAuto="matAutocomplete">
-                        @for (item of filteredestado | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Prioridad</mat-label>
-                    <input type="text" placeholder="Prioridad" matInput [matAutocomplete]="prioridadAuto"
-                        [formControl]="prioridad">
-                    @if(prioridad.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="prioridad.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione una prioridad" (optionSelected)="selectPrioridad($event)"
-                        #prioridadAuto="matAutocomplete">
-                        @for (item of filteredprioridad | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Obligación Contraída</mat-label>
-                    <input type="text" placeholder="Obligación Contraída" matInput [matAutocomplete]="obligacionAuto"
-                        [formControl]="obligacion">
-                    @if(obligacion.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="obligacion.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione una obligación"
-                        (optionSelected)="selectObligacion($event)" #obligacionAuto="matAutocomplete">
-                        @for (item of filteredobligacion | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Tema</mat-label>
-                    <input type="text" placeholder="Tema" matInput [matAutocomplete]="temaAuto" [formControl]="tema">
-                    @if(tema.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="tema.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione un tema" #temaAuto="matAutocomplete">
-                        @for (item of filteredtema | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Subtema</mat-label>
-                    <input type="text" placeholder="Subtema" matInput [matAutocomplete]="subtemaAuto"
-                        [formControl]="subtema">
-                    @if(subtema.value){
-                    <button matSuffix mat-icon-button aria-label="Limpiar" (click)="subtema.setValue('')">
-                        <mat-icon style="fill:#fff;    color: #fff;">close</mat-icon>
-                    </button>
-                    }
-                    <mat-autocomplete placeholder="Seleccione un subtema" #subtemaAuto="matAutocomplete">
-                        @for (item of subfilteredtema | async; track $index) {
-                        <mat-option [value]="item">
-                            {{item}}
-                        </mat-option>
-                        }
-
-                    </mat-autocomplete>
-                </mat-form-field>
-            </div>
-        </div>
-        <div class="analitics" [class.show]="hide" [style.top]="alto">
-            <div class="analitics-title">
-                <h2>{{analitic.titulo}}</h2>
-            </div>
-            <div class="analitics-content">
-                <div class="analitics-content">
-                    <div class="analitics-text">
-                        <h2> NO SE HA INICIADO </h2><span>{{analitic.estados["NO SE HA INICIADO"]||0}}</span>
-                    </div>
                 </div>
-                <div class="analitics-content">
-                    <div class="analitics-text">
-                        <h2> EN CURSO </h2><span>{{analitic.estados["EN CURSO"] ||0}}</span>
-                    </div>
-                </div>
-                <div class="analitics-content">
-                    <div class="analitics-text">
-                        <h2> COMPLETADO </h2><span>{{analitic.estados["COMPLETADO"] ||0}}</span>
-                    </div>
-                </div>
-                <div class="analitics-content">
-                    <div class="analitics-text">
-                        <h2> EN ESPERA </h2><span>{{analitic.estados["EN ESPERA"] ||0}}</span>
-                    </div>
-                </div>
-                <div class="analitics-content">
-                    <div class="analitics-text">
-                        <h2> NO SE VA A HACER </h2><span>{{analitic.estados["NO SE VA A HACER"] ||0}}</span>
-                    </div>
-                </div>
-                <div class="analitics-content">
-                    <div class="analitics-text">
-                        <h2> ATRASADO </h2><span>{{analitic.estados["ATRASADO"] ||0}}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="lg:w-1/4 indicadores">
-            <div class="lg:w-1/2 b-1">
-                <div class="logo">
-                    <img src="/assets/iconos mapa-07.png" />
-                </div>
-                <div class="valor">
-                    ${{ total >= 1000000000 ? ((total / 1000000000) | number:'1.2-2') + ' MM' : total >= 1000000 ?
-                    ((total / 1000000) | number:'1.2-2') + ' M' : (total | currency:'':'':'1.0-0') }}
-                </div>
-                <div class="texto">INVERSIÓN TOTAL</div>
-            </div>
-            <div class="lg:w-1/2 b-2">
-                <div class="logo">
-                    <img src="/assets/iconos mapa-06.png" />
-                </div>
-                <div class="valor">{{numPro}}</div>
-                <div class="texto">COMPROMISOS</div>
-            </div>
-            <div class="lg:w-1/2 b-2" (mouseenter)="showAnalystics('EPC','25%')" (mouseleave)="hide = false">
-                <div class="logo">
-                    <img src="/assets/epc.png" />
-                </div>
-                <div class="valor">{{categoryCounts["EPC"]}}</div>
-                <div class="texto">EPC</div>
-            </div>
-            <div class="lg:w-1/2 b-1" (mouseenter)="showAnalystics('IDACO','25%')" (mouseleave)="hide = false">
-                <div class="logo">
-                    <img src="/assets/idaco.png" />
-                </div>
-                <div class="valor">{{categoryCounts["IDACO"]}}</div>
-                <div class="texto">IDACO</div>
-            </div>
-            <div class="lg:w-1/2 b-1" (mouseenter)="showAnalystics('SALUD','50%')" (mouseleave)="hide = false">
-                <div class="logo">
-                    <img src="/assets/salud.png" />
-                </div>
-                <div class="valor">{{categoryCounts["SALUD"]}}</div>
-                <div class="texto">SALUD</div>
-            </div>
-            <div class="lg:w-1/2 b-2 " (mouseenter)="showAnalystics('EDUCACION','50%')" (mouseleave)="hide = false">
-                <div class="logo">
-                    <img src="/assets/educacion.png" />
-                </div>
-                <div class="valor">{{categoryCounts["EDUCACION"]}}</div>
-                <div class="texto">EDUCACION</div>
-            </div>
-            <div class="lg:w-1/2 b-2" (mouseenter)="showAnalystics('ICCU','70%')" (mouseleave)="hide = false">
-                <div class="logo">
-                    <img src="/assets/iccu.png" />
-                </div>
-                <div class="valor">{{categoryCounts["ICCU"]}}</div>
-                <div class="texto">ICCU</div>
-            </div>
-            <div class="lg:w-1/2 b-1 " (mouseenter)="showAnalystics('INDEPORTES','70%')" (mouseleave)="hide = false">
-                <div class="logo">
-                    <img src="/assets/indeportes.png" />
-                </div>
-                <div class="valor">{{categoryCounts["INDEPORTES"]}}</div>
-                <div class="texto">INDEPORTES</div>
             </div>
         </div>
     </div>
-</div>
-<!-- Modals: Si usas modales de Tailwind, reemplaza aquí. Si usas modales personalizados, agrega tu estructura y clases de Tailwind -->
-<!-- Main modal -->
-<div id="default-modal" tabindex="-1" aria-hidden="true" [class.hidden]="showModal"
-    class="flex  overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-4xl max-h-full">
-        <!-- Modal content -->
-        <div class="relative bg-white rounded-lg shadow-sm">
-            <!-- Modal header -->
-            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-900">
-                    Proyectos
-                </h3>
-                <button type="button"
-                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                    (click)="showModal = true">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-            </div>
-            <!-- Modal body -->
-            <div class="p-4 md:p-5 space-y-4">
-                <h3>Municipio: {{nombreModal}}</h3>
-                <p>Total de proyectos: {{projects.length}}</p>
-                <p>Inversión total: {{totalModal|currency:'$':'symbol':'3.0-0'}}</p>
-                <table class="table-auto w-full text-sm text-left text-gray-500">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Proyecto</th>
-                            <th>Entidad Lider</th>
-                            <th>Inversión</th>
-                            <th>Estado</th>
-                            <th>Prioridad</th>
-                            <th>Avance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (item of projects; track $index) {
-                        <tr [routerLink]="['/compromisos', item.id]">
-                            <td>{{item.id}}</td>
-                            <td>{{item.tema}}-{{item.subtema}}</td>
-                            <td>{{item.entidad_lider}}</td>
-                            <td>{{item.valor_total|currency:'':'symbol':'3.0-0'}}</td>
-                            <td>{{item.estado}}</td>
-                            <td>{{item.prioridad}}</td>
-                            <td>
-                                <progress [value]="item.avance_real" max="100"></progress>
-                                <span>{{item.avance_real | number:'1.0-0'}}%</span>
-                            </td>
-                        </tr>
-                        }
 
-                    </tbody>
-                </table>
+    <!-- Main Content 3-Column Grid -->
+    <div class="flex-1 p-4 md:p-6 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+
+            <!-- Col 1: Map (5 cols) -->
+            <div
+                class="lg:col-span-4 flex flex-col h-[800px] lg:h-auto bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative">
+                <div id="map" class="w-full h-full"></div>
+                <div id="tooltip"></div>
+                <!-- Legend overlay if needed, or remove absolute positioning -->
             </div>
+
+            <!-- Col 2: Metrics (3 cols) -->
+            <div class="lg:col-span-3 flex flex-col gap-4 overflow-y-auto">
+                <!-- Metrics Header -->
+                <div class="bg-[#004070] text-white p-3 text-center font-bold uppercase text-sm rounded-t-lg shadow-sm">
+                    Métricas "Ubicación Seleccionada"
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-b-lg p-4 shadow-sm flex flex-col gap-4">
+
+                    <!-- Card: Cantidad -->
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                        <div class="text-[#004070] text-3xl"><i class="fas fa-clipboard-list"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-500 font-bold">Cantidad de compromisos</p>
+                            <p class="text-2xl font-bold text-[#003366]">{{ numPro }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Card: Inversión -->
+                    <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                        <div class="text-[#004070] text-3xl"><i class="fas fa-dollar-sign"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-500 font-bold">Inversión total</p>
+                            <p class="text-xl font-bold text-[#003366]">
+                                {{ total >= 1000000000 ? '$ ' + ((total / 1000000000) | number:'1.2-2') + ' MM' :
+                                total >= 1000000 ? '$ ' + ((total / 1000000) | number:'1.2-2') + ' M' :
+                                (total | currency:'$ ':'symbol':'1.0-0') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card: Avance Total -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                        <div class="flex items-center gap-4 mb-2">
+                            <div class="text-[#004070] text-3xl"><i class="fas fa-sync-alt"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-bold">Avance total</p>
+                                <p class="text-2xl font-bold text-[#003366]">{{ avgAvance | number:'1.0-0' }}%</p>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full" [style.width.%]="avgAvance"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card: Avance Fisico/Financiero -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-chart-pie text-[#004070]"></i>
+                                <span class="text-xs font-bold text-gray-700">Avance físico</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-file-invoice-dollar text-[#004070]"></i>
+                                <span class="text-xs font-bold text-gray-700">Avance financiero</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Fisico -->
+                            <div>
+                                <p class="text-xl font-bold text-[#003366]">{{ avgAvanceFisico | number:'1.0-0' }}%</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="avgAvanceFisico"></div>
+                                </div>
+                            </div>
+                            <!-- Financiero -->
+                            <div>
+                                <p class="text-xl font-bold text-[#003366]">{{ avgAvanceFinanciero | number:'1.0-0' }}%
+                                </p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-400 h-2 rounded-full" [style.width.%]="avgAvanceFinanciero">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card: Riesgo (Mocked) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-exclamation-triangle text-orange-500"></i>
+                            <span class="text-xs font-bold text-gray-700">Tipo de riesgo</span>
+                        </div>
+                        <div class="text-xs text-gray-500 flex justify-between mb-1">
+                            <span><i class="fas fa-caret-up text-green-500"></i> Riesgo 1 | 30%</span>
+                            <span><i class="fas fa-caret-up text-orange-500"></i> Riesgo 2 | 20%</span>
+                            <span><i class="fas fa-caret-up text-red-500"></i> Riesgo 3 | 50%</span>
+                        </div>
+                        <div class="flex w-full h-2 rounded-full overflow-hidden">
+                            <div class="bg-green-500 h-full w-[30%]"></div>
+                            <div class="bg-orange-400 h-full w-[20%]"></div>
+                            <div class="bg-red-500 h-full w-[50%]"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Col 3: Table (4 cols) -->
+            <div
+                class="lg:col-span-5 flex flex-col h-full overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-200">
+                <!-- Table Header -->
+                <div class="bg-[#004070] text-white p-3 text-center font-bold uppercase text-sm">
+                    Compromisos Asociados
+                </div>
+
+                <!-- Table Content -->
+                <div class="flex-1 overflow-auto bg-[#E7F2FF] flex flex-col">
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm m-4 flex flex-col flex-1">
+                        <div class="overflow-auto flex-1">
+                            <table mat-table [dataSource]="dataSource" class="w-full">
+
+                                <!-- ID Column -->
+                                <ng-container matColumnDef="id">
+                                    <th mat-header-cell *matHeaderCellDef
+                                        class="bg-blue-50 text-[#003366] text-xs font-bold uppercase tracking-wider p-3">
+                                        # </th>
+                                    <td mat-cell *matCellDef="let element" class="p-3 font-medium text-gray-600">
+                                        {{element.id}} </td>
+                                </ng-container>
+
+                                <!-- Compromiso Column -->
+                                <ng-container matColumnDef="compromiso">
+                                    <th mat-header-cell *matHeaderCellDef
+                                        class="bg-blue-50 text-[#003366] text-xs font-bold uppercase tracking-wider p-3">
+                                        Proyecto </th>
+                                    <td mat-cell *matCellDef="let element"
+                                        class="p-3 font-medium text-[#003366] truncate max-w-[150px]"
+                                        [title]="element.compromiso_especifico">
+                                        {{element.compromiso_especifico}}
+                                    </td>
+                                </ng-container>
+
+                                <!-- Entidad Column -->
+                                <ng-container matColumnDef="entidad">
+                                    <th mat-header-cell *matHeaderCellDef
+                                        class="bg-blue-50 text-[#003366] text-xs font-bold uppercase tracking-wider p-3">
+                                        Entidad </th>
+                                    <td mat-cell *matCellDef="let element"
+                                        class="p-3 text-gray-500 truncate max-w-[100px]"> {{element.entidad_lider ||
+                                        element.entidad}} </td>
+                                </ng-container>
+
+                                <!-- Inversion Column -->
+                                <ng-container matColumnDef="inversion">
+                                    <th mat-header-cell *matHeaderCellDef
+                                        class="bg-blue-50 text-[#003366] text-xs font-bold uppercase tracking-wider p-3 text-center">
+                                        Inv. </th>
+                                    <td mat-cell *matCellDef="let element" class="p-3 text-gray-500 text-center">
+                                        {{element.valor_total | currency:'':'symbol':'1.0-0'}} </td>
+                                </ng-container>
+
+                                <!-- Estado Column -->
+                                <ng-container matColumnDef="estado">
+                                    <th mat-header-cell *matHeaderCellDef
+                                        class="bg-blue-50 text-[#003366] text-xs font-bold uppercase tracking-wider p-3 text-center">
+                                        Est. </th>
+                                    <td mat-cell *matCellDef="let element" class="p-3 text-center">
+                                        <span class="w-2.5 h-2.5 rounded-full inline-block" [ngClass]="{
+                                              'bg-gray-400': element.estado === 'No iniciado' || element.estado === 'NO SE HA INICIADO',
+                                              'bg-orange-400': element.estado === 'En curso' || element.estado === 'EN CURSO',
+                                              'bg-blue-500': element.estado === 'Finalizado' || element.estado === 'FINALIZADO'
+                                          }"></span>
+                                    </td>
+                                </ng-container>
+
+                                <!-- Prioridad Column -->
+                                <ng-container matColumnDef="prioridad">
+                                    <th mat-header-cell *matHeaderCellDef
+                                        class="bg-blue-50 text-[#003366] text-xs font-bold uppercase tracking-wider p-3 text-center">
+                                        Pri. </th>
+                                    <td mat-cell *matCellDef="let element" class="p-3 text-center">
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border" [ngClass]="{
+                                                'bg-green-100 text-green-700 border-green-200': element.prioridad === 'Baja' || element.prioridad === 'BAJA',
+                                                'bg-yellow-100 text-yellow-700 border-yellow-200': element.prioridad === 'Media' || element.prioridad === 'MEDIA',
+                                                'bg-red-100 text-red-700 border-red-200': element.prioridad === 'High' || element.prioridad === 'Alta' || element.prioridad === 'ALTA'
+                                            }">
+                                            {{ (element.prioridad || 'M').substring(0,1) }}
+                                        </span>
+                                    </td>
+                                </ng-container>
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                                    class="hover:bg-blue-50 cursor-pointer transition-colors"
+                                    [routerLink]="['/compromisos', row.id]"></tr>
+                            </table>
+
+                            <div *ngIf="dataSource.data.length === 0" class="p-4 text-center text-sm text-gray-500">
+                                No se encontraron compromisos.
+                            </div>
+                        </div>
+                        <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons
+                            aria-label="Seleccionar página de compromisos"></mat-paginator>
+                    </div>
+                </div>
+                <!-- Footer/Pagination Mock -->
+                <div class="bg-white p-2 border-t border-gray-200 flex justify-between items-center text-xs text-gray-500 px-4"
+                    *ngIf="filteredCompromisos.length > 0">
+                    <span>Total: {{ filteredCompromisos.length }}</span>
+                    <!-- Pagination controls would go here -->
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <app-footer class="mt-auto"></app-footer>
 </div>
+
+<!-- Modal Removed/Replaced by Table -->

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CompromisosService } from '../../services/compromisos.service';
 import { HttpClientModule } from '@angular/common/http';
-import { AsyncPipe, CurrencyPipe, DecimalPipe } from '@angular/common';
+import { AsyncPipe, CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -22,20 +22,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from "@angular/material/icon";
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { forkJoin, map, Observable, startWith } from 'rxjs';
 import { getCenter } from 'ol/extent';
 import { Point } from 'ol/geom';
 import Icon from 'ol/style/Icon';
 import { RouterLink } from '@angular/router';
 import * as turf from '@turf/turf';
+import { HeaderComponent } from '../shared/header/header.component';
+import { FooterComponent } from '../shared/footer/footer.component';
 @Component({
   selector: 'app-mapa',
   templateUrl: './mapa.component.html',
   styleUrl: './mapa.component.css',
   providers: [CompromisosService],
-  imports: [CurrencyPipe, MatFormFieldModule, MatSelectModule, MatInputModule,
-    FormsModule, MatAutocompleteModule, ReactiveFormsModule, MatIconModule,
-    AsyncPipe, DecimalPipe, RouterLink]
+  imports: [CurrencyPipe, FormsModule, MatAutocompleteModule, ReactiveFormsModule, MatIconModule, MatTableModule, MatPaginatorModule,
+    AsyncPipe, DecimalPipe, RouterLink, HeaderComponent, FooterComponent, CommonModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule]
 })
 export class MapaComponent {
   title = 'iccu';
@@ -634,15 +637,15 @@ export class MapaComponent {
       if (cantidad > 0) {
         const ratio = cantidad / this.maxProyectosMunicipio;
         if (ratio > 0.8) {
-          color = 'rgba(69, 37, 209, 0.7)'; // #4525d1
+          color = '#1F87C8'; // #4525d1
         } else if (ratio > 0.6) {
-          color = 'rgba(52, 28, 183, 0.7)'; // #341cb7
+          color = '#1F87C8'; // #341cb7
         } else if (ratio > 0.4) {
-          color = 'rgba(21, 9, 166, 0.7)'; // #1509a6
+          color = '#C0E1F5'; // #1509a6
         } else if (ratio > 0.2) {
-          color = 'rgba(11, 5, 129, 0.7)'; // #0b0581
+          color = '#E7F2FF'; // #0b0581
         } else {
-          color = 'rgba(0, 0, 92, 0.7)'; // #00005c
+          color = '#FFFFFF'; // #00005c
         }
       }
       this.estilosProvincias.getFill()?.setColor(color);
@@ -674,15 +677,15 @@ export class MapaComponent {
         const ratio = cantidad / this.maxProyectos;
         console.log(ratio, cantidad, this.maxProyectos)
         if (ratio > 0.8) {
-          color = 'rgba(69, 37, 209, 0.7)'; // #4525d1
+          color = '#1F87C8'; // #4525d1
         } else if (ratio > 0.6) {
-          color = 'rgba(52, 28, 183, 0.7)'; // #341cb7
+          color = '#1F87C8'; // #341cb7
         } else if (ratio > 0.4) {
-          color = 'rgba(22, 9, 166, 0.5)'; // #1509a6
+          color = '#C0E1F5'; // #1509a6
         } else if (ratio > 0.2) {
-          color = '#00a9e636'; // #0b0581
+          color = '#E7F2FF'; // #0b0581
         } else {
-          color = 'rgba(0, 0, 92, 0.7)'; // #00005c
+          color = '#FFFFFF'; // #00005c
         }
       }
       this.estilosProvincias.getFill()?.setColor(color);
@@ -785,9 +788,85 @@ export class MapaComponent {
   maxProyectos: number = 0;
   maxProyectosMunicipio: number = 0;
 
+  filteredCompromisos: any[] = [];
+  avgAvance: number = 0;
+  avgAvanceFisico: number = 0;
+  avgAvanceFinanciero: number = 0;
+
+  // Material Table Properties
+  dataSource = new MatTableDataSource<any>([]);
+  displayedColumns: string[] = ['id', 'compromiso', 'entidad', 'inversion', 'estado', 'prioridad'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
+  calculateMetrics() {
+    this.updateDashboardMetrics();
+  }
+
+  updateDashboardMetrics() {
+    const p = this.provincia.value;
+    const m = this.municipio.value;
+    const e = this.entidad.value;
+    const est = this.estado.value;
+    const pri = this.prioridad.value;
+    const obl = this.obligacion.value;
+    const t = this.tema.value;
+    const st = this.subtema.value;
+
+    this.filteredCompromisos = this.info.filter((c: any) => {
+      const matchP = !p || (c.provincia && this.normalizeString(c.provincia) === this.normalizeString(p));
+      const matchM = !m || (c.municipio && this.normalizeString(c.municipio) === this.normalizeString(m));
+      const matchE = !e || ((c.entidad_lider || c.entidad) === e);
+      const matchEst = !est || (c.estado === est);
+      const matchPri = !pri || (c.prioridad === pri);
+      const matchObl = !obl || (c.obligacion_contraida === obl);
+      const matchT = !t || (c.tema === t);
+      const matchSt = !st || (c.subtema === st);
+
+      return matchP && matchM && matchE && matchEst && matchPri && matchObl && matchT && matchSt;
+    });
+
+    this.numPro = this.filteredCompromisos.length;
+    this.total = this.filteredCompromisos.reduce((sum: number, c: any) => sum + (parseFloat(c.valor_total) || 0), 0);
+
+    if (this.numPro > 0) {
+      const totalAvance = this.filteredCompromisos.reduce((sum: any, c: any) => {
+        let avance = c.avance_real;
+        if (typeof avance !== 'number') {
+          avance = (c.estado === 'Finalizado' || c.estado === 'FINALIZADO') ? 100 : 0;
+        }
+        return sum + avance;
+      }, 0);
+      this.avgAvance = totalAvance / this.numPro;
+
+      this.avgAvanceFisico = this.filteredCompromisos.reduce((sum: any, c: any) => sum + (typeof c.avance_fisico !== 'number' ? 0 : c.avance_fisico), 0) / this.numPro;
+      this.avgAvanceFinanciero = this.filteredCompromisos.reduce((sum: any, c: any) => sum + (typeof c.avance_financiero !== 'number' ? 0 : c.avance_financiero), 0) / this.numPro;
+      console.log(this.avgAvance);
+      console.log(this.avgAvanceFisico);
+      console.log(this.avgAvanceFinanciero);
+    } else {
+      this.avgAvance = 0;
+      this.avgAvanceFisico = 0;
+      this.avgAvanceFinanciero = 0;
+    }
+
+    // Update Table DataSource
+    this.dataSource.data = this.filteredCompromisos;
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+  }
+
   ngOnInit() {
     this.data.getCompromisos().subscribe((data: any) => {
       this.info = data;
+      this.filteredCompromisos = data;
+      this.calculateMetrics();
+
       this.filterType("", "", "", null);
       this.temas = Array.from(new Set(data.map((obj: any) => obj.tema)))
         .map(id => data.find((obj: any) => obj.tema === id && id !== null && id !== undefined && obj !== undefined))
@@ -914,26 +993,29 @@ export class MapaComponent {
       this.total = 0;
       if (e.selected[0]) {
         if (e.selected[0].values_.PROVINCIA) {
-          this.typeFilter = "PROVINCIA";
-          this.valueFilter = e.selected[0].values_.PROVINCIA;
+          const provName = e.selected[0].values_.PROVINCIA;
+          this.provincia.setValue(provName);
+          // Trigger the detailed filter update logic which handles zooming and metrics
+          // We call onSelectProvincia or simulate it, but since setValue doesn't emit if emitEvent:false,
+          // we can just stick to `onSelectProvincia` logic being triggered manually or by value change if we subscribe.
+          // However, existing onSelectProvincia relies on control value.
 
-          this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, e.target.getFeatures().getArray()[0]);
+          this.onSelectProvincia();
 
         } else if (e.selected[0].values_.munnombre) {
+          const munName = e.selected[0].values_.munnombre;
+          this.municipio.setValue(munName);
+          this.onSelectMunicipio();
 
-          this.typeFilter = "MUNICIPIO";
-          this.valueFilter = e.selected[0].values_.munnombre;
-          this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, e.target.getFeatures().getArray()[0]);
         } else {
-
-          this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, e.target.getFeatures().getArray()[0]);
-
+          // Fallback or other layres
         }
 
       } else {
-
-
-        this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, e.target.getFeatures().getArray()[0]);
+        // Deselect -> Reset? Or do nothing?
+        // Usually clicking empty space deselects.
+        // We might want to reset the specific filter if it matches the current selection.
+        // For now, let's keep it simple. If they click to select, we select.
       }
 
     });
@@ -976,9 +1058,15 @@ export class MapaComponent {
       .map((option: any) => option[field]);
   }
 
-  selectProvincia(event: any) {
-    this.provinciaFilter = event.option.value;
-    const selectedValue = event.option.value;
+  onSelectProvincia() {
+    const selectedValue = this.provincia.value;
+    this.provinciaFilter = selectedValue || '';
+
+    if (!selectedValue) {
+      this.resetMapa();
+      return;
+    }
+
     let e: any = {}
     this.map.getView().setZoom(8.6);
     setTimeout(() => {
@@ -989,19 +1077,25 @@ export class MapaComponent {
       })
       this.filterType(selectedValue, "PROVINCIA", this.globalFilter, e);
     }, 1000);
+
     let valueProv = selectedValue != "" ? this.municipios.filter((ele: any) => ele.provincia && this.normalizeString(ele.provincia) == this.normalizeString(selectedValue)) : this.municipios
 
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
 
-    this.filteredmunicipio = this.municipio.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filterS(value || '', valueProv, "NOMBRE_MPIO")),
-    );
+    // Mocking value changes for municipio dependent filter
+    // Since we are not using autocomplete pipe anymore for filtering the options, we can just update the list if we want
+    // But for now, user can see all municipos or filtered
   }
 
-  selectMunicipio(event: any) {
-    this.municipioFilter = event.option.value;
-    const selectedValue = event.option.value;
+  onSelectMunicipio() {
+    const selectedValue = this.municipio.value;
+    this.municipioFilter = selectedValue || '';
+
+    if (!selectedValue) {
+      // Handle clear?
+      return; // or reset
+    }
+
     let e: any = {}
     this.map.getView().setZoom(9.1);
     setTimeout(() => {
@@ -1017,29 +1111,30 @@ export class MapaComponent {
 
   }
 
-  selectEntidad(event: any) {
-    this.entidadFilter = event.option.value;
-    const selectedValue = event.option.value;
+  onSelectEntidad() {
+    this.entidadFilter = this.entidad.value || '';
+    const selectedValue = this.entidadFilter;
     this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, selectedValue, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
-  selectEstado(event: any) {
-    this.estadoFilter = event.option.value;
+  onSelectEstado() {
+    this.estadoFilter = this.estado.value || '';
     this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
-  selectPrioridad(event: any) {
-    this.prioridadFilter = event.option.value;
+  onSelectPrioridad() {
+    this.prioridadFilter = this.prioridad.value || '';
     this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
-  selectObligacion(event: any) {
-    this.obligacionFilter = event.option.value;
+  onSelectObligacion() {
+    this.obligacionFilter = this.obligacion.value || '';
     this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
+
   }
 
   municipioFilter: string = "";
@@ -1142,31 +1237,7 @@ export class MapaComponent {
       this.featureDestacado = hoveredFeature;
     }
     // Mostrar u ocultar tooltip correctamente
-    if (hoveredFeature && hoveredFeature.get('munnombre')) {
-      const coord = evt.coordinate;
-      this.tooltipOverlay.setPosition(coord);
-      this.tooltip.style.left = (evt.originalEvent as PointerEvent).x + 'px';
-      this.tooltip.style.top = (evt.originalEvent as PointerEvent).y + 'px';
-      this.tooltip.innerHTML = hoveredFeature.get('munnombre');
-      this.tooltip.style.display = 'block';
-    } else if (hoveredFeature && hoveredFeature.get('PROVINCIA')) {
-      const coord = evt.coordinate;
-      this.tooltipOverlay.setPosition(coord);
-      this.tooltip.style.left = (evt.originalEvent as PointerEvent).x + 'px';
-      this.tooltip.style.top = (evt.originalEvent as PointerEvent).y + 'px';
-      this.tooltip.innerHTML = hoveredFeature.get('PROVINCIA');
-      this.tooltip.style.display = 'block';
-    } else if (hoveredFeature && hoveredFeature.get("NOMBRE_DPT")) {
-      const coord = evt.coordinate;
-      this.tooltipOverlay.setPosition(coord);
-      this.tooltip.style.left = (evt.originalEvent as PointerEvent).x + 'px';
-      this.tooltip.style.top = (evt.originalEvent as PointerEvent).y + 'px';
-      this.tooltip.innerHTML = hoveredFeature.get('NOMBRE_DPT');
-      this.tooltip.style.display = 'block';
-    } else {
-      this.tooltip.style.display = 'none';
-      this.tooltip.innerHTML = '';
-    }
+
   }
   onMapMoveEnd(): any {
     const zoom = this.map.getView().getZoom()!;
@@ -1287,6 +1358,9 @@ export class MapaComponent {
   }
 
   filterType(valor: string, tipo: string, global: string = "", e: any) {
+    // Sync triggers
+    this.updateDashboardMetrics();
+
     this.total = 0;
     let value = this.info;
     if (this.entidadFilter && this.entidadFilter != "") { value = value.filter((ele: any) => ele.entidad == this.entidadFilter) }
@@ -1425,23 +1499,45 @@ export class MapaComponent {
 
   }
   resetMapa() {
-    this.map.getView().setCenter(this.vistaInicial.center);
-    this.map.getView().setZoom(this.vistaInicial.zoom);
-    this.map.render()
-    this.layerDepartamento.setVisible(true)
-    this.layerProvincia.setVisible(false)
-    this.layerMunicipios.setVisible(false)
-    this.filterType('', '', '', '')
+    this.map.getView().animate({
+      center: this.vistaInicial.center,
+      zoom: this.vistaInicial.zoom,
+      duration: 1000
+    });
+
+    // Reset Form Controls
+    this.provincia.setValue('');
+    this.municipio.setValue('');
+    this.entidad.setValue('');
     this.estado.setValue('');
     this.prioridad.setValue('');
     this.obligacion.setValue('');
+    this.tema.setValue('');
+    this.subtema.setValue('');
+
+    // Reset Filters strings
     this.estadoFilter = "";
     this.prioridadFilter = "";
     this.obligacionFilter = "";
-    this.layerMunicipios.setStyle(this.estilosProvincias)
-    this.map.removeLayer(this.proyectosLayer);
+    this.entidadFilter = "";
+    this.temaFilter = "";
+    this.subtemaFilter = "";
+    this.valueFilter = "";
+    this.typeFilter = "";
+    this.globalFilter = "";
 
-    // Si quieres limpiar filtros, capas, etc., hazlo aquí también
+    // Reset Layers
+    this.layerDepartamento.setVisible(true);
+    this.layerProvincia.setVisible(false);
+    this.layerMunicipios.setVisible(false);
+    this.layerPuntos.setVisible(false);
+    this.layerMunicipios.setStyle(this.estilosProvincias);
+    if (this.proyectosLayer) {
+      this.map.removeLayer(this.proyectosLayer);
+    }
+
+    // Reset Data
+    this.filterType('', '', '', null);
   }
   proyectosFeatures: Feature[] = [];
   generarProyectosDesdeMunicipios(tema = this.temaFilter, subtema = this.subtemaFilter, entidad = this.entidadFilter, estado = this.estadoFilter, prioridad = this.prioridadFilter, obligacion = this.obligacionFilter, municipioNombre: string | null = null) {

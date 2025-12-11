@@ -1,124 +1,236 @@
 <!-- src/app/components/compromiso-list/compromiso-list.component.html -->
-<div class="min-h-screen bg-gray-100">
-    
+<div class="min-h-screen bg-gray-50 flex flex-col font-roboto">
     <app-header></app-header>
-    <main class="py-8">
-        <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Listado de Compromisos</h2>
-            <div *ngIf="loading" class="text-center text-blue-600">Cargando compromisos...</div>
-            <div *ngIf="error" class="text-center text-red-600">{{ error }}</div>
 
-            <div class="flex justify-end mb-6">
-                <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
-                    routerLink="/compromisos/nuevo"
-                    class=" text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
-                    style="background-color: #112b42;">
-                    Crear Nuevo Compromiso
-                </a>
+    <main class="flex-grow py-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
+
+        <!-- Filters Row -->
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4" id="filters">
+                <!-- Provincia -->
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Provincia:</label>
+                    <select [(ngModel)]="filtroProvincia" (change)="aplicarFiltros()"
+                        class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
+                        <option value="">Todas</option>
+                        <option *ngFor="let p of provincias" [value]="p">{{ p }}</option>
+                    </select>
+                </div>
+                <!-- Municipio -->
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Municipio:</label>
+                    <select [(ngModel)]="filtroMunicipio" (change)="aplicarFiltros()"
+                        class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
+                        <option value="">Todos</option>
+                        <option *ngFor="let m of municipios" [value]="m">{{ m }}</option>
+                    </select>
+                </div>
+                <!-- Entidad Líder -->
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Entidad Líder:</label>
+                    <select [(ngModel)]="filtroEntidad" (change)="aplicarFiltros()"
+                        class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
+                        <option value="">Todas</option>
+                        <option *ngFor="let e of entidades" [value]="e">{{ e }}</option>
+                    </select>
+                </div>
+                <!-- Prioridad -->
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Prioridad:</label>
+                    <select [(ngModel)]="filtroPrioridad" (change)="aplicarFiltros()"
+                        class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
+                        <option value="">Todas</option>
+                        <option *ngFor="let p of prioridades" [value]="p">{{ p }}</option>
+                    </select>
+                </div>
+                <!-- Estado -->
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Estado:</label>
+                    <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()"
+                        class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
+                        <option value="">Todos</option>
+                        <option *ngFor="let s of estados" [value]="s">{{ s }}</option>
+                    </select>
+                </div>
+                <!-- Obligación -->
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 font-semibold mb-1 ml-1">Obligación:</label>
+                    <select [(ngModel)]="filtroObligacion" (change)="aplicarFiltros()"
+                        class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
+                        <option value="">Todas</option>
+                        <option *ngFor="let o of obligaciones" [value]="o">{{ o }}</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end mt-4">
+                    <button
+                        (click)="filtroProvincia=''; filtroMunicipio=''; filtroEntidad=''; filtroPrioridad=''; filtroEstado=''; filtroObligacion=''; aplicarFiltros()"
+                        class="text-[#003366] text-xs font-semibold hover:underline flex items-center border border-[#003366] px-4 py-1.5 rounded-full hover:bg-blue-50 transition-colors">
+                        Limpiar filtros <i class="fas fa-undo ml-2 text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Clear Filters Button (Optional but helpful) -->
+
+        </div>
+
+        <!-- Search and Action Row -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-2/3 lg:w-1/2">
+                <input type="text" (input)="aplicarBusqueda($any($event.target).value)" placeholder="Buscar..."
+                    class="w-full pl-5 pr-12 py-3 border border-gray-300 rounded-full text-sm focus:outline-none focus:border-blue-500 shadow-sm text-gray-600">
+                <i class="fas fa-search absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
 
-            <!-- Filtros Material -->
-            <div class="flex flex-wrap gap-4 mb-6 items-end">
-                <mat-form-field appearance="fill" class="w-60">
-                    <mat-label>Provincia</mat-label>
-                    <mat-select [(value)]="filtroProvincia" (selectionChange)="aplicarFiltros()">
-                        <mat-option value="">Todas</mat-option>
-                        <mat-option *ngFor="let provincia of provincias" [value]="provincia">{{ provincia
-                            }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="fill" class="w-60">
-                    <mat-label>Municipio</mat-label>
-                    <mat-select [(value)]="filtroMunicipio" (selectionChange)="aplicarFiltros()">
-                        <mat-option value="">Todos</mat-option>
-                        <mat-option *ngFor="let municipio of municipios" [value]="municipio">{{ municipio
-                            }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="fill" class="w-60">
-                    <mat-label>Entidad</mat-label>
-                    <mat-select [(value)]="filtroEntidad" (selectionChange)="aplicarFiltros()">
-                        <mat-option value="">Todas</mat-option>
-                        <mat-option *ngFor="let entidad of entidades" [value]="entidad">{{ entidad }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
+            <!-- Create Button -->
+            <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
+                routerLink="/compromisos/nuevo"
+                class="bg-[#002845] text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg hover:bg-[#003355] transition-colors flex items-center whitespace-nowrap">
+                Crear nuevo compromiso <i class="fas fa-plus ml-2"></i>
+            </a>
+        </div>
 
-            <div class="flex flex-wrap gap-4 mb-4 items-end">
-                <mat-form-field appearance="outline" class="w-80">
-                    <mat-label>Buscar</mat-label>
-                    <input matInput (input)="aplicarBusqueda($any($event.target).value)"
-                        placeholder="Buscar por cualquier campo...">
-                </mat-form-field>
-            </div>
+        <!-- Data Table -->
+        <div class="bg-[#E7F2FF] rounded-2xl p-0.5 shadow-md overflow-hidden border border-blue-100">
+            <div class="bg-white rounded-[14px] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table mat-table [dataSource]="dataSource" class="w-full">
 
-            <div *ngIf="compromisosFiltrados.length > 0" class="overflow-x-auto rounded-lg shadow-md">
-                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 w-full">
-                    <!-- Código Column -->
-                    <ng-container matColumnDef="codigo">
-                        <th mat-header-cell *matHeaderCellDef> Código </th>
-                        <td mat-cell *matCellDef="let compromiso"> {{compromiso.codigo}} </td>
-                    </ng-container>
+                        <!-- ID Column -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0 w-16 text-center">
+                                # </th>
+                            <td mat-cell *matCellDef="let element"
+                                class="!py-4 !px-4 !text-gray-600 !text-sm font-medium text-center !border-b border-gray-100">
+                                {{element.id}} </td>
+                        </ng-container>
 
-                    <!-- Entidad Column -->
-                    <ng-container matColumnDef="entidad_lider">
-                        <th mat-header-cell *matHeaderCellDef> Entidad </th>
-                        <td mat-cell *matCellDef="let compromiso"> {{compromiso.entidad_lider}} </td>
-                    </ng-container>
+                        <!-- Proyecto Column -->
+                        <ng-container matColumnDef="proyecto">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
+                                Proyecto </th>
+                            <td mat-cell *matCellDef="let element"
+                                class="!py-4 !px-4 !text-[#003366] !font-bold !text-sm !border-b border-gray-100 underline decoration-blue-300 underline-offset-2 min-w-[250px]">
+                                {{element.compromiso_especifico | slice:0:100}}{{element.compromiso_especifico.length >
+                                100 ? '...' : ''}}
+                            </td>
+                        </ng-container>
 
-                    <!-- Provincia Column -->
-                    <ng-container matColumnDef="provincia">
-                        <th mat-header-cell *matHeaderCellDef> Provincia </th>
-                        <td mat-cell *matCellDef="let compromiso"> {{compromiso.provincia}} </td>
-                    </ng-container>
+                        <!-- Entidad Líder Column -->
+                        <ng-container matColumnDef="entidad_lider">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
+                                Entidad </th>
+                            <td mat-cell *matCellDef="let element"
+                                class="!py-4 !px-4 !text-gray-500 !text-sm !border-b border-gray-100">
+                                {{element.entidad}} </td>
+                        </ng-container>
 
-                    <!-- Municipio Column -->
-                    <ng-container matColumnDef="municipio">
-                        <th mat-header-cell *matHeaderCellDef> Municipio </th>
-                        <td mat-cell *matCellDef="let compromiso"> {{compromiso.municipio}} </td>
-                    </ng-container>
+                        <!-- Inversión Column -->
+                        <ng-container matColumnDef="inversion">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
+                                Inversión </th>
+                            <td mat-cell *matCellDef="let element"
+                                class="!py-4 !px-4 !text-gray-500 !text-sm !border-b border-gray-100">
+                                {{element.valor_total | currency : '$ ' : 'symbol' : '1.0-0'}} </td>
+                        </ng-container>
 
-                    <!-- Compromiso Específico Column -->
-                    <ng-container matColumnDef="compromiso_especifico">
-                        <th mat-header-cell *matHeaderCellDef> Compromiso Específico </th>
-                        <td mat-cell *matCellDef="let compromiso"> {{compromiso.tema + ' - ' + compromiso.subtema}}
-                        </td>
-                    </ng-container>
+                        <!-- Estado Column -->
+                        <ng-container matColumnDef="estado">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
+                                Estado </th>
+                            <td mat-cell *matCellDef="let element" class="!py-4 !px-4 !border-b border-gray-100">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full" [class]="{
+                                            'bg-gray-400': element.estado === 'NO SE HA INICIADO',
+                                            'bg-orange-400': element.estado === 'EN CURSO' || element.estado === 'EN PROCESO',
+                                            'bg-blue-500': element.estado === 'FINALIZADO' || element.estado === 'COMPLETADO'
+                                          }"></span>
+                                    <span class="text-sm text-gray-600">{{ element.estado }}</span>
+                                </div>
+                            </td>
+                        </ng-container>
 
-                    <!-- Estado Column -->
-                    <ng-container matColumnDef="estado">
-                        <th mat-header-cell *matHeaderCellDef> Estado </th>
-                        <td mat-cell *matCellDef="let compromiso"> {{compromiso.estado}} </td>
-                    </ng-container>
+                        <!-- Avance Column -->
+                        <ng-container matColumnDef="avance">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
+                                Avance </th>
+                            <td mat-cell *matCellDef="let element"
+                                class="!py-4 !px-4 !text-gray-500 !text-sm !border-b border-gray-100">
+                                <!-- Placeholder logic -->
+                                {{ element.avance_financiero || '0' }}%
+                            </td>
+                        </ng-container>
 
-                    <!-- Acciones Column -->
-                    <ng-container matColumnDef="acciones">
-                        <th mat-header-cell *matHeaderCellDef> Acciones </th>
-                        <td mat-cell *matCellDef="let compromiso">
-                            <div class="flex space-x-2">
-                                <a [routerLink]="['/compromisos', compromiso.id]"
-                                    class="bg-blue-600 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Ver</a>
-                                <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
-                                    [routerLink]="['/compromisos/editar', compromiso.id]"
-                                    class="bg-yellow-300 hover:bg-yellow-300 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Actualizar</a>
-                                <button *ngIf="authService.hasRole('Administrador')"
-                                    (click)="deleteCompromiso(compromiso.id)"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Eliminar</button>
-                            </div>
-                        </td>
-                    </ng-container>
+                        <!-- Prioridad Column -->
+                        <ng-container matColumnDef="prioridad">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
+                                Prioridad </th>
+                            <td mat-cell *matCellDef="let element" class="!py-4 !px-4 !border-b border-gray-100">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-semibold border bg-yellow-100 text-yellow-700 border-yellow-200"
+                                    [ngClass]="{
+                                        'bg-green-100 text-green-700 border-green-200': element.prioridad === 'ALTA',
+                                        'bg-yellow-100 text-yellow-700 border-yellow-200': element.prioridad === 'MEDIA',
+                                        'bg-red-100 text-red-700 border-red-200': element.prioridad === 'BAJA'
+                                      }">
+                                    {{ element.prioridad || 'MEDIA' }}
+                                </span>
+                            </td>
+                        </ng-container>
 
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table>
-                <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-            </div>
 
-            <div *ngIf="compromisos.length === 0 && !loading && !error" class="text-center text-gray-600 mt-8">
-                No hay compromisos registrados.
+                        <!-- Acciones Column -->
+                        <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef
+                                class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0 text-center">
+                                Acciones </th>
+                            <td mat-cell *matCellDef="let element"
+                                class="!py-4 !px-4 !border-b border-gray-100 text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <a [routerLink]="['/compromisos', element.id]"
+                                        class="group flex items-center px-3 py-1 rounded-full border border-blue-200 text-[#003366] text-xs font-bold hover:bg-blue-50 transition-colors">
+                                        Ver <i class="fas fa-eye ml-1 text-[#003366]"></i>
+                                    </a>
+                                    <button *ngIf="authService.hasRole('Administrador')"
+                                        (click)="deleteCompromiso(element.id)"
+                                        class="group flex items-center px-3 py-1 rounded-full border border-blue-200 text-[#003366] text-xs font-bold hover:bg-red-50 hover:border-red-200 hover:text-red-700 transition-colors">
+                                        Eliminar <i class="fas fa-trash-alt ml-1"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                            class="hover:bg-blue-50/30 transition-colors duration-150"></tr>
+                    </table>
+
+                    <!-- Custom Pagination Wrapper to match design style roughly -->
+                    <div class="bg-[#E7F2FF] p-2 flex justify-end">
+                        <mat-paginator #paginator [pageSizeOptions]="[10, 20, 50]"
+                            class="!bg-transparent"></mat-paginator>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
 
+        <!-- Loading / Error States -->
+        <div *ngIf="loading" class="text-center py-10 text-blue-600">
+            <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+            <p>Cargando compromisos...</p>
+        </div>
+        <div *ngIf="compromisosFiltrados.length === 0 && !loading" class="text-center py-10 text-gray-500">
+            No se encontraron compromisos que coincidan con los filtros.
+        </div>
+
+    </main>
     <app-footer></app-footer>
 </div>

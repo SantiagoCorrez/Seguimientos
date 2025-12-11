@@ -40,4 +40,6 @@ export interface Compromiso {
     observaciones: string;
     entidad: string;
     obligacion_contraida: string;
+    avance_financiero: number;
+    avance_fisico: number;
 }

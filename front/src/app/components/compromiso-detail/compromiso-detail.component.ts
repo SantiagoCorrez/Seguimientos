@@ -8,14 +8,18 @@ import { Compromiso } from '../../models/compromiso';
 import { ReporteAvance } from '../../models/reporte-avance';
 import { AuthService } from '../../services/auth.service';
 
+import { HeaderComponent } from '../shared/header/header.component';
+import { FooterComponent } from '../shared/footer/footer.component';
+
 @Component({
     selector: 'app-compromiso-detail',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, HeaderComponent, FooterComponent],
     templateUrl: './compromiso-detail.component.html',
     styleUrls: ['./compromiso-detail.component.css']
 })
 export class CompromisoDetailComponent implements OnInit {
+
     compromiso: Compromiso | undefined;
     reportesAvance: ReporteAvance[] = [];
     loadingCompromiso: boolean = true;

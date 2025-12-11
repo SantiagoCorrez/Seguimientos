@@ -1,0 +1,13 @@
+/* Compromiso List Component Styles */
+/* Most styles are handled via Tailwind util classes in HTML. */
+#filters {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+#filters div {
+    flex: 1;
+}

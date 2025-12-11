@@ -1,9 +1,15 @@
+html,
+body {
+    height: 100%;
+}
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Antonio, sans-serif; }
+body {
+    margin: 0;
+    font-family: Antonio, sans-serif;
+}
 
 
-:root app-mapa .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-floating-label{
+:root app-mapa .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-floating-label {
     color: #fff !important
 }
 
@@ -16,9 +22,34 @@ body { margin: 0; font-family: Antonio, sans-serif; }
     height: 50px !important;
     margin-bottom: 10px;
 }
-:root app-mapa .mat-mdc-form-field-subscript-wrapper, app-mapa .mat-mdc-form-field-bottom-align::before{
+
+:root app-mapa .mat-mdc-form-field-subscript-wrapper,
+app-mapa .mat-mdc-form-field-bottom-align::before {
     display: none !important;
 }
-:root mat-mdc-notch-piece mdc-notched-outline__notch{
+
+:root mat-mdc-notch-piece mdc-notched-outline__notch {
     border-right: none !important;
+}
+
+.dense-form-field .mat-mdc-form-field-flex {
+    height: 36px !important;
+    align-items: center;
+    padding: 0 8px !important;
+    background-color: #f3f4f6;
+    border-radius: 9999px !important;
+}
+
+.dense-form-field .mat-mdc-text-field-infix {
+    padding: 0.25em 0 !important;
+    border-top: 0 !important;
+}
+
+.dense-form-field .mat-mdc-text-field-wrapper {
+    height: 36px !important;
+    padding: 0 !important;
+}
+
+.dense-form-field input.mat-mdc-input-element {
+    margin-top: -4px;
 }

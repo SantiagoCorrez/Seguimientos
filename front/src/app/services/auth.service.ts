@@ -33,7 +33,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return this.getToken() !== null;
   }
 
   private getDecodedToken(): any {
@@ -56,4 +56,16 @@ export class AuthService {
   hasRole(role: string): boolean {
     return this.getRoles().includes(role);
   }
+
+  getUserName(): string {
+    const decodedToken = this.getDecodedToken();
+    console.log(decodedToken);
+    if (decodedToken) {
+      // Adjust property name based on your token structure (e.g., 'name', 'sub', 'email')
+      // Assuming 'name' or fallback to 'email' or generic 'Usuario'
+      return decodedToken.name || decodedToken.email || 'Usuario';
+    }
+    return '';
+  }
 }
+

@@ -1,37 +1,69 @@
-<nav class="navbar navbar-expand-lg barra-superior-govco" aria-label="Barra superior">
-    <div class="container p-3">
-        <a href="https://www.gov.co/" target="_blank" aria-label="Portal del Estado Colombiano - GOV.CO"></a>
+<!-- Row 1: Main Header (Dark Blue) -->
+<header class="bg-[#003366] text-white">
+    <div class="container mx-auto px-4 flex justify-between items-center h-20">
+        <!-- Left: Logo & "Me comprometo a" -->
+        <div class="flex items-center space-x-6">
+            <a routerLink="/" class="flex items-center">
+                <!-- Use the same logo as in login if available, otherwise fallback to existing asset logic -->
+                <img src="/assets/logo_gobernacion_header.png" alt="Gobernación de Cundinamarca"
+                    class="h-12 border-r border-gray-400 pr-6">
+            </a>
+            <span class="font-light italic text-xl tracking-wide">“Me comprometo a”</span>
+        </div>
 
-    </div>
-</nav>
-
-<header class="text-white shadow-md py-4" style="background-color: #112b42;">
-    <div class="container mx-auto flex justify-between items-center px-6">
-        <a routerLink="/" class="text-2xl font-bold tracking-tight">Sistema de Gestión de Compromisos</a>
+        <!-- Right: Navigation -->
+        @if(authService.isLoggedIn()){
         <nav>
-            <ul class="flex space-x-6">
+            <ul class="flex items-center space-x-6 text-sm font-medium">
                 <li>
-                    <a routerLink="/home" class="hover:text-blue-200 transition duration-300 ease-in-out">Home</a>
+                    <a routerLink="/home" routerLinkActive="bg-[#1F8BC4]"
+                        class="px-5 py-2 rounded-full hover:bg-[#004080] transition-colors duration-200">Inicio</a>
                 </li>
                 <li>
-                    <a routerLink="/compromisos"
-                        class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
+                    <a routerLink="/mapa" class="hover:text-blue-300 transition-colors">Mapa de
+                        compromisos</a>
+                </li>
+                <li>
+                    <a routerLink="/compromisos" class="hover:text-blue-300 transition-colors">Listado de
+                        compromisos</a>
+                </li>
+                <!-- Only for Admin/Specific roles if logic requires, but showing all for now based on image -->
+                <li>
+                    <a routerLink="/ficha-tecnica" class="hover:text-blue-300 transition-colors">Fichas técnicas de
+                        visita</a>
                 </li>
                 @if (authService.hasRole('Administrador')) {
                 <li>
-                    <a routerLink="/admin/users"
-                        class="hover:text-blue-200 transition duration-300 ease-in-out">Administrar Usuarios</a>
-                </li>
-                <li>
-                    <a routerLink="/ficha-tecnica" class="hover:text-blue-200 transition duration-300 ease-in-out">Ficha
-                        Tecnica</a>
+                    <a routerLink="/admin/users" class="hover:text-blue-300 transition-colors">Usuarios</a>
                 </li>
                 }
-                <li>
-                    <button (click)="authService.logout()"
-                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium transition duration-300 ease-in-out">Salir</button>
-                </li>
             </ul>
         </nav>
+        }
+
     </div>
 </header>
+
+<!-- Row 2: User Bar (Light Blue) -->
+@if(authService.isLoggedIn()){
+<div class="bg-[#E7F2FF] border-b border-gray-200">
+    <div class="container mx-auto px-4 h-12 flex justify-between items-center">
+        <!-- Left: User Greeting -->
+        <div class="text-[#003366] font-bold text-sm">
+            ¡Hola, {{ userName }}!
+        </div>
+
+        <!-- Right: Logout Button -->
+        <button (click)="authService.logout()"
+            class="flex items-center bg-[#003366] text-white px-4 py-1.5 rounded-full text-xs font-medium hover:bg-[#002244] transition-colors">
+            Cerrar sesión
+            <!-- Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-2" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+    </div>
+</div>
+}

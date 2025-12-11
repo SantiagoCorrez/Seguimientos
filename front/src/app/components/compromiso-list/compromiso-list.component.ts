@@ -17,11 +17,12 @@ import { AuthService } from '../../services/auth.service';
 import { MatInputModule } from '@angular/material/input';
 import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-compromiso-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, MatFormFieldModule, MatSelectModule, MatTableModule, MatPaginatorModule, MatInputModule, HeaderComponent, FooterComponent],
+    imports: [CommonModule, RouterLink, MatFormFieldModule, MatSelectModule, MatTableModule, MatPaginatorModule, MatInputModule, HeaderComponent, FooterComponent, FormsModule, ReactiveFormsModule],
     templateUrl: './compromiso-list.component.html',
     styleUrls: ['./compromiso-list.component.css'],
     providers: [CompromisosService, HttpClient]
@@ -44,16 +45,30 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
     }
     compromisos: Compromiso[] = [];
     compromisosFiltrados: Compromiso[] = [];
+
+    // Filter Lists
     provincias: string[] = [];
     municipios: string[] = [];
     entidades: string[] = [];
+    prioridades: string[] = [];
+    estados: string[] = [];
+    obligaciones: string[] = [];
+
+    // Filter Values
     filtroProvincia: string = '';
     filtroMunicipio: string = '';
     filtroEntidad: string = '';
+    filtroPrioridad: string = '';
+    filtroEstado: string = '';
+    filtroObligacion: string = '';
+
     loading: boolean = true;
     error: string | null = null;
-    displayedColumns: string[] = ['codigo', 'entidad_lider', 'provincia', 'municipio', 'compromiso_especifico', 'estado', 'acciones'];
-    dataSource:MatTableDataSource<Compromiso> = new MatTableDataSource<Compromiso>([]);
+
+    // Displayed Columns (Updated)
+    displayedColumns: string[] = ['id', 'proyecto', 'entidad_lider', 'inversion', 'estado', 'avance', 'prioridad', 'acciones'];
+    dataSource: MatTableDataSource<Compromiso> = new MatTableDataSource<Compromiso>([]);
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
 
     constructor(private compromisosService: CompromisosService, public authService: AuthService) { }
@@ -79,7 +94,11 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
                 this.compromisos = data;
                 this.provincias = this.getUnicos(data.map(c => c.provincia));
                 this.municipios = this.getUnicos(data.map(c => c.municipio));
-                this.entidades = this.getUnicos(data.map(c => c.entidad_lider || c.entidad));
+                this.entidades = this.getUnicos(data.map(c => c.entidad));
+                this.prioridades = this.getUnicos(data.map(c => c.prioridad));
+                this.estados = this.getUnicos(data.map(c => c.estado));
+                this.obligaciones = this.getUnicos(data.map(c => c.obligacion_contraida));
+
                 this.aplicarFiltros();
                 this.loading = false;
             },
@@ -99,8 +118,12 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
         this.compromisosFiltrados = this.compromisos.filter(c =>
             (!this.filtroProvincia || c.provincia === this.filtroProvincia) &&
             (!this.filtroMunicipio || c.municipio === this.filtroMunicipio) &&
-            (!this.filtroEntidad || (c.entidad_lider || c.entidad) === this.filtroEntidad)
+            (!this.filtroEntidad || (c.entidad) === this.filtroEntidad) &&
+            (!this.filtroPrioridad || c.prioridad === this.filtroPrioridad) &&
+            (!this.filtroEstado || c.estado === this.filtroEstado) &&
+            (!this.filtroObligacion || c.obligacion_contraida === this.filtroObligacion)
         );
+
         this.dataSource.data = this.compromisosFiltrados;
         // paginator may not yet be available due to *ngIf; assign asynchronously
         setTimeout(() => {
