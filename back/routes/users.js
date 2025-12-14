@@ -2,7 +2,7 @@ const express = require('express');
 const pool = require('../db');
 const verifyToken = require('../middleware/verifyToken');
 const checkRole = require('../middleware/checkRole');
-
+const bcrypt = require('bcryptjs')
 const router = express.Router();
 
 // Middleware para todas las rutas de este archivo
@@ -164,8 +164,12 @@ router.post('/', async (req, res) => {
             return res.status(409).json({ error: 'El email ya está registrado.' });
         }
         // Insertar usuario
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
         const query = 'INSERT INTO usuarios (nombre, email, password, secretaria_id, fecha_creacion) VALUES ($1, $2, $3, $4, NOW()) RETURNING id, nombre, email, secretaria_id, fecha_creacion';
-        const result = await pool.query(query, [nombre, email, password, secretaria_id]);
+        const result = await pool.query(query, [nombre, email, hashedPassword, secretaria_id]);
+
         res.status(201).json(result.rows[0]);
     } catch (err) {
         console.error('Error al crear usuario:', err.message);

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { FooterComponent } from "../shared/footer/footer.component";
 import { HeaderComponent } from '../shared/header/header.component';
 
@@ -18,6 +20,8 @@ export class UserAdminComponent implements OnInit {
   secretarias: any[] = [];
   selectedUser: any = {};
   isEditMode = false;
+
+  viewMode: 'list' | 'form' = 'list';
 
   constructor(private userService: UserService) { }
 
@@ -45,9 +49,17 @@ export class UserAdminComponent implements OnInit {
     });
   }
 
+  originalRoles: string[] = [];
+
   onSelectUser(user: any): void {
     this.selectedUser = { ...user };
+    // Ensure roles is initialized
+    if (!this.selectedUser.roles) {
+      this.selectedUser.roles = [];
+    }
+    this.originalRoles = [...this.selectedUser.roles];
     this.isEditMode = true;
+    this.viewMode = 'form';
   }
 
   onNewUser(): void {
@@ -59,24 +71,86 @@ export class UserAdminComponent implements OnInit {
       roles: []
     };
     this.isEditMode = false;
+    this.viewMode = 'form';
+  }
+
+  onCancel(): void {
+    this.viewMode = 'list';
+    this.selectedUser = {};
   }
 
   onSaveUser(): void {
     if (this.isEditMode) {
-      this.userService.updateUser(this.selectedUser.id, this.selectedUser).subscribe(() => {
-        this.loadUsers();
+      // 1. Update User Basic Info
+      this.userService.updateUser(this.selectedUser.id, this.selectedUser).pipe(
+        switchMap(() => {
+          // 2. Calculate Role Changes
+          const currentRoles = this.selectedUser.roles || [];
+          const rolesToAdd = currentRoles.filter((r: string) => !this.originalRoles.includes(r));
+          const rolesToRemove = this.originalRoles.filter((r: string) => !currentRoles.includes(r));
+
+          const requests: any = [];
+
+          // Add Roles
+          rolesToAdd.forEach((roleName: string) => {
+            const roleId = this.getRoleId(roleName);
+            if (roleId) {
+              requests.push(this.userService.assignRole(this.selectedUser.id, roleId));
+            }
+          });
+
+          // Remove Roles
+          rolesToRemove.forEach((roleName: string) => {
+            const roleId = this.getRoleId(roleName);
+            if (roleId) {
+              requests.push(this.userService.removeRole(this.selectedUser.id, roleId));
+            }
+          });
+
+          return requests.length > 0 ? forkJoin(requests) : of([]);
+        })
+      ).subscribe({
+        next: () => {
+          this.loadUsers();
+          this.viewMode = 'list';
+        },
+        error: (err) => {
+          console.error('Error updating user or roles:', err);
+          // Handle error (optional: show notification)
+        }
       });
+
     } else {
-      this.userService.createUser(this.selectedUser).subscribe(() => {
-        this.loadUsers();
+      // Create User
+      this.userService.createUser(this.selectedUser).pipe(
+        switchMap((newUser: any) => {
+          const requests: any = [];
+          if (this.selectedUser.roles && this.selectedUser.roles.length > 0) {
+            this.selectedUser.roles.forEach((roleName: string) => {
+              const roleId = this.getRoleId(roleName);
+              if (roleId) {
+                // Use the ID from the newly created user
+                requests.push(this.userService.assignRole(newUser.id, roleId));
+              }
+            });
+          }
+          return requests.length > 0 ? forkJoin(requests) : of([]);
+        })
+      ).subscribe({
+        next: () => {
+          this.loadUsers();
+          this.viewMode = 'list';
+        },
+        error: (err) => {
+          console.error('Error creating user or assigning roles:', err);
+        }
       });
     }
   }
 
-  onDeleteUser(id: number): void {
-    this.userService.deleteUser(id).subscribe(() => {
-      this.loadUsers();
-    });
+  getRoleId(roleName: string): number | null {
+    const role = this.roles.find(r => r.nombre === roleName);
+    return role ? role.id : null;
   }
 
   toggleRole(roleName: string): void {
@@ -89,5 +163,10 @@ export class UserAdminComponent implements OnInit {
     } else {
       this.selectedUser.roles.push(roleName);
     }
+  }
+  onDeleteUser(id: number): void {
+    this.userService.deleteUser(id).subscribe(() => {
+      this.loadUsers();
+    });
   }
 }

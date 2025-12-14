@@ -5,11 +5,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompromisosService } from '../../services/compromisos.service';
+import { HeaderComponent } from '../shared/header/header.component';
+import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
   selector: 'app-reporte-avance-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent],
   templateUrl: './reporte-avance-form.component.html',
   styleUrls: ['./reporte-avance-form.component.css']
 })
@@ -17,12 +19,14 @@ export class ReporteAvanceFormComponent implements OnInit {
   reporteForm: FormGroup;
   isEditMode: boolean = false;
   reporteId: number | null = null;
-  compromisoCodigo: string | null = null;
+  compromisoCodigo: any | null = null;
   loading: boolean = false;
   error: string | null = null;
   success: string | null = null;
   imagenFile: File | null = null;
   imagenPreview: string | ArrayBuffer | null = null;
+  fileBase64: string | null = null;
+  isPdf: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -39,6 +43,8 @@ export class ReporteAvanceFormComponent implements OnInit {
       imagen_url: ['']
     });
   }
+
+  compromisoNombre: string | null = null;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -57,7 +63,8 @@ export class ReporteAvanceFormComponent implements OnInit {
         this.compromisosService.getCompromisoById(compromisoId).subscribe({
           next: (compromiso) => {
             if (compromiso && compromiso.codigo) {
-              this.compromisoCodigo = compromiso.codigo;
+              this.compromisoCodigo = compromiso.id;
+              this.compromisoNombre = compromiso.compromiso_especifico || 'Sin nombre';
               this.reporteForm.patchValue({ compromiso_codigo: this.compromisoCodigo });
               this.reporteForm.get('compromiso_codigo')?.disable();
               this.loadLatestReport(this.compromisoCodigo);
@@ -101,12 +108,27 @@ export class ReporteAvanceFormComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.imagenFile = input.files[0];
+      if (input.files[0].size > 10 * 1024 * 1024) {
+        this.error = 'El archivo supera el límite de 10MB.';
+        this.imagenFile = null;
+        this.fileBase64 = null;
+        this.imagenPreview = null;
+        input.value = '';
+        return;
+      }
 
-      // Vista previa
+      this.error = null;
+      this.imagenFile = input.files[0];
+      this.isPdf = this.imagenFile.type === 'application/pdf';
+
       const reader = new FileReader();
       reader.onload = () => {
-        this.imagenPreview = reader.result;
+        this.fileBase64 = reader.result as string;
+        if (!this.isPdf) {
+          this.imagenPreview = this.fileBase64;
+        } else {
+          this.imagenPreview = null;
+        }
       };
       reader.readAsDataURL(this.imagenFile);
     }
@@ -142,20 +164,23 @@ export class ReporteAvanceFormComponent implements OnInit {
 
     this.loading = true;
 
-    // Usar FormData para enviar archivo + datos
-    const formData = new FormData();
+    // Send as JSON
     const rawValue = this.reporteForm.getRawValue();
-    Object.keys(rawValue).forEach(key => {
-      if (key !== 'imagen') {
-        formData.append(key, rawValue[key]);
-      }
-    });
-    if (this.imagenFile) {
-      formData.append('imagen', this.imagenFile);
+    const payload: any = {
+      ...rawValue
+    };
+
+    // If new file selected, send as base64
+    if (this.fileBase64) {
+      payload.imagen = this.fileBase64;
     }
 
+    // Remove imagen_url if it exists in rawValue but is empty or not needed
+    // (Assuming backend doesn't expect it if we are uploading a new image)
+    delete payload.imagen_url;
+
     if (this.isEditMode && this.reporteId) {
-      this.compromisosService.updateReporteAvance(this.reporteId, formData).subscribe({
+      this.compromisosService.updateReporteAvance(this.reporteId, payload).subscribe({
         next: () => {
           this.success = 'Reporte de avance actualizado exitosamente.';
           this.loading = false;
@@ -168,7 +193,7 @@ export class ReporteAvanceFormComponent implements OnInit {
         }
       });
     } else {
-      this.compromisosService.createReporteAvance(formData).subscribe({
+      this.compromisosService.createReporteAvance(payload).subscribe({
         next: (newReporte) => {
           this.success = 'Reporte de avance creado exitosamente.';
           this.loading = false;

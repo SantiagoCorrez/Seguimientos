@@ -1,46 +1,158 @@
-<!-- src/app/components/fichas-tecnicas-visita/ficha-list.component.html -->
 <app-header></app-header>
-<div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Fichas Técnicas de Visita</h2>
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-7xl">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-            <label for="provincia" class="block text-sm font-medium text-gray-700">Provincia</label>
-            <select id="provincia" [(ngModel)]="selectedProvincia" (change)="onProvinciaChange()"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                <option value="">Todas las provincias</option>
-                <option *ngFor="let provincia of provincias" [value]="provincia">{{ provincia }}</option>
-            </select>
-        </div>
-        <div>
-            <label for="municipio" class="block text-sm font-medium text-gray-700">Municipio</label>
-            <select id="municipio" [(ngModel)]="selectedMunicipio" (change)="onMunicipioChange()"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                <option value="">Todos los municipios</option>
-                <option *ngFor="let municipio of municipios" [value]="municipio">{{ municipio }}</option>
-            </select>
-        </div>
-    </div>
-    <div class="flex justify-center items-center mb-6">
-        <div class="flex space-x-4">
-            <button (click)="generarReportePorMunicipio()"
-                class="text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
-                style="    background-color: #112b42;">
-                Reporte por Municipio
-            </button>
-            <button (click)="generarReporteResumen()"
-                class="text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
-                style="    background-color: #112b42;">
-                Reporte de Resumen
-            </button>
-        </div>
-    </div>
 
-    <div class="flex justify-start mt-6">
-        <a routerLink="/home"
-            class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
-            Volver
-        </a>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Column: Filters -->
+            <div class="lg:col-span-4">
+                <div class="flex flex-col gap-6">
+                    <!-- Filters Form -->
+                    <!-- Header Section -->
+                    <div>
+                        <h2 class="text-[#003366] text-3xl font-bold mb-2">Fichas técnicas de visita</h2>
+                        <p class="text-gray-600 text-sm">Utiliza los filtros de búsqueda y encuentra el reporte
+                            necesario para
+                            preparar tu visita a territorio.</p>
+                    </div>
+                    <hr />
+                    <div class="space-y-4">
+                        <!-- Provincia -->
+                        <div>
+                            <label class="block text-gray-500 text-xs font-bold mb-1 ml-1" for="provincia">
+                                Provincia:
+                            </label>
+                            <div class="relative">
+                                <select id="provincia" [(ngModel)]="selectedProvincia" (change)="onProvinciaChange()"
+                                    class="block w-full bg-[#f3f4f6] text-gray-700 py-3 px-4 rounded-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-200 appearance-none border-none">
+                                    <option value="">Todas</option>
+                                    <option *ngFor="let provincia of provincias" [value]="provincia">{{ provincia }}
+                                    </option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Municipio -->
+                        <div>
+                            <label class="block text-gray-500 text-xs font-bold mb-1 ml-1" for="municipio">
+                                Municipio:
+                            </label>
+                            <div class="relative">
+                                <select id="municipio" [(ngModel)]="selectedMunicipio" (change)="onMunicipioChange()"
+                                    class="block w-full bg-[#f3f4f6] text-gray-700 py-3 px-4 rounded-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-200 appearance-none border-none">
+                                    <option value="">Todas</option>
+                                    <option *ngFor="let municipio of municipios" [value]="municipio">{{ municipio }}
+                                    </option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clear Button -->
+                        <div class="mt-4">
+                            <button (click)="clearFilters()"
+                                class="w-full border border-[#003366] text-[#003366] hover:bg-blue-50 font-medium py-2 px-4 rounded-full transition-colors flex items-center justify-center gap-2 text-sm">
+                                Limpiar filtros <i class="fas fa-sync-alt text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Decorative circles/blobs could go here if implemented as background images or SVGs -->
+                </div>
+            </div>
+
+            <!-- Right Column: Cards -->
+            <div class="lg:col-span-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Reporte por Municipio Card -->
+                    <div
+                        class="bg-blue-50/50 border border-blue-100 rounded-xl p-8 flex flex-col items-center text-center hover:shadow-lg transition-shadow relative overflow-hidden group">
+                        <!-- Icon Circle -->
+                        <div
+                            class="bg-[#1F87C8] rounded-full p-4 mb-4 text-white w-16 h-16 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                            <img src="/assets/Vector.png" alt="">
+                        </div>
+
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Reporte por Municipio</h3>
+                        <p class="text-gray-600 text-sm mb-6 leading-relaxed">
+                            "Reporte detallado que incluye todos los compromisos, obras y estado de proyectos para el
+                            municipio seleccionado."
+                        </p>
+
+                        <button (click)="generarReportePorMunicipio()"
+                            class="bg-[#003366] hover:bg-[#002244] text-white font-medium py-2 px-6 rounded-full flex items-center gap-2 transition-colors w-full justify-center">
+                            Descargar Reporte por Municipio <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+
+                    <!-- Reporte de Resumen Card -->
+                    <div
+                        class="bg-blue-50/50 border border-blue-100 rounded-xl p-8 flex flex-col items-center text-center hover:shadow-lg transition-shadow relative overflow-hidden group">
+                        <!-- Icon Circle -->
+                        <div
+                            class="bg-[#1F87C8] rounded-full p-4 mb-4 text-white w-16 h-16 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                            <img src="/assets/Vector2.png" alt="">
+                        </div>
+
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Reporte de Resumen</h3>
+                        <p class="text-gray-600 text-sm mb-6 leading-relaxed">
+                            "Resumen ejecutivo con las cifras clave y el estado general de los compromisos en el
+                            territorio."
+                        </p>
+
+                        <button (click)="generarReporteResumen()"
+                            class="bg-[#003366] hover:bg-[#002244] text-white font-medium py-2 px-6 rounded-full flex items-center gap-2 transition-colors w-full justify-center">
+                            Descargar Reporte de Resumen <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Notifications Area -->
+                <div class="mt-6 space-y-4">
+                    <!-- Success Message -->
+                    <div *ngIf="successMessage"
+                        class="bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center justify-between shadow-sm animate-fade-in-up">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            <span class="font-medium text-sm">{{ successMessage }}</span>
+                        </div>
+                        <button (click)="successMessage = null" class="text-green-600 hover:text-green-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div *ngIf="errorMessage"
+                        class="bg-red-100 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-between shadow-sm animate-fade-in-up">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                            <span class="font-medium text-sm">{{ errorMessage }}</span>
+                        </div>
+                        <button (click)="errorMessage = null" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
-<app-footer></app-footer>
+<app-footer></app-footer><app-footer></app-footer>

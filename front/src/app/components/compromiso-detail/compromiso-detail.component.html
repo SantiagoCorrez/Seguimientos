@@ -86,12 +86,11 @@
                 </div>
                 <div>
                     <span class="block text-gray-800 font-bold text-sm mb-1">Fecha de inicio:</span>
-                    <span class="text-gray-600 font-normal">{{ compromiso.fecha_estimada_inicio || '00/00/0000'
-                        }}</span>
+                    <span class="text-gray-600 font-normal">{{ compromiso.fecha_estimada_inicio|date:'d-M-Y' }}</span>
                 </div>
                 <div>
                     <span class="block text-gray-800 font-bold text-sm mb-1">Fecha de fin:</span>
-                    <span class="text-gray-600 font-normal">{{ compromiso.fecha_estimada_finalizacion || '00/00/0000'
+                    <span class="text-gray-600 font-normal">{{ compromiso.fecha_estimada_finalizacion|date:'d-M-Y'
                         }}</span>
                 </div>
             </div>
@@ -129,26 +128,7 @@
             </div>
 
             <!-- Evidence Section -->
-            <div class="mb-8 relative">
-                <h4 class="text-gray-800 font-bold text-sm mb-4">Evidencia fotográfica:</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Antes -->
-                    <div>
-                        <span class="text-xs text-gray-500 mb-2 block">Antes</span>
-                        <div class="bg-gray-200 rounded-xl h-64 flex items-center justify-center text-gray-400">
-                            <i class="far fa-image text-4xl"></i>
-                        </div>
-                    </div>
-                    <!-- Después -->
-                    <div>
-                        <span class="text-xs text-gray-500 mb-2 block">Después</span>
-                        <div class="bg-gray-200 rounded-xl h-64 flex items-center justify-center text-gray-400">
-                            <i class="far fa-image text-4xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Edit Floating Button (Desktop: absolute, Mobile: static mt-4) -->
+            <div class="mb-8 justify-end">
                 <div class="mt-6 flex justify-end">
                     <a *ngIf="authService.hasRole('Administrador') || authService.hasRole('Editor')"
                         [routerLink]="['/compromisos/editar', compromiso.id]"
@@ -205,8 +185,6 @@
                                 <td class="py-4 px-6 text-gray-500 max-w-xs truncate"
                                     [title]="reporte.observaciones_reporte">
                                     {{ reporte.observaciones_reporte }}
-                                    <a href="#" class="block text-[#003366] font-bold text-xs mt-1 hover:underline">Ver
-                                        más +</a>
                                 </td>
                             </tr>
                         </tbody>

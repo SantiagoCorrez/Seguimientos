@@ -3,6 +3,7 @@
 export interface Compromiso {
     id: number;
     codigo: string;
+    nombre_compromiso?: string;
     provincia: string;
     municipio: string;
     compromiso_especifico: string;

@@ -1,127 +1,170 @@
 <!-- src/app/components/reporte-avance-form/reporte-avance-form.component.html -->
-
-<div class="min-h-screen bg-gray-100">
-    <header class="bg-blue-700 text-white shadow-md py-4">
-        <div class="container mx-auto flex justify-between items-center px-6">
-            <a routerLink="/" class="text-2xl font-bold tracking-tight">Sistema de Gestión de Compromisos</a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li>
-                        <a routerLink="/compromisos"
-                            class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
-                    </li>
-                    <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main class="py-8">
-        <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
-                {{ isEditMode ? 'Actualizar Reporte de Avance' : 'Crear Nuevo Reporte de Avance' }}
-            </h2>
-
-            <div *ngIf="loading" class="text-center text-blue-600 mb-4">Cargando...</div>
-            <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
-                {{ error }}
-            </div>
-            <div *ngIf="success"
-                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
-                {{ success }}
-            </div>
-
-            <form [formGroup]="reporteForm" (ngSubmit)="onSubmit()" class="bg-white p-6 rounded-lg shadow-md">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="compromiso_codigo" class="block text-sm font-medium text-gray-700">Código de
-                            Compromiso
-                            <span class="text-red-500">*</span></label>
-                        <input type="text" id="compromiso_codigo" formControlName="compromiso_codigo"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            [ngClass]="{'border-red-500': reporteForm.get('compromiso_codigo')?.invalid && reporteForm.get('compromiso_codigo')?.touched}">
-                        <div *ngIf="reporteForm.get('compromiso_codigo')?.invalid && reporteForm.get('compromiso_codigo')?.touched"
-                            class="text-red-500 text-xs mt-1">
-                            El código de compromiso es requerido.
-                        </div>
-                    </div>
-                    <div>
-                        <label for="mes_reporte" class="block text-sm font-medium text-gray-700">Mes del Reporte <span
-                                class="text-red-500">*</span></label>
-                        <input type="date" id="mes_reporte" formControlName="mes_reporte"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            [ngClass]="{'border-red-500': reporteForm.get('mes_reporte')?.invalid && reporteForm.get('mes_reporte')?.touched}">
-                        <div *ngIf="reporteForm.get('mes_reporte')?.invalid && reporteForm.get('mes_reporte')?.touched"
-                            class="text-red-500 text-xs mt-1">
-                            El mes del reporte es requerido.
-                        </div>
-                    </div>
-                    <div>
-                        <label for="reporte_avance_fisico" class="block text-sm font-medium text-gray-700">Avance Físico
-                            (%): {{ reporteForm.get('reporte_avance_fisico')?.value }}%
-                            <span class="text-red-500">*</span></label>
-                        <input type="range" id="reporte_avance_fisico" formControlName="reporte_avance_fisico" min="0"
-                            max="100"
-                            class="mt-1 block w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                            [ngClass]="{'border-red-500': reporteForm.get('reporte_avance_fisico')?.invalid && reporteForm.get('reporte_avance_fisico')?.touched}">
-                        <div *ngIf="reporteForm.get('reporte_avance_fisico')?.invalid && reporteForm.get('reporte_avance_fisico')?.touched"
-                            class="text-red-500 text-xs mt-1">
-                            El avance físico es requerido y debe estar entre 0 y 100.
-                        </div>
-                    </div>
-                    <div>
-                        <label for="reporte_avance_financiero" class="block text-sm font-medium text-gray-700">Avance
-                            Financiero
-                            (%): {{ reporteForm.get('reporte_avance_financiero')?.value }}% <span class="text-red-500">*</span></label>
-                        <input type="range" id="reporte_avance_financiero" formControlName="reporte_avance_financiero"
-                            min="0" max="100"
-                            class="mt-1 block w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                            [ngClass]="{'border-red-500': reporteForm.get('reporte_avance_financiero')?.invalid && reporteForm.get('reporte_avance_financiero')?.touched}">
-                        <div *ngIf="reporteForm.get('reporte_avance_financiero')?.invalid && reporteForm.get('reporte_avance_financiero')?.touched"
-                            class="text-red-500 text-xs mt-1">
-                            El avance financiero es requerido y debe estar entre 0 y 100.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="observaciones_reporte" class="block text-sm font-medium text-gray-700">Observaciones del
-                        Reporte</label>
-                    <textarea id="observaciones_reporte" formControlName="observaciones_reporte" rows="3"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                </div>
-
-                <div class="mb-6">
-                    <label for="imagen_file" class="block text-sm font-medium text-gray-700">Imagen de Evidencia</label>
-                    <input type="file" id="imagen_file" (change)="onFileSelected($event)" accept="image/*"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    <p class="mt-1 text-xs text-gray-500">
-                        Selecciona una imagen como evidencia. El archivo será subido al guardar el reporte.
+<app-header></app-header>
+<div class="min-h-screen bg-gray-50 flex flex-col">
+    <!-- Page Header Bar matching the screenshot style -->
+    <div class="flex-grow">
+        <div class="bg-[#003366] text-white py-4 shadow-sm">
+            <div class="container mx-auto px-6 flex items-center gap-4">
+                <button (click)="router.navigate(['/compromisos', reporteId || compromisoCodigo])"
+                    class="text-white text-lg hover:text-gray-300">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="overflow-hidden">
+                    <h1 class="text-xs font-bold uppercase opacity-80 mb-1">
+                        {{ isEditMode ? 'ACTUALIZAR REPORTE DE AVANCE' : 'CREAR NUEVO REPORTE DE AVANCE' }}
+                    </h1>
+                    <p class="text-sm font-semibold truncate w-full" *ngIf="compromisoCodigo && compromisoNombre">
+                        (# {{compromisoCodigo}}) {{ compromisoNombre | uppercase }}
                     </p>
-                    <img *ngIf="imagenPreview" [src]="imagenPreview" alt="Vista previa"
-                        class="mt-2 max-h-40 rounded shadow">
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 py-8 flex justify-center">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 w-full max-w-5xl">
+
+                <!-- Notifications -->
+                <div *ngIf="error"
+                    class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle text-xl"></i>
+                    <span>{{ error }}</span>
+                </div>
+                <div *ngIf="success"
+                    class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-check-circle text-xl"></i>
+                    <span>{{ success }}</span>
                 </div>
 
-                <div class="flex justify-end space-x-4">
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
-                        [disabled]="loading">
-                        {{ isEditMode ? 'Actualizar Reporte' : 'Crear Reporte' }}
-                    </button>
-                    <button type="button" (click)="router.navigate(['/compromisos', reporteId!])"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
-                        Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
+                <form [formGroup]="reporteForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto text-center text-sm">
-            &copy; {{ '2024' }} Sistema de Gestión de Compromisos. Todos los derechos reservados.
+                    <!-- Codigo Field -->
+                    <div class="w-full md:w-1/4">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Código<span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input formControlName="compromiso_codigo" type="text"
+                                class="w-full rounded-lg bg-gray-100 border-gray-300 text-gray-500 shadow-sm focus:ring-0 cursor-not-allowed">
+                            <i class="fas fa-lock absolute right-3 top-3 text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Nombre Field -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre<span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input [value]="compromisoNombre" disabled type="text"
+                                class="w-full rounded-lg bg-gray-100 border-gray-300 text-gray-500 shadow-sm focus:ring-0 cursor-not-allowed truncate pr-10">
+                            <i class="fas fa-lock absolute right-3 top-3 text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Row: Fecha, Avance Físico, Avance Financiero -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Fecha -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Fecha del reporte</label>
+                            <input formControlName="mes_reporte" type="date"
+                                class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm text-gray-600"
+                                style="height: 40px;">
+                        </div>
+
+                        <!-- Avance Fisico -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Avance físico<span
+                                    class="text-red-500">*</span></label>
+                            <div class="flex items-center">
+                                <input formControlName="reporte_avance_fisico" type="number" min="0" max="100"
+                                    class="w-full rounded-l-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm text-center"
+                                    style="height: 40px;">
+                                <span
+                                    class="bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg px-3 py-2 text-gray-500">%</span>
+                            </div>
+                        </div>
+
+                        <!-- Avance Financiero -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Avance Financiero<span
+                                    class="text-red-500">*</span></label>
+                            <div class="flex items-center">
+                                <input formControlName="reporte_avance_financiero" type="number" min="0" max="100"
+                                    class="w-full rounded-l-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm text-center"
+                                    style="height: 40px;">
+                                <span
+                                    class="bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg px-3 py-2 text-gray-500">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Observaciones</label>
+                        <textarea formControlName="observaciones_reporte" rows="3"
+                            placeholder="Escribe observaciones adicionales aquí..."
+                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm resize-none"></textarea>
+                        <div class="text-right text-xs text-gray-400 mt-1">0/100</div>
+                    </div>
+
+                    <!-- Evidencia Upload Box -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Evidencia</label>
+                        <div
+                            class="border-2 border-dashed border-blue-300 rounded-xl p-8 flex flex-col items-center justify-center bg-blue-50/20 text-center hover:bg-blue-50 transition cursor-pointer relative group">
+
+                            <input type="file" (change)="onFileSelected($event)" accept="image/*,.pdf"
+                                class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+
+                            <!-- Icon -->
+                            <div class="mb-3 text-[#003366]">
+                                <i class="fas fa-arrow-up text-3xl"></i>
+                            </div>
+
+                            <p class="font-bold text-[#003366] text-lg mb-1">Arrastra un archivo o imagen</p>
+                            <div class="flex flex-col items-center">
+                                <p class="text-sm text-gray-500 italic mb-4">El archivo debe pesar máximo 10MB</p>
+                                <button type="button"
+                                    class="pointer-events-none px-6 py-1.5 border border-[#003366] text-[#003366] rounded-full text-sm font-semibold group-hover:bg-blue-100 transition">
+                                    Subir archivo
+                                </button>
+                            </div>
+
+                            <!-- File Preview Info -->
+                            <div *ngIf="imagenFile"
+                                class="mt-4 flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 z-20">
+                                <i *ngIf="isPdf" class="fas fa-file-pdf text-red-500 text-xl"></i>
+                                <img *ngIf="!isPdf && imagenPreview" [src]="imagenPreview"
+                                    class="w-8 h-8 rounded object-cover">
+                                <div class="text-left">
+                                    <p class="text-sm font-bold text-gray-700 truncate max-w-xs">{{ imagenFile.name }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{ (imagenFile.size / 1024 / 1024) | number:'1.1-2'
+                                        }} MB</p>
+                                </div>
+                                <button type="button" (click)="imagenFile = null; imagenPreview = null; isPdf = false"
+                                    class="text-gray-400 hover:text-red-500 ml-2">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end gap-4 pt-4">
+                        <button type="button" (click)="router.navigate(['/compromisos', reporteId || compromisoCodigo])"
+                            class="px-6 py-2 rounded-full border border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition shadow-sm">
+                            Cancelar
+                        </button>
+                        <button type="submit" [disabled]="loading"
+                            class="px-6 py-2 rounded-full bg-[#003366] text-white font-bold hover:bg-[#002244] shadow-md transition flex items-center gap-2">
+                            {{ isEditMode ? 'Actualizar' : 'Finalizar y crear' }}
+                            <i class="fas fa-check text-xs"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <app-footer></app-footer>
 </div>

@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs'); // Added fs
 const pool = require('./db'); // Importar la configuración de la base de datos
 const authRoutes = require('./routes/auth'); // Importar rutas de autenticación
 const usersRoutes = require('./routes/users'); // Importar rutas de gestión de usuarios
@@ -20,7 +21,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware para parsear JSON en las solicitudes
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Middleware para habilitar CORS
 app.use(cors());
@@ -39,6 +41,28 @@ const upload = multer({ storage: storage });
 // Servir archivos estáticos desde la carpeta 'uploads'
 app.use('/uploads', express.static('uploads'));
 
+// Helper function to save Base64 image
+const saveBase64Image = (base64String) => {
+    // Check if it's a valid base64 data URI
+    const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+        return null;
+    }
+    const type = matches[1];
+    const data = Buffer.from(matches[2], 'base64');
+
+    // Guess extension from type
+    let extension = 'bin';
+    if (type.includes('jpeg') || type.includes('jpg')) extension = 'jpg';
+    else if (type.includes('png')) extension = 'png';
+    else if (type.includes('pdf')) extension = 'pdf';
+
+    const filename = Date.now() + '.' + extension;
+    const filepath = path.join('uploads', filename);
+    fs.writeFileSync(filepath, data);
+    return 'uploads/' + filename;
+};
+
 // --- Rutas de la API ---
 
 // Rutas de autenticación
@@ -51,7 +75,21 @@ app.use('/api/secretarias', secretariasRoutes); // Añadir esta línea
 // 1. Obtener todos los compromisos
 app.get('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM compromisos ORDER BY codigo ASC');
+        let query = 'SELECT * FROM compromisos';
+        let values = [];
+
+        // Check if user is Editor and NOT Administrator
+        // (If user has both, Admin privileges override)
+        if (req.user.roles.includes('Editor') && !req.user.roles.includes('Administrador')) {
+            // Filter by secretaría
+            // Assuming 'entidad_lider' column matches 'secretaria_nombre'
+            query += ' WHERE entidad = $1';
+            values.push(req.user.secretaria_nombre);
+        }
+
+        query += ' ORDER BY id ASC';
+
+        const result = await pool.query(query, values);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error al obtener los compromisos:', err.message);
@@ -255,12 +293,21 @@ app.get('/api/reportes-avance/:id', verifyToken, checkRole(['Administrador', 'Ed
 });
 
 // 3. Crear un nuevo reporte de avance
-app.post('/api/reportes-avance', verifyToken, checkRole(['Administrador', 'Editor']), upload.single('imagen'), async (req, res) => {
+app.post('/api/reportes-avance', verifyToken, checkRole(['Administrador', 'Editor']), async (req, res) => {
     const {
         compromiso_codigo, mes_reporte, reporte_avance_fisico,
-        reporte_avance_financiero, observaciones_reporte
+        reporte_avance_financiero, observaciones_reporte, imagen
     } = req.body;
-    const imagen_url = req.file ? req.file.path : null;
+
+    let imagen_url = null;
+    if (imagen) {
+        try {
+            imagen_url = saveBase64Image(imagen);
+        } catch (error) {
+            console.error('Error saving base64 image:', error);
+            return res.status(500).json({ error: 'Error al procesar la imagen.' });
+        }
+    }
 
     // Validar que el compromiso_codigo exista
     try {
@@ -288,6 +335,13 @@ app.post('/api/reportes-avance', verifyToken, checkRole(['Administrador', 'Edito
             reporte_avance_financiero, observaciones_reporte, imagen_url
         ];
         const result = await pool.query(query, values);
+
+        // Actualizar el avance en la tabla compromisos
+        await pool.query(
+            'UPDATE compromisos SET avance_fisico = $1, avance_financiero = $2 WHERE id = $3',
+            [reporte_avance_fisico, reporte_avance_financiero, compromiso_codigo]
+        );
+
         res.status(201).json(result.rows[0]);
     } catch (err) {
         console.error('Error al crear/actualizar el reporte de avance:', err.message);
@@ -300,8 +354,18 @@ app.put('/api/reportes-avance/:id', verifyToken, checkRole(['Administrador', 'Ed
     const { id } = req.params;
     const {
         reporte_avance_fisico, reporte_avance_financiero,
-        observaciones_reporte, imagen_url
+        observaciones_reporte, imagen
     } = req.body;
+
+    let imagen_url = req.body.imagen_url; // Keep existing if not changed
+    if (imagen) {
+        try {
+            imagen_url = saveBase64Image(imagen);
+        } catch (error) {
+            console.error('Error saving base64 image:', error);
+            return res.status(500).json({ error: 'Error al procesar la imagen.' });
+        }
+    }
 
     try {
         const query = `
@@ -323,7 +387,15 @@ app.put('/api/reportes-avance/:id', verifyToken, checkRole(['Administrador', 'Ed
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Reporte de avance no encontrado para actualizar.' });
         }
-        res.status(200).json(result.rows[0]);
+
+        // Actualizar el avance en la tabla compromisos
+        const updatedReporte = result.rows[0];
+        await pool.query(
+            'UPDATE compromisos SET avance_fisico = $1, avance_financiero = $2 WHERE id = $3',
+            [updatedReporte.reporte_avance_fisico, updatedReporte.reporte_avance_financiero, updatedReporte.compromiso_codigo]
+        );
+
+        res.status(200).json(updatedReporte);
     } catch (err) {
         console.error(`Error al actualizar el reporte de avance con ID ${id}:`, err.message);
         res.status(500).json({ error: 'Error interno del servidor al actualizar el reporte de avance.' });

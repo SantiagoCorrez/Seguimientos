@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UserService } from '../../services/user.service';
 
 @Component({
     selector: 'app-compromiso-list',
@@ -71,7 +72,7 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-    constructor(private compromisosService: CompromisosService, public authService: AuthService) { }
+    constructor(private compromisosService: CompromisosService, public authService: AuthService, private userService: UserService) { }
 
     ngOnInit(): void {
         // Filtro global para todos los campos
@@ -94,7 +95,6 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
                 this.compromisos = data;
                 this.provincias = this.getUnicos(data.map(c => c.provincia));
                 this.municipios = this.getUnicos(data.map(c => c.municipio));
-                this.entidades = this.getUnicos(data.map(c => c.entidad));
                 this.prioridades = this.getUnicos(data.map(c => c.prioridad));
                 this.estados = this.getUnicos(data.map(c => c.estado));
                 this.obligaciones = this.getUnicos(data.map(c => c.obligacion_contraida));
@@ -107,6 +107,9 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
                 this.error = 'No se pudieron cargar los compromisos. Intenta de nuevo más tarde.';
                 this.loading = false;
             }
+        });
+        this.userService.getSecretarias().subscribe(data => {
+            this.entidades = data;
         });
     }
 

@@ -1,358 +1,415 @@
-<!-- src/app/components/compromiso-form/compromiso-form.component.html -->
-<div class="min-h-screen bg-gray-100">
-    <header class="bg-blue-700 text-white shadow-md py-4">
-        <div class="container mx-auto flex justify-between items-center px-6">
-            <a routerLink="/" class="text-2xl font-bold tracking-tight">Sistema de Gestión de Compromisos</a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li>
-                        <a routerLink="/compromisos"
-                            class="hover:text-blue-200 transition duration-300 ease-in-out">Compromisos</a>
-                    </li>
-                    <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
-                </ul>
-            </nav>
+<app-header></app-header>
+<div class="min-h-screen bg-gray-50 flex flex-col">
+    <div class="bg-[#004070] text-white py-4 px-6 shadow-md">
+        <div class="container mx-auto flex items-center gap-4">
+            <a routerLink="/compromisos" class="text-white hover:text-blue-200 transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div class="font-bold text-lg truncate flex-1 uppercase">
+                <span class="text-blue-300 mr-2">Atras</span>
+            </div>
         </div>
-    </header>
+    </div>
+    <main class="flex-grow container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-    <main class="py-8">
-        <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-lg my-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
-                {{ isEditMode ? 'Actualizar Compromiso' : 'Crear Nuevo Compromiso' }}
-            </h2>
+        <!-- Sidebar Info -->
+        <div class="lg:col-span-3">
+            @if(!isEditMode){
+            <h1 class="text-[#003366] text-2xl font-bold mb-4">Crear nuevo compromiso</h1>
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                Llena este formulario de 4 pasos para crear un nuevo compromiso. Al terminar, lo verás reflejado en
+                Listado de compromisos.
+            </p>
 
-            <div *ngIf="loading" class="text-center text-blue-600 mb-4">Cargando...</div>
-            <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
-                {{ error }}
+            }@else{
+            <h1 class="text-[#003366] text-2xl font-bold mb-4">Editar compromiso</h1>
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                Llena este formulario de 4 pasos para editar el compromiso. Al terminar, lo verás reflejado en
+                Listado de compromisos.
+            </p>
+
+            }
+            <!-- Decorative elements can go here -->
+            <div class="mt-8 hidden lg:block">
+                <div
+                    class="w-16 h-16 border-4 border-[#FFD100] rounded-full opacity-20 absolute -z-10 transform -translate-x-4">
+                </div>
+                <div
+                    class="w-24 h-24 border-4 border-[#E30613] rounded-full opacity-20 absolute top-1/2 -z-10 right-full">
+                </div>
             </div>
-            <div *ngIf="success"
-                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
-                role="alert">
-                {{ success }}
+        </div>
+
+        <!-- Main Form Area -->
+        <div class="lg:col-span-9">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+
+                <!-- Stepper Header -->
+                <div class="bg-[#003366] p-6 text-white relative overflow-hidden">
+                    <!-- Dropdown arrow icon (decorative or collapsible trigger) -->
+                    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-white/50">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+
+                    <div class="flex justify-between items-center relative z-10 px-4 md:px-12 mt-4">
+                        <!-- Line Connector -->
+                        <div class="absolute top-5 left-16 right-16 h-1 bg-white/30 -z-10"></div>
+                        <div class="absolute top-5 left-16 h-1 bg-[#8CC63F] -z-10 transition-all duration-500"
+                            [style.width]="(currentStep - 1) * 33 + '%'"></div>
+
+                        <!-- Step 1 -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer"
+                            (click)="currentStep > 1 ? currentStep = 1 : null">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors border-2"
+                                [ngClass]="currentStep >= 1 ? 'bg-[#8CC63F] border-[#8CC63F] text-white' : 'bg-[#003366] border-white/50 text-white/50'">
+                                1
+                            </div>
+                            <span class="text-xs font-medium"
+                                [ngClass]="currentStep >= 1 ? 'text-white' : 'text-white/70'">Información general</span>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer"
+                            (click)="currentStep > 2 ? currentStep = 2 : null">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors border-2"
+                                [ngClass]="currentStep >= 2 ? 'bg-[#8CC63F] border-[#8CC63F] text-white' : 'bg-[#003366] border-white/50 text-white/50'">
+                                2
+                            </div>
+                            <span class="text-xs font-medium"
+                                [ngClass]="currentStep >= 2 ? 'text-white' : 'text-white/70'">Detalles
+                                adicionales</span>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer"
+                            (click)="currentStep > 3 ? currentStep = 3 : null">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors border-2"
+                                [ngClass]="currentStep >= 3 ? 'bg-[#8CC63F] border-[#8CC63F] text-white' : 'bg-[#003366] border-white/50 text-white/50'">
+                                3
+                            </div>
+                            <span class="text-xs font-medium"
+                                [ngClass]="currentStep >= 3 ? 'text-white' : 'text-white/70'">Información
+                                financiera</span>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors border-2"
+                                [ngClass]="currentStep >= 4 ? 'bg-[#8CC63F] border-[#8CC63F] text-white' : 'bg-[#003366] border-white/50 text-white/50'">
+                                4
+                            </div>
+                            <span class="text-xs font-medium"
+                                [ngClass]="currentStep >= 4 ? 'text-white' : 'text-white/70'">Documentos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Description Banner -->
+                <div class="bg-blue-100/50 py-3 px-6 border-b border-blue-100 flex items-center gap-2">
+                    <span class="text-[#003366] font-bold">{{ currentStep }}.
+                        <span *ngIf="currentStep === 1">Información general</span>
+                        <span *ngIf="currentStep === 2">Detalles adicionales</span>
+                        <span *ngIf="currentStep === 3">Información financiera</span>
+                        <span *ngIf="currentStep === 4">Documentos</span>
+                    </span>
+                </div>
+
+                <!-- Form Content -->
+                <div class="p-8">
+                    <!-- Notifications -->
+                    <div *ngIf="error"
+                        class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-3">
+                        <i class="fas fa-exclamation-circle text-xl"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    <div *ngIf="success"
+                        class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3">
+                        <i class="fas fa-check-circle text-xl"></i>
+                        <span>{{ success }}</span>
+                    </div>
+
+                    <form [formGroup]="compromisoForm" (ngSubmit)="onSubmit()">
+
+                        <!-- STEP 1: Información General -->
+                        <div *ngIf="currentStep === 1" class="space-y-6 animate-fade-in">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Código<span
+                                        class="text-red-500">*</span></label>
+                                <input formControlName="codigo" type="text" placeholder="0000"
+                                    class="w-full md:w-1/3 rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Provincia<span
+                                            class="text-red-500">*</span></label>
+                                    <select formControlName="provincia" (change)="onProvinciaChange()"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                        <option value="">Elige una o varias entidades</option>
+                                        <option *ngFor="let p of provincias" [value]="p">{{ p }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Municipio<span
+                                            class="text-red-500">*</span></label>
+                                    <select formControlName="municipio"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                        <option value="">Elige una o varias entidades</option>
+                                        <option *ngFor="let m of municipios" [value]="m">{{ m }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Entidad líder<span
+                                            class="text-red-500">*</span></label>
+                                    <select formControlName="entidad"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                        <option value="">Elige una entidad</option>
+                                        <option *ngFor="let e of entidadesLider" [value]="e">{{ e }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Prioridad<span
+                                            class="text-red-500">*</span></label>
+                                    <select formControlName="prioridad"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                        <option value="ALTA">ALTA</option>
+                                        <option value="MEDIA">MEDIA</option>
+                                        <option value="BAJA">BAJA</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Estado<span
+                                            class="text-red-500">*</span></label>
+                                    <select formControlName="estado"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                        <option value="EN CURSO">EN CURSO</option>
+                                        <option value="COMPLETADO">COMPLETADO</option>
+                                        <option value="FINALIZADO">FINALIZADO</option>
+                                        <option value="NO SE HA INICIADO">NO SE HA INICIADO</option>
+                                        <option value="NO SE VA A HACER">NO SE VA A HACER</option>
+                                    </select>
+                                </div>
+                                <div class="block">
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Fecha de inicio<span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input formControlName="fecha_estimada_inicio" type="date"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-4 pr-10">
+                                    </div>
+                                </div>
+                                <div class="block">
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Fecha de fin<span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input formControlName="fecha_estimada_finalizacion" type="date"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-4 pr-10">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Compromiso específico<span
+                                        class="text-red-500">*</span></label>
+                                <textarea formControlName="compromiso_especifico" rows="3"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Bien o servicio entregado<span
+                                        class="text-red-500">*</span></label>
+                                <textarea formControlName="bien_o_servicio_entregado" rows="3"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: Detalles Adicionales -->
+                        <div *ngIf="currentStep === 2" class="space-y-6 animate-fade-in">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Tema</label>
+                                    <input formControlName="tema" type="text" placeholder="Cofinanciero"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Subtema</label>
+                                    <input formControlName="subtema" type="text" placeholder="Cofinanciero"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Entidades aliadas</label>
+                                <input formControlName="entidades_aliadas" type="text" placeholder="ENTIDADES ALIADAS"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Detalle especifico</label>
+                                <textarea formControlName="detalle_especifico" rows="2"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Acción adelantada</label>
+                                <textarea formControlName="accion_adelantada" rows="2"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Dificultades</label>
+                                <textarea formControlName="dificultades" rows="2" placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Alternativas de
+                                    solución</label>
+                                <textarea formControlName="alternativas_de_solucion" rows="2"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Observaciones</label>
+                                <textarea formControlName="observaciones" rows="2" placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Meta del plan de
+                                    desarrollo</label>
+                                <textarea formControlName="meta_del_plan_de_desarrollo" rows="2"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Nuevo compromiso (si
+                                    aplica)</label>
+                                <textarea formControlName="nuevo_compromiso" rows="2"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Acciones pendientes</label>
+                                <textarea formControlName="acciones_pendientes" rows="2"
+                                    placeholder="Nombre del compromiso"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: Información Financiera -->
+                        <div *ngIf="currentStep === 3" class="space-y-6 animate-fade-in">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Aporte
+                                        departamento</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500 font-bold">$</span>
+                                        <input formControlName="aporte_departamento" type="number"
+                                            placeholder="100.000.000"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-8">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Aporte municipio</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500 font-bold">$</span>
+                                        <input formControlName="aporte_municipio" type="number"
+                                            placeholder="100.000.000"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-8">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Aporte nación</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500 font-bold">$</span>
+                                        <input formControlName="aporte_nacion" type="number" placeholder="100.000.000"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-8">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Otro aporte</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500 font-bold">$</span>
+                                        <input formControlName="valor_total" type="number" placeholder="100.000.000"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-8">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Fuente de
+                                    cofinanciación</label>
+                                <input formControlName="fuente_cofinanciacion" type="text" placeholder="Cofinanciera"
+                                    class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: Documentos -->
+                        <div *ngIf="currentStep === 4" class="space-y-6 animate-fade-in">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Tipo de documento</label>
+                                    <input formControlName="tipo_documento" type="text" placeholder="Contrato"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Número de
+                                        documento</label>
+                                    <input formControlName="numero_documento" type="text" placeholder="123456"
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Objeto del
+                                        documento</label>
+                                    <input formControlName="objeto_documento" type="text" placeholder="Descripción..."
+                                        class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Valor</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500 font-bold">$</span>
+                                        <input formControlName="valor_documento" type="number" placeholder="0"
+                                            class="w-full rounded-lg border-gray-300 focus:ring-[#003366] focus:border-[#003366] shadow-sm pl-8">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Footer -->
+                        <div class="mt-12 flex justify-end gap-4 pt-6 border-t border-gray-100">
+                            <button type="button" routerLink="/compromisos"
+                                class="px-6 py-2 rounded-full border border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition">
+                                Cancelar
+                            </button>
+
+                            <button *ngIf="currentStep > 1" type="button" (click)="prevStep()"
+                                class="px-6 py-2 rounded-full border border-[#003366] text-[#003366] font-medium hover:bg-blue-50 transition">
+                                Anterior
+                            </button>
+
+                            <button *ngIf="currentStep < 4" type="button" (click)="nextStep()"
+                                class="px-6 py-2 rounded-full bg-[#003366] text-white font-medium hover:bg-[#002244] shadow-md transition flex items-center gap-2">
+                                Ir al siguiente paso <i class="fas fa-arrow-right"></i>
+                            </button>
+
+                            <button *ngIf="currentStep === 4" type="submit" [disabled]="loading"
+                                class="px-6 py-2 rounded-full bg-[#8CC63F] text-[#003366] font-bold hover:bg-[#7ab62f] shadow-md transition flex items-center gap-2">
+                                <span *ngIf="!loading">{{ isEditMode ? 'Actualizar Compromiso' : 'Guardar Compromiso'
+                                    }}</span>
+                                <span *ngIf="loading">Guardando...</span>
+                                <i *ngIf="!loading" class="fas fa-check"></i>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
             </div>
-
-            <form [formGroup]="compromisoForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                <!-- Sección de Información General -->
-                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Información General</h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="codigo" class="block text-sm font-medium text-gray-700">Código <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" id="codigo" formControlName="codigo"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                [ngClass]="{'border-red-500': compromisoForm.get('codigo')?.invalid && compromisoForm.get('codigo')?.touched}">
-                            <div *ngIf="compromisoForm.get('codigo')?.invalid && compromisoForm.get('codigo')?.touched"
-                                class="text-red-500 text-xs mt-1">
-                                El código es requerido.
-                            </div>
-                        </div>
-                        <div>
-                            <label for="provincia" class="block text-sm font-medium text-gray-700">Provincia <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" id="provincia" formControlName="provincia"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                [ngClass]="{'border-red-500': compromisoForm.get('provincia')?.invalid && compromisoForm.get('provincia')?.touched}">
-                            <div *ngIf="compromisoForm.get('provincia')?.invalid && compromisoForm.get('provincia')?.touched"
-                                class="text-red-500 text-xs mt-1">
-                                La provincia es requerida.
-                            </div>
-                        </div>
-                        <div>
-                            <label for="municipio" class="block text-sm font-medium text-gray-700">Municipio <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" id="municipio" formControlName="municipio"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                [ngClass]="{'border-red-500': compromisoForm.get('municipio')?.invalid && compromisoForm.get('municipio')?.touched}">
-                            <div *ngIf="compromisoForm.get('municipio')?.invalid && compromisoForm.get('municipio')?.touched"
-                                class="text-red-500 text-xs mt-1">
-                                El municipio es requerido.
-                            </div>
-                        </div>
-                        <div>
-                            <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad <span
-                                    class="text-red-500">*</span></label>
-                            <select id="prioridad" formControlName="prioridad"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="Baja">Baja</option>
-                                <option value="Media">Media</option>
-                                <option value="Alta">Alta</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="estado" class="block text-sm font-medium text-gray-700">Estado <span
-                                    class="text-red-500">*</span></label>
-                            <select id="estado" formControlName="estado"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="NO SE HA INICIADO">NO SE HA INICIADO</option>
-                                <option value="EN CURSO">EN CURSO</option>
-                                <option value="COMPLETADO">COMPLETADO</option>
-                                <option value="EN ESPERA">EN ESPERA</option>
-                                <option value="NO SE VA A HACER">NO SE VA A HACER</option>
-                                <option value="ATRASADO">ATRASADO</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="valor_total" class="block text-sm font-medium text-gray-700">Valor Total <span
-                                    class="text-red-500">*</span></label>
-                            <input type="number" id="valor_total" formControlName="valor_total"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                [ngClass]="{'border-red-500': compromisoForm.get('valor_total')?.invalid && compromisoForm.get('valor_total')?.touched}">
-                            <div *ngIf="compromisoForm.get('valor_total')?.invalid && compromisoForm.get('valor_total')?.touched"
-                                class="text-red-500 text-xs mt-1">
-                                El valor total es requerido y debe ser un número positivo.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label for="compromiso_especifico" class="block text-sm font-medium text-gray-700">Compromiso
-                            Específico
-                            <span class="text-red-500">*</span></label>
-                        <textarea id="compromiso_especifico" formControlName="compromiso_especifico" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            [ngClass]="{'border-red-500': compromisoForm.get('compromiso_especifico')?.invalid && compromisoForm.get('compromiso_especifico')?.touched}"></textarea>
-                        <div *ngIf="compromisoForm.get('compromiso_especifico')?.invalid && compromisoForm.get('compromiso_especifico')?.touched"
-                            class="text-red-500 text-xs mt-1">
-                            El compromiso específico es requerido.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección de Detalles Adicionales -->
-                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Detalles Adicionales</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="tema" class="block text-sm font-medium text-gray-700">Tema</label>
-                            <input type="text" id="tema" formControlName="tema"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="subtema" class="block text-sm font-medium text-gray-700">Subtema</label>
-                            <input type="text" id="subtema" formControlName="subtema"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="detalle_especifico" class="block text-sm font-medium text-gray-700">Detalle
-                                Específico</label>
-                            <textarea id="detalle_especifico" formControlName="detalle_especifico" rows="2"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                        </div>
-                        <div>
-                            <label for="meta_del_plan_de_desarrollo"
-                                class="block text-sm font-medium text-gray-700">Meta del
-                                Plan de Desarrollo</label>
-                            <textarea id="meta_del_plan_de_desarrollo" formControlName="meta_del_plan_de_desarrollo"
-                                rows="2"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                        </div>
-                        <div>
-                            <label for="descripcion_meta_producto"
-                                class="block text-sm font-medium text-gray-700">Descripción
-                                Meta Producto</label>
-                            <textarea id="descripcion_meta_producto" formControlName="descripcion_meta_producto"
-                                rows="2"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                        </div>
-                        <div>
-                            <label for="nuevo_compromiso" class="block text-sm font-medium text-gray-700">Nuevo
-                                Compromiso (si
-                                aplica)</label>
-                            <textarea id="nuevo_compromiso" formControlName="nuevo_compromiso" rows="2"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                        </div>
-                        <div>
-                            <label for="entidad_lider" class="block text-sm font-medium text-gray-700">Entidad
-                                Líder</label>
-                            <input type="text" id="entidad_lider" formControlName="entidad_lider"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="entidades_aliadas" class="block text-sm font-medium text-gray-700">Entidades
-                                Aliadas</label>
-                            <textarea id="entidades_aliadas" formControlName="entidades_aliadas" rows="2"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                        </div>
-                        <div>
-                            <label for="fecha_estimada_inicio" class="block text-sm font-medium text-gray-700">Fecha
-                                Estimada de
-                                Inicio</label>
-                            <input type="date" id="fecha_estimada_inicio" formControlName="fecha_estimada_inicio"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="fecha_estimada_finalizacion"
-                                class="block text-sm font-medium text-gray-700">Fecha
-                                Estimada de Finalización</label>
-                            <input type="date" id="fecha_estimada_finalizacion"
-                                formControlName="fecha_estimada_finalizacion"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label for="accion_adelantada" class="block text-sm font-medium text-gray-700">Acción
-                            Adelantada</label>
-                        <textarea id="accion_adelantada" formControlName="accion_adelantada" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                    <div class="mt-4">
-                        <label for="acciones_pendientes" class="block text-sm font-medium text-gray-700">Acciones
-                            Pendientes</label>
-                        <textarea id="acciones_pendientes" formControlName="acciones_pendientes" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                    <div class="mt-4">
-                        <label for="dificultades" class="block text-sm font-medium text-gray-700">Dificultades</label>
-                        <textarea id="dificultades" formControlName="dificultades" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                    <div class="mt-4">
-                        <label for="alternativas_de_solucion"
-                            class="block text-sm font-medium text-gray-700">Alternativas de
-                            Solución</label>
-                        <textarea id="alternativas_de_solucion" formControlName="alternativas_de_solucion" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                    <div class="mt-4">
-                        <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
-                        <textarea id="observaciones" formControlName="observaciones" rows="3"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="flex items-center">
-                            <input id="se_dara_cumplimiento_al_compromiso" type="checkbox"
-                                formControlName="se_dara_cumplimiento_al_compromiso"
-                                class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                            <label for="se_dara_cumplimiento_al_compromiso" class="ml-2 block text-sm text-gray-900">¿Se
-                                dará
-                                cumplimiento al compromiso?</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input id="dispone_del_presupuesto" type="checkbox"
-                                formControlName="dispone_del_presupuesto"
-                                class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                            <label for="dispone_del_presupuesto" class="ml-2 block text-sm text-gray-900">¿Dispone de
-                                presupuesto?</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input id="el_compromiso_fue_modificado" type="checkbox"
-                                formControlName="el_compromiso_fue_modificado"
-                                class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                            <label for="el_compromiso_fue_modificado" class="ml-2 block text-sm text-gray-900">¿El
-                                compromiso
-                                fue modificado?</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input id="se_requiere_apoyo_despacho" type="checkbox"
-                                formControlName="se_requiere_apoyo_despacho"
-                                class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                            <label for="se_requiere_apoyo_despacho" class="ml-2 block text-sm text-gray-900">¿Se
-                                requiere apoyo
-                                desde despacho?</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección de Aportes -->
-                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Aportes Financieros</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div>
-                            <label for="aporte_departamento" class="block text-sm font-medium text-gray-700">Aporte
-                                Departamento</label>
-                            <input type="number" id="aporte_departamento" formControlName="aporte_departamento"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="aporte_municipio" class="block text-sm font-medium text-gray-700">Aporte
-                                Municipio</label>
-                            <input type="number" id="aporte_municipio" formControlName="aporte_municipio"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="aporte_nacion" class="block text-sm font-medium text-gray-700">Aporte
-                                Nación</label>
-                            <input type="number" id="aporte_nacion" formControlName="aporte_nacion"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="otro_aporte" class="block text-sm font-medium text-gray-700">Otro Aporte</label>
-                            <input type="number" id="otro_aporte" formControlName="otro_aporte"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label for="fuente_cofinanciacion" class="block text-sm font-medium text-gray-700">Fuente de
-                            Cofinanciación</label>
-                        <textarea id="fuente_cofinanciacion" formControlName="fuente_cofinanciacion" rows="2"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                </div>
-
-                <!-- Sección de Documentos -->
-                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Información de Documentos
-                        (Contrato/Convenio/Ordenanza/Resolución)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="tipo_documento" class="block text-sm font-medium text-gray-700">Tipo de
-                                Documento</label>
-                            <input type="text" id="tipo_documento" formControlName="tipo_documento"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="numero_documento" class="block text-sm font-medium text-gray-700">No.
-                                Documento</label>
-                            <input type="text" id="numero_documento" formControlName="numero_documento"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="valor_documento" class="block text-sm font-medium text-gray-700">Valor
-                                Documento</label>
-                            <input type="number" id="valor_documento" formControlName="valor_documento"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label for="objeto_documento" class="block text-sm font-medium text-gray-700">Objeto
-                            Documento</label>
-                        <textarea id="objeto_documento" formControlName="objeto_documento" rows="2"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                    <div class="mt-4">
-                        <label for="bien_o_servicio_entregado" class="block text-sm font-medium text-gray-700">Bien o
-                            Servicio
-                            Entregado</label>
-                        <textarea id="bien_o_servicio_entregado" formControlName="bien_o_servicio_entregado" rows="2"
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                    </div>
-                </div>
-
-                <!-- Botones de Acción -->
-                <div class="md:col-span-2 flex justify-end space-x-4 mt-6">
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
-                        [disabled]="loading">
-                        {{ isEditMode ? 'Actualizar Compromiso' : 'Crear Compromiso' }}
-                    </button>
-                    <button type="button" [routerLink]="'/compromisos'"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out">
-                        Cancelar
-                    </button>
-                </div>
-            </form>
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto text-center text-sm">
-            &copy; {{ '2024' }} Sistema de Gestión de Compromisos. Todos los derechos reservados.
-        </div>
-    </footer>
+    <app-footer></app-footer>
 </div>

@@ -51,8 +51,8 @@ export class CompromisoDetailComponent implements OnInit {
             next: (data) => {
                 this.compromiso = data;
                 this.loadingCompromiso = false;
-                if (this.compromiso && this.compromiso.codigo) {
-                    this.loadReportesAvance(this.compromiso.codigo);
+                if (this.compromiso) {
+                    this.loadReportesAvance(this.compromiso.id);
                 } else {
                     this.loadingReportes = false;
                     this.reportesAvance = [];
@@ -66,7 +66,7 @@ export class CompromisoDetailComponent implements OnInit {
         });
     }
 
-    loadReportesAvance(codigo: string): void {
+    loadReportesAvance(codigo: any): void {
         this.loadingReportes = true;
         this.errorReportes = null;
         this.compromisosService.getReportesAvance(codigo).subscribe({
