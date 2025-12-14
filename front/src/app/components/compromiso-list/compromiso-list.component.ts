@@ -50,7 +50,7 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
     // Filter Lists
     provincias: string[] = [];
     municipios: string[] = [];
-    entidades: string[] = [];
+    entidades: any[] = [];
     prioridades: string[] = [];
     estados: string[] = [];
     obligaciones: string[] = [];
@@ -67,7 +67,7 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
     error: string | null = null;
 
     // Displayed Columns (Updated)
-    displayedColumns: string[] = ['id', 'proyecto', 'entidad_lider', 'inversion', 'estado', 'avance', 'prioridad', 'acciones'];
+    displayedColumns: string[] = ['id', 'proyecto', 'entidad', 'inversion', 'estado', 'avance', 'prioridad', 'acciones'];
     dataSource: MatTableDataSource<Compromiso> = new MatTableDataSource<Compromiso>([]);
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;

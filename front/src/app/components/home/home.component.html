@@ -49,7 +49,8 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" [ngClass]="{'lg:grid-cols-4':authService.hasRole('Administrador'),
+        'lg:grid-cols-3':!authService.hasRole('Administrador')}">
 
             <!-- Card 1: Mapa -->
             <div
@@ -60,8 +61,8 @@
                 </div>
                 <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Mapa de compromisos</h3>
                 <p class="text-sm text-gray-600 mb-6 flex-grow">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua.
+                    Herramienta que permite identificar de manera gráfica los compromisos adquiridos en cada municipio,
+                    mostrando responsables, estados de avance, plazos y acciones pendientes.
                 </p>
                 <a [routerLink]="['/mapa']"
                     class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
@@ -78,8 +79,8 @@
                 </div>
                 <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Listado de compromisos</h3>
                 <p class="text-sm text-gray-600 mb-6 flex-grow">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua.
+                    Organiza los compromisos según el municipio al que corresponden, entendiendo cada compromiso como un
+                    proyecto estratégico definido y acordado con el alcalde.
                 </p>
                 <a [routerLink]="['/compromisos']"
                     class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
@@ -96,8 +97,8 @@
                 </div>
                 <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Fichas técnicas de visita</h3>
                 <p class="text-sm text-gray-600 mb-6 flex-grow">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua.
+                    Se genera un instrumento que registra, organiza y sintetiza la información más relevante sobre la
+                    inversión del municipio, comunidad, proyecto o infraestructura.
                 </p>
                 <a [routerLink]="['/ficha-tecnica']"
                     class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">
@@ -115,8 +116,8 @@
                 </div>
                 <h3 class="text-xl font-bold text-[#1D1B1A] mb-3">Administración de usuarios</h3>
                 <p class="text-sm text-gray-600 mb-6 flex-grow">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua.
+                    Organiza, crea, gestiona y controla las cuentas de las personas que utilizan la plataforma, incluye
+                    tareas como registrar nuevos usuarios, asignar roles y permisos
                 </p>
                 <a [routerLink]="['/admin/users']"
                     class="bg-[#003366] text-white py-2 px-6 rounded-full text-sm font-bold flex items-center hover:bg-[#002244] transition-colors w-full justify-center">

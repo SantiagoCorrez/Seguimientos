@@ -959,7 +959,13 @@ export class MapaComponent {
           provincia: provincia.NOMBRE_PROVINCIA
         });
       });
-    })
+    });
+
+    // Ordenar Provincias alfabéticamente
+    this.provincias.sort((a, b) => a.NOMBRE_PROVINCIA.localeCompare(b.NOMBRE_PROVINCIA));
+
+    // Ordenar Municipios alfabéticamente
+    this.municipios.sort((a: any, b: any) => a.NOMBRE_MPIO.localeCompare(b.NOMBRE_MPIO));
 
     console.log(this.municipios)
     this.tooltip = document.getElementById('tooltip');

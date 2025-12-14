@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, HeaderComponent, FooterComponent],
+  imports: [RouterLink, HeaderComponent, FooterComponent, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
