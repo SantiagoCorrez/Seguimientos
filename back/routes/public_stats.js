@@ -44,8 +44,9 @@ router.get('/totales', async (req, res) => {
 
 // GET /api/public/municipios
 router.get('/municipios', async (req, res) => {
+    const { municipio } = req.query;
     try {
-        const query = `
+        let query = `
             SELECT 
                 UPPER(TRANSLATE(municipio, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) as municipio, 
                 COUNT(*) as cantidad, 
@@ -55,10 +56,20 @@ router.get('/municipios', async (req, res) => {
                 SUM(CASE WHEN estado IN ('FINALIZADO', 'COMPLETADO', 'CUMPLIDO') THEN 1 ELSE 0 END) as proyectos_completados,
                 SUM(CASE WHEN estado IN ('PENDIENTE', 'EN CURSO', 'NO SE HA INICIADO') THEN 1 ELSE 0 END) as proyectos_activos
             FROM compromisos 
+        `;
+
+        const params = [];
+        if (municipio) {
+            query += ` WHERE UPPER(TRANSLATE(municipio, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) LIKE UPPER(TRANSLATE($1, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) `;
+            params.push(`%${municipio}%`);
+        }
+
+        query += `
             GROUP BY UPPER(TRANSLATE(municipio, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU'))
             ORDER BY municipio ASC;
         `;
-        const result = await pool.query(query);
+
+        const result = await pool.query(query, params);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error al obtener estadísticas por municipios:', err.message);
