@@ -12,6 +12,8 @@ const verifyToken = require('./middleware/verifyToken');
 const checkRole = require('./middleware/checkRole');
 
 const secretariasRoutes = require('./routes/secretarias'); // Importar rutas de secretarías
+const publicStatsRoutes = require('./routes/public_stats'); // Importar rutas de estadísticas públicas
+
 
 // Cargar variables de entorno desde .env
 dotenv.config();
@@ -69,6 +71,8 @@ const saveBase64Image = (base64String) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/secretarias', secretariasRoutes); // Añadir esta línea
+app.use('/api/public', publicStatsRoutes); // Rutas públicas de estadísticas
+
 
 // --- Rutas de la API para Compromisos ---
 
