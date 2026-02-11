@@ -30,7 +30,7 @@ router.get('/totales', async (req, res) => {
             SELECT 
                 COUNT(*) as proyectos, 
                 SUM(valor_documento) as total,
-                SUM(aporte_departamento) as total, 
+                SUM(aporte_departamento) as total_departamento, 
                 AVG(avance_fisico) as avance_fisico, 
                 AVG(avance_financiero) as avance_financiero 
             FROM compromisos;
