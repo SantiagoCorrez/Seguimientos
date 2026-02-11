@@ -9,7 +9,7 @@ router.get('/sectores', async (req, res) => {
             SELECT 
                 sector, 
                 COUNT(*) as cantidad, 
-                SUM(valor_total) as total, 
+                SUM(valor_documento) as total, 
                 AVG(avance_fisico) as avance_fisico, 
                 AVG(avance_financiero) as avance_financiero 
             FROM compromisos 
@@ -29,7 +29,8 @@ router.get('/totales', async (req, res) => {
         const query = `
             SELECT 
                 COUNT(*) as proyectos, 
-                SUM(valor_total) as total, 
+                SUM(valor_documento) as total,
+                SUM(aporte_departamento) as total, 
                 AVG(avance_fisico) as avance_fisico, 
                 AVG(avance_financiero) as avance_financiero 
             FROM compromisos;
