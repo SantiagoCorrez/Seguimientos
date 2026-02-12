@@ -11,7 +11,7 @@ router.get('/sectores', async (req, res) => {
                 *,
                 CASE 
                     WHEN entidad IN ('ICCU', 'IDACO', 'FERREA', 'MOVILIDAD', 'VIVIENDA') 
-                        THEN 'Infraestructura y movilidad'
+                        THEN 'Infraestructura y vías'
                     WHEN entidad IN ('EPC', 'MINAS') 
                         THEN 'Servicios Públicos'
                     WHEN entidad = 'SALUD' 
@@ -21,7 +21,7 @@ router.get('/sectores', async (req, res) => {
                     WHEN entidad = 'GOBIERNO' 
                         THEN 'Seguridad'
                     WHEN entidad IN ('ACODER', 'AGROCAMPESINADO', 'CIENCIA', 'TRANSFORMACION DIGITAL') 
-                        THEN 'Competitividad y agro'
+                        THEN 'Competitividad'
                     WHEN entidad IN ('GENERAL', 'DE LO SOCIAL Y LA FAMILIA', 'IDECUT', 'INDEPORTES', 'MUJER', 'PENSIONES', 'BENEFICENCIA', 'CORPORACION SOCIAL') 
                         THEN 'Social'
                     WHEN entidad IN ('BIENESTAR VERDE', 'UAEGRD', 'IPYBAC', 'CATASTRO', 'PROSPECTIVA') 
@@ -114,7 +114,7 @@ router.get('/sectores-por-municipio', async (req, res) => {
                     *,
                     CASE 
                         WHEN entidad IN ('ICCU', 'IDACO', 'FERREA', 'MOVILIDAD', 'VIVIENDA') 
-                            THEN 'Infraestructura y movilidad'
+                            THEN 'Infraestructura y vías'
                         WHEN entidad IN ('EPC', 'MINAS') 
                             THEN 'Servicios Públicos'
                         WHEN entidad = 'SALUD' 
@@ -124,7 +124,7 @@ router.get('/sectores-por-municipio', async (req, res) => {
                         WHEN entidad = 'GOBIERNO' 
                             THEN 'Seguridad'
                         WHEN entidad IN ('ACODER', 'AGROCAMPESINADO', 'CIENCIA', 'TRANSFORMACION DIGITAL') 
-                            THEN 'Competitividad y agro'
+                            THEN 'Competitividad'
                         WHEN entidad IN ('GENERAL', 'DE LO SOCIAL Y LA FAMILIA', 'IDECUT', 'INDEPORTES', 'MUJER', 'PENSIONES', 'BENEFICENCIA', 'CORPORACION SOCIAL') 
                             THEN 'Social'
                         WHEN entidad IN ('BIENESTAR VERDE', 'UAEGRD', 'IPYBAC', 'CATASTRO', 'PROSPECTIVA') 
