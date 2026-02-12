@@ -6,14 +6,39 @@ const pool = require('../db');
 router.get('/sectores', async (req, res) => {
     try {
         const query = `
+            WITH entidades_mapeadas AS (
             SELECT 
-                sector, 
-                COUNT(*) as cantidad, 
-                SUM(valor_documento) as total, 
-                AVG(avance_fisico) as avance_fisico, 
-                AVG(avance_financiero) as avance_financiero 
-            FROM compromisos 
-            GROUP BY sector;
+                *,
+                CASE 
+                    WHEN entidad IN ('ICCU', 'IDACO', 'FERREA', 'MOVILIDAD', 'VIVIENDA') 
+                        THEN 'Infraestructura y movilidad'
+                    WHEN entidad IN ('EPC', 'MINAS') 
+                        THEN 'Servicios Públicos'
+                    WHEN entidad = 'SALUD' 
+                        THEN 'Salud'
+                    WHEN entidad = 'EDUCACION' 
+                        THEN 'Educación'
+                    WHEN entidad = 'GOBIERNO' 
+                        THEN 'Seguridad'
+                    WHEN entidad IN ('ACODER', 'AGROCAMPESINADO', 'CIENCIA', 'TRANSFORMACION DIGITAL') 
+                        THEN 'Competitividad y agro'
+                    WHEN entidad IN ('GENERAL', 'DE LO SOCIAL Y LA FAMILIA', 'IDECUT', 'INDEPORTES', 'MUJER', 'PENSIONES', 'BENEFICENCIA', 'CORPORACION SOCIAL') 
+                        THEN 'Social'
+                    WHEN entidad IN ('BIENESTAR VERDE', 'UAEGRD', 'IPYBAC', 'CATASTRO', 'PROSPECTIVA') 
+                        THEN 'Bienestar Verde'
+                    ELSE 'Otro/No clasificado'
+                END AS sector_nombre
+            FROM compromisos -- Reemplaza con el nombre real de tu tabla
+        )
+        SELECT 
+            sector_nombre AS sector, 
+            COUNT(*) AS cantidad, 
+            SUM(valor_documento) AS total, 
+            AVG(avance_fisico) AS avance_fisico, 
+            AVG(avance_financiero) AS avance_financiero
+        FROM entidades_mapeadas
+        GROUP BY sector_nombre
+        ORDER BY cantidad DESC;
         `;
         const result = await pool.query(query);
         res.status(200).json(result.rows);
@@ -51,7 +76,8 @@ router.get('/municipios', async (req, res) => {
             SELECT 
                 UPPER(TRANSLATE(municipio, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) as municipio, 
                 COUNT(*) as cantidad, 
-                SUM(valor_total) as total, 
+                SUM(valor_documento) as total,
+                SUM(aporte_departamento) as total_departamento, 
                 AVG(avance_fisico) as avance_fisico, 
                 AVG(avance_financiero) as avance_financiero,
                 SUM(CASE WHEN estado IN ('FINALIZADO', 'COMPLETADO', 'CUMPLIDO') THEN 1 ELSE 0 END) as proyectos_completados,
@@ -83,16 +109,40 @@ router.get('/sectores-por-municipio', async (req, res) => {
     const { municipio } = req.query;
     try {
         let query = `
+            WITH entidades_mapeadas AS (
+                SELECT 
+                    *,
+                    CASE 
+                        WHEN entidad IN ('ICCU', 'IDACO', 'FERREA', 'MOVILIDAD', 'VIVIENDA') 
+                            THEN 'Infraestructura y movilidad'
+                        WHEN entidad IN ('EPC', 'MINAS') 
+                            THEN 'Servicios Públicos'
+                        WHEN entidad = 'SALUD' 
+                            THEN 'Salud'
+                        WHEN entidad = 'EDUCACION' 
+                            THEN 'Educación'
+                        WHEN entidad = 'GOBIERNO' 
+                            THEN 'Seguridad'
+                        WHEN entidad IN ('ACODER', 'AGROCAMPESINADO', 'CIENCIA', 'TRANSFORMACION DIGITAL') 
+                            THEN 'Competitividad y agro'
+                        WHEN entidad IN ('GENERAL', 'DE LO SOCIAL Y LA FAMILIA', 'IDECUT', 'INDEPORTES', 'MUJER', 'PENSIONES', 'BENEFICENCIA', 'CORPORACION SOCIAL') 
+                            THEN 'Social'
+                        WHEN entidad IN ('BIENESTAR VERDE', 'UAEGRD', 'IPYBAC', 'CATASTRO', 'PROSPECTIVA') 
+                            THEN 'Bienestar Verde'
+                        ELSE 'Otro/No clasificado'
+                    END AS sector_nombre
+                FROM compromisos -- Reemplaza con el nombre real de tu tabla
+            )
             SELECT 
-                UPPER(TRANSLATE(municipio, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) as municipio, 
-                sector,
-                COUNT(*) as cantidad, 
-                SUM(valor_total) as total, 
-                AVG(avance_fisico) as avance_fisico, 
-                AVG(avance_financiero) as avance_financiero,
+                sector_nombre AS sector, 
+                COUNT(*) AS cantidad, 
+                SUM(valor_documento) AS total, 
+                AVG(avance_fisico) AS avance_fisico, 
+                AVG(avance_financiero) AS avance_financiero,
                 SUM(CASE WHEN estado IN ('FINALIZADO', 'COMPLETADO', 'CUMPLIDO') THEN 1 ELSE 0 END) as proyectos_completados,
                 SUM(CASE WHEN estado IN ('PENDIENTE', 'EN CURSO', 'NO SE HA INICIADO') THEN 1 ELSE 0 END) as proyectos_activos
-            FROM compromisos 
+            FROM entidades_mapeadas
+            
         `;
 
         const params = [];
@@ -102,8 +152,8 @@ router.get('/sectores-por-municipio', async (req, res) => {
         }
 
         query += `
-            GROUP BY UPPER(TRANSLATE(municipio, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')), sector
-            ORDER BY municipio ASC, sector ASC;
+            GROUP BY sector_nombre
+            ORDER BY cantidad DESC;
         `;
 
         const result = await pool.query(query, params);
