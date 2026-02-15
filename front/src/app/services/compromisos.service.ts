@@ -46,6 +46,14 @@ export class CompromisosService {
         return this.http.delete<any>(`${this.apiUrl}/compromisos/id/${id}`, { headers: this.getAuthHeaders() });
     }
 
+    getFilteredMetrics(filters: any): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/public/filtrar/metricas`, { params: filters });
+    }
+
+    getFilteredProjects(filters: any): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/public/filtrar/proyectos`, { params: filters });
+    }
+
     // --- Métodos para Reportes de Avance ---
 
     getReportesAvance(compromisoCodigo: string): Observable<ReporteAvance[]> {

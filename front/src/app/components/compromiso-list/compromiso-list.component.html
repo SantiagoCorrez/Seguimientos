@@ -31,7 +31,7 @@
                     <select [(ngModel)]="filtroEntidad" (change)="aplicarFiltros()"
                         class="bg-[#F3F4F6] text-gray-700 text-sm rounded-full px-4 py-2 border-none focus:ring-2 focus:ring-blue-300 w-full outline-none appearance-none cursor-pointer">
                         <option value="">Todas</option>
-                        <option *ngFor="let e of entidades" [value]="e.nombre">{{ e.nombre }}</option>
+                        <option *ngFor="let e of entidades" [value]="e">{{ e }}</option>
                     </select>
                 </div>
                 <!-- Prioridad -->
@@ -112,9 +112,9 @@
                             <th mat-header-cell *matHeaderCellDef
                                 class="!bg-[#E7F2FF] !text-[#003366] !font-bold !text-sm !py-4 !px-4 !border-b-0">
                                 Proyecto </th>
-                            <td mat-cell *matCellDef="let element"
+                            <td mat-cell *matCellDef="let element" [title]="element.detalle_especifico"
                                 class="!py-4 !px-4 !text-[#003366] !font-bold !text-sm !border-b border-gray-100 underline decoration-blue-300 underline-offset-2 min-w-[250px]">
-                                {{element.compromiso_especifico | slice:0:100}}{{element.compromiso_especifico.length >
+                                {{element.detalle_especifico | slice:0:100}}{{element.detalle_especifico.length >
                                 100 ? '...' : ''}}
                             </td>
                         </ng-container>
@@ -136,7 +136,7 @@
                                 Inversión </th>
                             <td mat-cell *matCellDef="let element"
                                 class="!py-4 !px-4 !text-gray-500 !text-sm !border-b border-gray-100">
-                                {{element.valor_total | currency : '$ ' : 'symbol' : '1.0-0'}} </td>
+                                {{element.valor_documento | currency : '$ ' : 'symbol' : '1.0-0'}} </td>
                         </ng-container>
 
                         <!-- Estado Column -->
@@ -164,7 +164,7 @@
                             <td mat-cell *matCellDef="let element"
                                 class="!py-4 !px-4 !text-gray-500 !text-sm !border-b border-gray-100">
                                 <!-- Placeholder logic -->
-                                {{ element.avance_financiero || '0' }}%
+                                {{ element.avance_fisico || '0' }}%
                             </td>
                         </ng-container>
 

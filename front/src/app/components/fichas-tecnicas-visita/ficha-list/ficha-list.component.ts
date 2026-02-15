@@ -223,6 +223,13 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
     successMessage: string | null = null;
     errorMessage: string | null = null;
 
+    priorityOrder = [
+        'ICCU', 'IDACO', 'SALUD', 'EDUCACION', 'AGROCAMPESINADO', 'ACODER',
+        'BIENESTAR VERDE', 'EPC', 'IDECUT', 'INDEPORTES', 'MINAS', 'VIVIENDA',
+        'DE LO SOCIAL Y LA FAMILIA', 'UAEGRD', 'MUJER', 'TRANSFORMACION DIGITAL',
+        'CIENCIA', 'IPYBAC', 'GOBIERNO'
+    ];
+
     constructor(
         private route: ActivatedRoute,
         private compromisosService: CompromisosService
@@ -271,6 +278,9 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
         this.compromisosService.getCompromisos().subscribe({
             next: async (data) => {
                 const compromisosMunicipio = data.filter(c => c.municipio === this.selectedMunicipio.toUpperCase());
+
+                this.sortCompromisos(compromisosMunicipio);
+
                 console.log(data)
                 console.log(compromisosMunicipio)
                 if (compromisosMunicipio.length === 0) {
@@ -522,7 +532,7 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
                                                                             size: 26
                                                                         }),
                                                                         new docx.TextRun({
-                                                                            text: `${c.compromiso_especifico || 'No hay información'}`, bold: true, break: 1,
+                                                                            text: `${c.detalle_especifico || 'No hay información'}`, bold: true, break: 1,
                                                                             font: 'Arial',
                                                                             size: 26
                                                                         }),
@@ -602,6 +612,7 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
         this.compromisosService.getCompromisos().subscribe({
             next: (data) => {
                 data = data.filter(c => c.municipio === this.selectedMunicipio.toUpperCase());
+                this.sortCompromisos(data);
                 if (data.length === 0) {
                     this.showError('No hay compromisos para generar un resumen.');
                     return;
@@ -695,6 +706,27 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
                 console.error('Error al generar el reporte de resumen:', err);
                 this.showError('No se pudo generar el reporte de resumen.');
             }
+        });
+    }
+
+
+
+    sortCompromisos(list: any[]) {
+        list.sort((a, b) => {
+            const indexA = this.priorityOrder.indexOf(a.entidad);
+            const indexB = this.priorityOrder.indexOf(b.entidad);
+
+            const valA = indexA === -1 ? 999 : indexA;
+            const valB = indexB === -1 ? 999 : indexB;
+
+            if (valA !== valB) {
+                return valA - valB;
+            }
+
+            // Secondary sort: Value Descending
+            const valueA = parseFloat(a.valor_documento) || 0;
+            const valueB = parseFloat(b.valor_documento) || 0;
+            return valueB - valueA;
         });
     }
 

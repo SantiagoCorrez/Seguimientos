@@ -98,7 +98,7 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
                 this.prioridades = this.getUnicos(data.map(c => c.prioridad));
                 this.estados = this.getUnicos(data.map(c => c.estado));
                 this.obligaciones = this.getUnicos(data.map(c => c.obligacion_contraida));
-
+                this.entidades = this.getUnicos(data.map(c => c.entidad));
                 this.aplicarFiltros();
                 this.loading = false;
             },
@@ -107,9 +107,6 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
                 this.error = 'No se pudieron cargar los compromisos. Intenta de nuevo más tarde.';
                 this.loading = false;
             }
-        });
-        this.userService.getSecretarias().subscribe(data => {
-            this.entidades = data;
         });
     }
 
@@ -126,7 +123,8 @@ export class CompromisoListComponent implements OnInit, AfterViewInit {
             (!this.filtroEstado || c.estado === this.filtroEstado) &&
             (!this.filtroObligacion || c.obligacion_contraida === this.filtroObligacion)
         );
-
+        this.compromisosFiltrados.map(c => c.detalle_especifico == null ? c.detalle_especifico = "" : c.detalle_especifico);
+        this.compromisosFiltrados.sort((a, b) => b.valor_documento - a.valor_documento);
         this.dataSource.data = this.compromisosFiltrados;
         // paginator may not yet be available due to *ngIf; assign asynchronously
         setTimeout(() => {

@@ -675,7 +675,6 @@ export class MapaComponent {
       let color = 'rgba(0, 0, 92, 0.7)'; // color por defecto (más bajo)
       if (cantidad > 0) {
         const ratio = cantidad / this.maxProyectos;
-        console.log(ratio, cantidad, this.maxProyectos)
         if (ratio > 0.8) {
           color = '#1F87C8'; // #4525d1
         } else if (ratio > 0.6) {
@@ -817,48 +816,142 @@ export class MapaComponent {
     const t = this.tema.value;
     const st = this.subtema.value;
 
-    this.filteredCompromisos = this.info.filter((c: any) => {
-      const matchP = !p || (c.provincia && this.normalizeString(c.provincia) === this.normalizeString(p));
-      const matchM = !m || (c.municipio && this.normalizeString(c.municipio) === this.normalizeString(m));
-      const matchE = !e || ((c.entidad_lider || c.entidad) === e);
-      const matchEst = !est || (c.estado === est);
-      const matchPri = !pri || (c.prioridad === pri);
-      const matchObl = !obl || (c.obligacion_contraida === obl);
-      const matchT = !t || (c.tema === t);
-      const matchSt = !st || (c.subtema === st);
+    const filters: any = {};
+    if (p) filters.provincia = p;
+    if (m) filters.municipio = m;
+    if (e) filters.entidad = e;
+    if (est) filters.estado = est;
+    if (pri) filters.prioridad = pri;
+    if (obl) filters.obligacion = obl;
+    if (t) filters.tema = t;
+    if (st) filters.subtema = st;
 
-      return matchP && matchM && matchE && matchEst && matchPri && matchObl && matchT && matchSt;
+    // 1. Get Metrics
+    this.data.getFilteredMetrics(filters).subscribe((metrics: any) => {
+      this.numPro = parseInt(metrics.num_pro);
+      this.total = parseFloat(metrics.total);
+      this.avgAvance = parseFloat(metrics.avg_avance);
+      this.avgAvanceFisico = parseFloat(metrics.avg_avance_fisico);
+      this.avgAvanceFinanciero = parseFloat(metrics.avg_avance_financiero);
     });
 
-    this.numPro = this.filteredCompromisos.length;
-    this.total = this.filteredCompromisos.reduce((sum: number, c: any) => sum + (parseFloat(c.valor_total) || 0), 0);
+    // 2. Get Projects List
+    this.data.getFilteredProjects(filters).subscribe((projects: any[]) => {
+      this.filteredCompromisos = projects;
+      this.dataSource.data = this.filteredCompromisos;
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+      this.updateMapWithProjects(projects);
+    });
+  }
 
-    if (this.numPro > 0) {
-      const totalAvance = this.filteredCompromisos.reduce((sum: any, c: any) => {
-        let avance = c.avance_real;
-        if (typeof avance !== 'number') {
-          avance = (c.estado === 'Finalizado' || c.estado === 'FINALIZADO') ? 100 : 0;
+  updateMapWithProjects(projects: any[]) {
+    // Reset Counts
+    this.conteoProyectos = {};
+    this.conteoProyectosMunicipio = {};
+    const projectsByMunicipality: Record<string, any[]> = {};
+
+    projects.forEach((p: any) => {
+      const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
+      const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
+      this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
+      this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
+
+      // Group for map points
+      if (nombre) {
+        if (!projectsByMunicipality[nombre]) {
+          projectsByMunicipality[nombre] = [];
         }
-        return sum + avance;
-      }, 0);
-      this.avgAvance = totalAvance / this.numPro;
+        projectsByMunicipality[nombre].push(p);
+      }
+    });
 
-      this.avgAvanceFisico = this.filteredCompromisos.reduce((sum: any, c: any) => sum + (typeof c.avance_fisico !== 'number' ? 0 : c.avance_fisico), 0) / this.numPro;
-      this.avgAvanceFinanciero = this.filteredCompromisos.reduce((sum: any, c: any) => sum + (typeof c.avance_financiero !== 'number' ? 0 : c.avance_financiero), 0) / this.numPro;
-      console.log(this.avgAvance);
-      console.log(this.avgAvanceFisico);
-      console.log(this.avgAvanceFinanciero);
-    } else {
-      this.avgAvance = 0;
-      this.avgAvanceFisico = 0;
-      this.avgAvanceFinanciero = 0;
+    this.maxProyectos = Math.max(...Object.values(this.conteoProyectos));
+    this.maxProyectosMunicipio = Math.max(...Object.values(this.conteoProyectosMunicipio));
+    this.layerMunicipios.changed();
+    this.layerProvincia.changed();
+
+    // Generate Map Points
+    this.generarProyectosMapPoints(projectsByMunicipality);
+  }
+
+  generarProyectosMapPoints(filteredProyectos: Record<string, any[]>) {
+    this.map.removeLayer(this.proyectosLayer);
+    const sourceMunicipios = this.layerMunicipios.getSource();
+    if (!sourceMunicipios || sourceMunicipios.getState() !== 'ready') {
+      return;
     }
 
-    // Update Table DataSource
-    this.dataSource.data = this.filteredCompromisos;
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
+    const municipiosFeatures = sourceMunicipios.getFeatures();
+    this.proyectosFeatures = []; // Limpiar las features previas
+    Object.entries(filteredProyectos).forEach(([municipio, listaProyectos]: [string, any[]]) => {
+      const municipioFeature = municipiosFeatures.find(
+        f => f.get('munnombre') && this.normalizeString(f.get('munnombre')) === municipio
+      );
+
+      if (!municipioFeature) {
+        return;
+      }
+      /* listaProyectos.forEach((proyecto: any) => {
+        const municipioGeoJSON: any = new GeoJSON().writeFeatureObject(municipioFeature);
+
+        let puntoTurf;
+        let intentos = 0;
+        const maxIntentos = 10;
+        let polygon: any;
+        if (municipioGeoJSON.geometry.type === "MultiPolygon") {
+          polygon = turf.multiPolygon(municipioGeoJSON.geometry.coordinates);
+        } else {
+          polygon = turf.polygon(
+            municipioGeoJSON.geometry.coordinates
+          );
+        }
+
+        do {
+          puntoTurf = turf.randomPoint(1, { bbox: turf.bbox(municipioGeoJSON) }).features[0].geometry.coordinates;
+          intentos++;
+        } while (
+          !turf.booleanPointInPolygon(turf.point(puntoTurf), polygon) &&
+          intentos < maxIntentos
+        );
+
+        if (!turf.booleanPointInPolygon(turf.point(puntoTurf), polygon)) {
+          puntoTurf = turf.centroid(polygon).geometry.coordinates;
+        }
+
+        municipioFeature.getGeometry()?.getClosestPoint(puntoTurf);
+        const feature = new Feature({
+          geometry: new Point(puntoTurf),
+          nombre: proyecto.nombre,
+          municipio: proyecto.municipio,
+          id: proyecto.id,
+        });
+
+        feature.setStyle(new Style({
+          image: new Icon({
+            src: '/assets/lupa.png',
+            anchor: [0.5, 1],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+            scale: 0.1
+          })
+        }));
+
+        this.proyectosFeatures.push(feature);
+      }); */
+    });
+
+    const proyectosSource = new VectorSource({
+      features: this.proyectosFeatures
+    });
+
+    this.proyectosLayer = new VectorLayer({
+      source: proyectosSource,
+      zIndex: 100
+    });
+    this.proyectosLayer.changed();
+    this.map.addLayer(this.proyectosLayer);
   }
 
   ngOnInit() {
@@ -1119,28 +1212,22 @@ export class MapaComponent {
 
   onSelectEntidad() {
     this.entidadFilter = this.entidad.value || '';
-    const selectedValue = this.entidadFilter;
-    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, selectedValue, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
   onSelectEstado() {
     this.estadoFilter = this.estado.value || '';
-    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
   onSelectPrioridad() {
     this.prioridadFilter = this.prioridad.value || '';
-    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
   }
 
   onSelectObligacion() {
     this.obligacionFilter = this.obligacion.value || '';
-    this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter);
     this.filterType(this.valueFilter, this.typeFilter, this.globalFilter, "");
-
   }
 
   municipioFilter: string = "";
@@ -1164,26 +1251,11 @@ export class MapaComponent {
     console.log(feature)
     if (feature && feature.get("municipio")) {
       this.totalModal = 0;
-      let value = this.info
-      this.projects = value.filter((ele: any) => ele.municipio && feature.get("municipio") && this.normalizeString(ele.municipio) == this.normalizeString(feature.get("municipio")))
-      if (this.entidadFilter != "") {
-        this.projects = this.projects.filter((ele: any) => ele.entidad == this.entidadFilter)
-      }
-      if (this.temaFilter != "") {
-        this.projects = this.projects.filter((ele: any) => ele.tema == this.temaFilter)
-      }
-      if (this.subtemaFilter != "") {
-        this.projects = this.projects.filter((ele: any) => ele.subtema == this.subtemaFilter)
-      }
-      if (this.estadoFilter != "") {
-        this.projects = this.projects.filter((ele: any) => ele.estado == this.estadoFilter)
-      }
-      if (this.prioridadFilter != "") {
-        this.projects = this.projects.filter((ele: any) => ele.prioridad == this.prioridadFilter)
-      }
-      if (this.obligacionFilter != "") {
-        this.projects = this.projects.filter((ele: any) => ele.obligacion_contraida == this.obligacionFilter)
-      }
+      this.totalModal = 0;
+      this.projects = this.filteredCompromisos.filter((ele: any) =>
+        ele.municipio && feature.get("municipio") &&
+        this.normalizeString(ele.municipio) == this.normalizeString(feature.get("municipio"))
+      );
 
       const reportObservables = this.projects.map((project: any) => {
         return this.data.getReportesAvance(project.codigo);
@@ -1364,109 +1436,42 @@ export class MapaComponent {
   }
 
   filterType(valor: string, tipo: string, global: string = "", e: any) {
-    // Sync triggers
+    // Trigger data update
     this.updateDashboardMetrics();
 
-    this.total = 0;
-    let value = this.info;
-    if (this.entidadFilter && this.entidadFilter != "") { value = value.filter((ele: any) => ele.entidad == this.entidadFilter) }
-    if (this.temaFilter && this.temaFilter != "") { value = value.filter((ele: any) => ele.tema == this.temaFilter) }
-    if (this.subtemaFilter && this.subtemaFilter != "") { value = value.filter((ele: any) => ele.subtema == this.subtemaFilter) }
-    if (this.estadoFilter && this.estadoFilter != "") { value = value.filter((ele: any) => ele.estado == this.estadoFilter) }
-    if (this.prioridadFilter && this.prioridadFilter != "") { value = value.filter((ele: any) => ele.prioridad == this.prioridadFilter) }
-    if (this.obligacionFilter && this.obligacionFilter != "") { value = value.filter((ele: any) => ele.obligacion_contraida == this.obligacionFilter) }
-    console.log(value)
     switch (tipo) {
       case "PROVINCIA":
-
         this.layerPuntos.setVisible(false);
-        let pro_nombre: string = valor;
-        value = value.filter((ele: any) => ele.provincia && this.normalizeString(ele.provincia) == this.normalizeString(pro_nombre))
-        console.log(e)
-        value.map((ele: any) => { if (ele.valor_total != null) { this.total += parseFloat(ele.valor_total) } })
-        this.numPro = value.length
+        const pro_nombre: string = valor;
+        // Zoom and View logic only
         if (e && e.getGeometry) {
           var extent = e.getGeometry().getExtent();
           this.map.getView().fit(extent);
-          this.hideMunicipio(pro_nombre, extent)
+          this.hideMunicipio(pro_nombre, extent);
         }
-        this.map.getView().padding = [20, 50, 30, 150]
-        this.filtrarValores(value);
-        this.conteoProyectosMunicipio = {};
-        this.conteoProyectos = {};
-        value.forEach((p: any) => {
-          const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
-          const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
-          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
-          this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
-        });
-        console.log(this.conteoProyectos);
-
-        this.maxProyectos = Math.max(...Object.values(this.conteoProyectos));
-        this.maxProyectosMunicipio = Math.max(...Object.values(this.conteoProyectosMunicipio));
-        this.layerMunicipios.changed();
-        this.layerProvincia.changed();
+        this.map.getView().padding = [20, 50, 30, 150];
         break;
+
       case "MUNICIPIO":
-        let mun_nombre: string = valor;
-        value = value.filter((ele: any) => ele.municipio && this.normalizeString(ele.municipio) == this.normalizeString(mun_nombre))
-
-        value.map((ele: any) => { if (ele.valor_total != null) { this.total += parseFloat(ele.valor_total) } })
-        this.generarProyectosDesdeMunicipios(this.temaFilter, this.subtemaFilter, this.entidadFilter, this.estadoFilter, this.prioridadFilter, this.obligacionFilter, mun_nombre);
-        this.numPro = value.length
-
+        const mun_nombre: string = valor;
+        // Zoom and View logic only
         if (e && e.getGeometry) {
           var extent = e.getGeometry().getExtent();
           this.map.getView().fit(extent, {
             padding: [20, 50, 30, 150]
           });
-          this.hideMunicipioUnico(mun_nombre, extent)
+          this.hideMunicipioUnico(mun_nombre, extent);
         }
-        this.filtrarValores(value);
-        this.conteoProyectosMunicipio = {};
-        this.conteoProyectos = {};
-        value.forEach((p: any) => {
-          const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
-          const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
-          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
-          this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
-        });
-        console.log(this.conteoProyectos);
-
-        this.maxProyectos = Math.max(...Object.values(this.conteoProyectos));
-        this.maxProyectosMunicipio = Math.max(...Object.values(this.conteoProyectosMunicipio));
-        this.layerMunicipios.changed();
-        this.layerProvincia.changed();
         break;
 
       default:
-        value.map((ele: any) => { if (ele.valor_total != null) { this.total += parseFloat(ele.valor_total) } })
-        console.log(this.total);
-        this.conteoProyectosMunicipio = {};
-        this.conteoProyectos = {};
-        value.forEach((p: any) => {
-          const nombre = p.municipio != null ? this.normalizeString(p.municipio) : '';
-          const provincia = p.provincia != null ? this.normalizeString(p.provincia) : '';
-          this.conteoProyectosMunicipio[nombre] = (this.conteoProyectosMunicipio[nombre] || 0) + 1;
-          this.conteoProyectos[provincia] = (this.conteoProyectos[provincia] || 0) + 1;
-        });
-        console.log(this.conteoProyectos);
-
-        this.maxProyectos = Math.max(...Object.values(this.conteoProyectos));
-        this.maxProyectosMunicipio = Math.max(...Object.values(this.conteoProyectosMunicipio));
-        this.layerMunicipios.changed();
-        this.layerProvincia.changed();
-        this.numPro = value.length
-        this.filtrarValores(value);
+        // No specific view logic for default
         break;
     }
-
   }
 
 
-  filtrarValores(value: any) {
 
-  }
 
   hideMunicipio(mun: string, feature: any) {
     let provincia = this.provincias.find(ele => this.normalizeString(ele.NOMBRE_PROVINCIA) == this.normalizeString(mun))
@@ -1546,127 +1551,7 @@ export class MapaComponent {
     this.filterType('', '', '', null);
   }
   proyectosFeatures: Feature[] = [];
-  generarProyectosDesdeMunicipios(tema = this.temaFilter, subtema = this.subtemaFilter, entidad = this.entidadFilter, estado = this.estadoFilter, prioridad = this.prioridadFilter, obligacion = this.obligacionFilter, municipioNombre: string | null = null) {
 
-
-    this.map.removeLayer(this.proyectosLayer);
-    const sourceMunicipios = this.layerMunicipios.getSource();
-    if (!sourceMunicipios || sourceMunicipios.getState() !== 'ready') {
-
-      return;
-    }
-
-    let tempProyectosPorMunicipio = this.proyectosPorMunicipio;
-
-    if (municipioNombre) {
-      const normalizedMunNombre = this.normalizeString(municipioNombre);
-      const projs = this.proyectosPorMunicipio[normalizedMunNombre];
-      tempProyectosPorMunicipio = projs ? { [normalizedMunNombre]: projs } : {};
-    }
-
-    const filteredProyectos = Object.fromEntries(
-      Object.entries(tempProyectosPorMunicipio).map(([municipio, listaProyectos]: [any, any]) => {
-        let filteredList = listaProyectos;
-        if (entidad) {
-          filteredList = filteredList.filter((p: any) => p.entidad === entidad);
-        }
-        if (tema) {
-          filteredList = filteredList.filter((p: any) => p.tema === tema);
-        }
-        if (subtema) {
-          filteredList = filteredList.filter((p: any) => p.subtema === subtema);
-        }
-        if (estado) {
-          filteredList = filteredList.filter((p: any) => p.estado === estado);
-        }
-        if (prioridad) {
-          filteredList = filteredList.filter((p: any) => p.prioridad === prioridad);
-        }
-        if (obligacion) {
-          filteredList = filteredList.filter((p: any) => p.obligacion_contraida === obligacion);
-        }
-        return [municipio, filteredList];
-      }).filter(([_, listaProyectos]) => listaProyectos.length > 0)
-    );
-
-
-    const municipiosFeatures = sourceMunicipios.getFeatures();
-    console.log(filteredProyectos)
-    this.proyectosFeatures = []; // Limpiar las features previas
-    Object.entries(filteredProyectos).forEach(([municipio, listaProyectos]: [any, any]) => {
-      const municipioFeature = municipiosFeatures.find(
-        f => f.get('munnombre') && this.normalizeString(f.get('munnombre')) === this.normalizeString(municipio)
-      );
-
-      if (!municipioFeature) {
-        return;
-      }
-      listaProyectos.forEach((proyecto: any, i: any) => {
-        const municipioGeoJSON: any = new GeoJSON().writeFeatureObject(municipioFeature);
-
-        // Generar punto aleatorio dentro del polígono
-        // Generar un punto aleatorio dentro del bbox y validar que esté dentro del polígono
-
-        let puntoTurf;
-        let intentos = 0;
-        const maxIntentos = 10;
-        console.log(municipio, municipioGeoJSON);
-        let polygon: any;
-        if (municipioGeoJSON.geometry.type === "MultiPolygon") {
-          polygon = turf.multiPolygon(municipioGeoJSON.geometry.coordinates);
-        } else {
-          polygon = turf.polygon(
-            municipioGeoJSON.geometry.coordinates
-          );
-        }
-
-
-        do {
-          puntoTurf = turf.randomPoint(1, { bbox: turf.bbox(municipioGeoJSON) }).features[0].geometry.coordinates;
-          intentos++;
-        } while (
-          !turf.booleanPointInPolygon(turf.point(puntoTurf), polygon) &&
-          intentos < maxIntentos
-        );
-
-        // Si no se encontró un punto válido, usar el centroide
-        if (!turf.booleanPointInPolygon(turf.point(puntoTurf), polygon)) {
-          puntoTurf = turf.centroid(polygon).geometry.coordinates;
-        }
-
-        municipioFeature.getGeometry()?.getClosestPoint(puntoTurf);
-        const feature = new Feature({
-          geometry: new Point(puntoTurf),
-          nombre: proyecto.nombre,
-          municipio: proyecto.municipio,
-          id: proyecto.id,
-        });
-
-        feature.setStyle(new Style({
-          image: new Icon({
-            src: '/assets/lupa.png',
-            anchor: [0.5, 1],
-            anchorXUnits: 'fraction',
-            anchorYUnits: 'fraction',
-            scale: 0.1 // Ajusta este valor según el tamaño deseado
-          })
-        }));
-
-        this.proyectosFeatures.push(feature);
-      });
-    });
-
-    const proyectosSource = new VectorSource({
-      features: this.proyectosFeatures
-    });
-
-    this.proyectosLayer = new VectorLayer({
-      source: proyectosSource,
-      zIndex: 100
-    });
-    this.proyectosLayer.changed();
-    this.map.addLayer(this.proyectosLayer);
-  }
 
   hideMunicipioUnico(mun_nombre: string, extent: any) {
 

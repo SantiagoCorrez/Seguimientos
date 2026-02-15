@@ -76,6 +76,36 @@ app.use('/api/public', publicStatsRoutes); // Rutas públicas de estadísticas
 
 // --- Rutas de la API para Compromisos ---
 
+app.get('/api/metricas', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
+    try {
+        let query = `SELECT 
+                COUNT(*) as proyectos, 
+                SUM(valor_documento) as total,
+                SUM(aporte_departamento) as total_departamento, 
+                AVG(avance_fisico) as avance_fisico, 
+                AVG(avance_financiero) as avance_financiero 
+            FROM compromisos;`;
+        let values = [];
+
+        // Check if user is Editor and NOT Administrator
+        // (If user has both, Admin privileges override)
+        if (req.user.roles.includes('Editor') && !req.user.roles.includes('Administrador')) {
+            // Filter by secretaría
+            // Assuming 'entidad_lider' column matches 'secretaria_nombre'
+            query += ' WHERE entidad = $1';
+            values.push(req.user.secretaria_nombre);
+        }
+
+        query += ' ORDER BY id ASC';
+
+        const result = await pool.query(query, values);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Error al obtener los compromisos:', err.message);
+        res.status(500).json({ error: 'Error interno del servidor al obtener compromisos.' });
+    }
+});
+
 // 1. Obtener todos los compromisos
 app.get('/api/compromisos', verifyToken, checkRole(['Administrador', 'Editor', 'Visor']), async (req, res) => {
     try {

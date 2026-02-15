@@ -8,15 +8,6 @@ body {
     font-family: Antonio, sans-serif;
 }
 
-
-:root app-mapa .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-floating-label {
-    color: #fff !important
-}
-
-:root app-mapa .mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input {
-    color: #fff !important
-}
-
 :root app-mapa .mdc-text-field--filled:not(.mdc-text-field--disabled) {
     background-color: rgb(17 43 66 / 80%) !important;
     height: 50px !important;

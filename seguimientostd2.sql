@@ -26,6 +26,15 @@ SET row_security = off;
 -- Name: SeguimientoMetas; Type: DATABASE; Schema: -; Owner: postgres
 --
 
+CREATE DATABASE "SeguimientoMetas" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Spanish_Spain.1252';
+
+
+ALTER DATABASE "SeguimientoMetas" OWNER TO postgres;
+
+\unrestrict g2xiKZheloBsaqWfCFiIL6FBw9jFGEUWk2aNNLc4nFAjtNBHgABURT1aqJu99aI
+\connect "SeguimientoMetas"
+\restrict g2xiKZheloBsaqWfCFiIL6FBw9jFGEUWk2aNNLc4nFAjtNBHgABURT1aqJu99aI
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
