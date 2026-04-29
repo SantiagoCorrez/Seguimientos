@@ -277,7 +277,7 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
 
         this.compromisosService.getCompromisos().subscribe({
             next: async (data) => {
-                const compromisosMunicipio = data.filter(c => c.municipio === this.selectedMunicipio.toUpperCase());
+                const compromisosMunicipio = data.filter(c => this.normalizeText(c.municipio).includes(this.normalizeText(this.selectedMunicipio)));
 
                 this.sortCompromisos(compromisosMunicipio);
 
@@ -611,7 +611,7 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
 
         this.compromisosService.getCompromisos().subscribe({
             next: (data) => {
-                data = data.filter(c => c.municipio === this.selectedMunicipio.toUpperCase());
+                data = data.filter(c => this.normalizeText(c.municipio) === this.normalizeText(this.selectedMunicipio));
                 this.sortCompromisos(data);
                 if (data.length === 0) {
                     this.showError('No hay compromisos para generar un resumen.');
@@ -728,6 +728,14 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
             const valueB = parseFloat(b.valor_documento) || 0;
             return valueB - valueA;
         });
+    }
+
+    /** Normalize text: uppercase + strip diacritics (áéíóú → AEIOU) */
+    private normalizeText(text: string): string {
+        return text
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase();
     }
 
     deleteFicha(id: number): void {
