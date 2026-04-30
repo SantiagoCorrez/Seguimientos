@@ -277,7 +277,7 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
 
         this.compromisosService.getCompromisos().subscribe({
             next: async (data) => {
-                const compromisosMunicipio = data.filter(c => this.normalizeText(c.municipio).includes(this.normalizeText(this.selectedMunicipio)));
+                const compromisosMunicipio = data.filter(c => this.normalizeText(c.municipio).includes(this.normalizeText(this.selectedMunicipio)) && (c.numero_documento != null && c.numero_documento != ""));
 
                 this.sortCompromisos(compromisosMunicipio);
 
@@ -536,6 +536,13 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
                                                                             font: 'Arial',
                                                                             size: 26
                                                                         }),
+                                                                        new docx.TextRun({
+                                                                            text: `Numero Contrato: ${c.numero_documento}`,
+                                                                            font: 'Arial',
+                                                                            size: 26,
+                                                                            break: 1
+                                                                        }),
+
                                                                     ]
                                                                 })
                                                             ]
@@ -611,7 +618,7 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
 
         this.compromisosService.getCompromisos().subscribe({
             next: (data) => {
-                data = data.filter(c => this.normalizeText(c.municipio) === this.normalizeText(this.selectedMunicipio));
+                data = data.filter(c => this.normalizeText(c.municipio) === this.normalizeText(this.selectedMunicipio) && (c.numero_documento != null && c.numero_documento != ""));
                 this.sortCompromisos(data);
                 if (data.length === 0) {
                     this.showError('No hay compromisos para generar un resumen.');
@@ -671,6 +678,9 @@ export class FichaTecnicaVisitaListComponent implements OnInit {
                                             children: [
 
                                                 new docx.TextRun({ text: `Entidad: ${c.entidad}`, bold: true, font: 'Arial', size: 26, break: 1 }),
+
+                                                new docx.TextRun({ text: `Numero Contrato: ${c.numero_documento}`, bold: true, font: 'Arial', size: 26, break: 1 }),
+
                                                 new docx.TextRun({
                                                     text: `Código: ${c.codigo}`, bold: true,
                                                     font: 'Arial', size: 26, break: 1
