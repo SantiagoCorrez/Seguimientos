@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
     providedIn: 'root'
 })
 export class CompromisosService {
-    private apiUrl = '/api'; // URL base de tu backend Node.js
+    private apiUrl = 'https://mecomprometoa.cundinamarca.gov.co/api'; // URL base de tu backend Node.js
 
     private getAuthHeaders(): HttpHeaders {
         const token = this.authService.getToken();
@@ -48,6 +48,12 @@ export class CompromisosService {
 
     getFilteredMetrics(filters: any): Observable<any> {
         return this.http.get<any>(`${this.apiUrl}/public/filtrar/metricas`, { params: filters });
+    }
+
+    /** Endpoint público: sin `municipio` devuelve todos los compromisos (sin restricción por rol). */
+    getProyectosPorMunicipio(municipio?: string): Observable<Compromiso[]> {
+        const params: Record<string, string> = municipio ? { municipio } : {};
+        return this.http.get<Compromiso[]>(`${this.apiUrl}/public/proyectos-por-municipio`, { params });
     }
 
     getFilteredProjects(filters: any): Observable<any[]> {

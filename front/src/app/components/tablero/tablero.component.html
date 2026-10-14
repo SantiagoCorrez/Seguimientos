@@ -1,0 +1,257 @@
+<!-- src/app/components/tablero/tablero.component.html -->
+<div class="min-h-screen bg-[#F2F5F9] flex flex-col font-roboto">
+    <app-header></app-header>
+    <main class="flex-grow w-full max-w-[1800px] mx-auto px-4 md:px-6 py-5 space-y-4">
+
+        <!-- Título -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-2">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-[#0B3A6E] leading-tight">Seguimiento de Compromisos</h1>
+                <p class="text-[#0B3A6E] opacity-80">Departamento de Cundinamarca</p>
+            </div>
+            <div class="text-xs text-[#0B3A6E] md:text-right">
+                <p><span class="font-bold">Datos consultados:</span>
+                    {{ consultadoEn ? (consultadoEn | date:"d 'de' MMMM 'de' y, h:mm a":'':'es') : '—' }}</p>
+                <p class="opacity-80">Fuente: Matriz seguimiento compromisos</p>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-col lg:flex-row gap-4 items-stretch">
+            <div class="flex-1 bg-[#E4EBF3] rounded-lg p-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <label class="flex flex-col text-sm font-semibold text-[#0B3A6E]">
+                    Provincia
+                    <select [(ngModel)]="filtros.provincia" (change)="onProvinciaChange()" class="filtro-select" [disabled]="loading">
+                        <option value="">Todas</option>
+                        @for (p of provincias; track p) { <option [value]="p">{{ p }}</option> }
+                    </select>
+                </label>
+                <label class="flex flex-col text-sm font-semibold text-[#0B3A6E]">
+                    Municipio
+                    <select [(ngModel)]="filtros.municipio" (change)="aplicarFiltros()" class="filtro-select" [disabled]="loading">
+                        <option value="">Todos</option>
+                        @for (m of municipios; track m) { <option [value]="m">{{ m }}</option> }
+                    </select>
+                </label>
+                <label class="flex flex-col text-sm font-semibold text-[#0B3A6E]">
+                    Entidad Líder
+                    <select [(ngModel)]="filtros.entidad" (change)="aplicarFiltros()" class="filtro-select" [disabled]="loading">
+                        <option value="">Todas</option>
+                        @for (e of entidades; track e) { <option [value]="e">{{ e }}</option> }
+                    </select>
+                </label>
+            </div>
+            <button (click)="limpiarFiltros()" [disabled]="loading"
+                class="flex items-center justify-center gap-3 bg-[#D3E3F5] hover:bg-[#C2D7EF] text-[#0B3A6E] font-semibold text-lg rounded-lg px-8 py-3 shadow-sm transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" />
+                </svg>
+                Limpiar filtros
+            </button>
+            <button (click)="descargarInforme()" [disabled]="loading || !!error || generandoPdf"
+                class="flex items-center justify-center gap-3 bg-[#0B3A6E] hover:bg-[#082C55] disabled:opacity-60 disabled:cursor-wait text-white font-semibold text-lg rounded-lg px-6 py-3 shadow-sm transition-colors">
+                @if (generandoPdf) {
+                <svg class="h-6 w-6 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" d="M12 3a9 9 0 1 0 9 9" />
+                </svg>
+                Generando...
+                } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" />
+                </svg>
+                Descargar informe
+                }
+            </button>
+        </div>
+
+        @if (loading) {
+        <div class="bg-white rounded-lg p-10 text-center text-gray-500">Cargando compromisos...</div>
+        } @else if (error) {
+        <div class="bg-red-50 text-red-700 border border-red-200 rounded-lg p-6 text-center">{{ error }}</div>
+        } @else {
+
+        <!-- KPI -->
+        <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-[#0B3A6E]">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM8 13h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="kpi-title">Total compromisos</p>
+                    <p class="kpi-valor">{{ resumen.total | number:'1.0-0':'es' }}</p>
+                </div>
+            </div>
+            @for (d of estadosDef; track d.key) {
+            <div class="kpi-card">
+                <div class="kpi-icon" [style.background]="d.color">
+                    @switch (d.key) {
+                    @case ('finalizado') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="h-7 w-7"><path d="M5 13l4 4L19 7"/></svg> }
+                    @case ('ejecucion') { <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.6h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg> }
+                    @case ('noIniciado') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="h-7 w-7"><path d="M6 6l12 12M18 6L6 18"/></svg> }
+                    @case ('noSeHara') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="h-7 w-7"><path d="M5 12h14"/></svg> }
+                    @case ('adjudicado') { <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7"><path d="M1 21h12v2H1v-2zM5.2 8.1l2.8-2.8 14.1 14.1-2.8 2.8L5.2 8.1zM12.3 1l5.7 5.7-2.8 2.8L9.5 3.8 12.3 1zM3.8 9.5l5.7 5.7-2.8 2.8L1 12.3l2.8-2.8z"/></svg> }
+                    @case ('otros') { <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg> }
+                    }
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="kpi-title">{{ d.label }}</p>
+                    <p class="kpi-valor">{{ resumen.conteos[d.key] | number:'1.0-0':'es' }}</p>
+                    <p class="text-xl text-[#0B3A6E]">{{ porcentaje(resumen.conteos[d.key]) }} %</p>
+                    @if (d.key === 'otros' && resumen.otrosDetalle.length) {
+                    <ul class="mt-1 text-[11px] leading-tight text-gray-600 max-h-16 overflow-auto">
+                        @for (o of resumen.otrosDetalle; track o.estado) {
+                        <li class="truncate" [title]="o.estado + ': ' + o.cantidad">{{ o.estado }}: <b>{{ o.cantidad | number:'1.0-0':'es' }}</b></li>
+                        }
+                    </ul>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Matrices + distribución -->
+        <div class="grid grid-cols-1 xl:grid-cols-[1fr_1fr_0.85fr] gap-3">
+            @for (m of matrices; track m.titulo) {
+            <div class="panel flex flex-col">
+                <h2 class="panel-title">{{ m.titulo }}</h2>
+                <div class="tabla-scroll">
+                    <table class="tabla-resumen">
+                        <thead>
+                            <tr>
+                                <th class="col-nombre">{{ m.primera }}</th>
+                                @for (d of estadosDef; track d.key) { <th>{{ d.label }}</th> }
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (f of m.filas; track f.nombre) {
+                            <tr>
+                                <td class="col-nombre">{{ f.nombre }}</td>
+                                @for (d of estadosDef; track d.key) { <td>{{ f.conteos[d.key] | number:'1.0-0':'es' }}</td> }
+                                <td class="font-bold">{{ f.total | number:'1.0-0':'es' }}</td>
+                            </tr>
+                            } @empty {
+                            <tr><td [attr.colspan]="estadosDef.length + 2" class="py-4 text-gray-500">Sin datos</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (m.nota) { <p class="text-[11px] text-gray-500 mt-1">{{ m.nota }}</p> }
+            </div>
+            }
+
+            <!-- Distribución por estado -->
+            <div class="panel">
+                <h2 class="panel-title">Distribución por estado</h2>
+                <div class="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row items-center justify-around gap-4 py-2">
+                    <svg viewBox="0 0 200 200" class="w-56 h-56 shrink-0" role="img" aria-label="Distribución de compromisos por estado">
+                        <circle cx="100" cy="100" [attr.r]="radio" fill="none" stroke="#E5E7EB" stroke-width="60" />
+                        @for (s of donut; track s.key) {
+                        <circle cx="100" cy="100" [attr.r]="radio" fill="none" [attr.stroke]="s.color" stroke-width="60"
+                            [attr.stroke-dasharray]="s.dash" [attr.stroke-dashoffset]="s.offset"
+                            transform="rotate(-90 100 100)" />
+                        }
+                        @for (s of donut; track s.key) {
+                        @if (s.valor / resumen.total >= 0.05) {
+                        <text [attr.x]="s.lx" [attr.y]="s.ly - 3" text-anchor="middle" class="donut-label"
+                            [attr.fill]="s.key === 'ejecucion' ? '#0B3A6E' : '#fff'">{{ s.valor | number:'1.0-0':'es' }}</text>
+                        <text [attr.x]="s.lx" [attr.y]="s.ly + 10" text-anchor="middle" class="donut-sublabel"
+                            [attr.fill]="s.key === 'ejecucion' ? '#0B3A6E' : '#fff'">({{ porcentaje(s.valor) }} %)</text>
+                        }
+                        }
+                    </svg>
+                    <ul class="space-y-2 min-w-[210px]">
+                        @for (d of estadosDef; track d.key) {
+                        <li class="flex items-center gap-3 text-sm uppercase text-[#0B3A6E]">
+                            <span class="w-4 h-4 rounded-full shrink-0" [style.background]="d.color"></span>
+                            <span class="flex-1">{{ d.label }}</span>
+                            <b class="tabular-nums">{{ resumen.conteos[d.key] | number:'1.0-0':'es' }}</b>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalle de compromisos -->
+        <div class="panel !p-0 overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 pt-3 pb-2">
+                <h2 class="panel-title !mb-0">Detalle de compromisos</h2>
+                <div class="relative w-full sm:w-80">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#0B3A6E]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" />
+                    </svg>
+                    <input type="text" [(ngModel)]="busqueda" (input)="actualizarDetalle()" placeholder="Buscar en la tabla..."
+                        class="w-full border border-gray-300 rounded-md pl-9 pr-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-300">
+                </div>
+            </div>
+            <div class="tabla-detalle-scroll">
+                <table class="tabla-detalle">
+                    <thead>
+                        <tr>
+                            @for (col of columnas; track col.key) {
+                            <th [class.col-texto]="col.texto"
+                                [attr.aria-sort]="ordenCol === col.key ? (ordenAsc ? 'ascending' : 'descending') : 'none'">
+                                <button type="button" class="th-orden" (click)="ordenarPor(col.key)">
+                                    {{ col.label }}
+                                    <span class="flecha" [class.activa]="ordenCol === col.key">
+                                        {{ ordenCol === col.key ? (ordenAsc ? '▲' : '▼') : '⇅' }}
+                                    </span>
+                                </button>
+                            </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (r of paginaActual; track r.c.id) {
+                        <tr (click)="toggleFila(r.c.id)" [class.expandida]="expandidas.has(r.c.id)"
+                            title="Clic para ver u ocultar el texto completo">
+                            <td class="whitespace-nowrap">{{ r.c.codigo }}</td>
+                            <td><div class="clamp">{{ r.c.municipio }}</div></td>
+                            <td>{{ r.entidad }}</td>
+                            <td class="col-texto"><div class="clamp">{{ r.c.compromiso_especifico }}</div></td>
+                            <td class="text-right whitespace-nowrap">{{ formatoMoneda(r.c.valor_total) }}</td>
+                            <td class="col-texto text-xs"><div class="clamp">{{ r.c.detalle_especifico }}</div></td>
+                            <td class="text-right whitespace-nowrap">{{ formatoMoneda(r.c.valor_documento) }}</td>
+                            <td class="text-center">
+                                <span class="estado-badge" [style.background]="colorEstado(r.estadoKey)"
+                                    [style.color]="r.estadoKey === 'ejecucion' ? '#1a1a1a' : '#fff'">{{ r.estado }}</span>
+                            </td>
+                            <td class="col-texto"><div class="clamp">{{ r.c.observaciones }}</div></td>
+                        </tr>
+                        } @empty {
+                        <tr><td colspan="9" class="text-center py-6 text-gray-500">No hay compromisos para los filtros seleccionados.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3 px-3 py-3 text-sm text-[#0B3A6E] border-t border-gray-200">
+                <p class="font-semibold">
+                    Total de registros: {{ detalle.length | number:'1.0-0':'es' }}
+                    @if (busqueda.trim()) { <span class="font-normal text-gray-500">(de {{ resumen.total | number:'1.0-0':'es' }} filtrados)</span> }
+                </p>
+                <div class="flex flex-wrap items-center gap-6">
+                    <div class="flex items-center gap-1">
+                        <button class="pag-btn" [disabled]="pagina === 1" (click)="irA(pagina - 1)" aria-label="Anterior">‹</button>
+                        @for (p of paginasVisibles; track $index) {
+                        @if (p === null) { <span class="px-1">...</span> }
+                        @else { <button class="pag-btn" [class.activo]="p === pagina" (click)="irA(p)">{{ p }}</button> }
+                        }
+                        <button class="pag-btn" [disabled]="pagina === totalPaginas" (click)="irA(pagina + 1)" aria-label="Siguiente">›</button>
+                    </div>
+                    <label class="flex items-center gap-2">
+                        Registros por página:
+                        <select [(ngModel)]="porPagina" (change)="cambiarPorPagina()" class="border border-gray-300 rounded px-2 py-1">
+                            @for (n of opcionesPorPagina; track n) { <option [ngValue]="n">{{ n }}</option> }
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+        }
+    </main>
+
+    <app-footer></app-footer>
+</div>

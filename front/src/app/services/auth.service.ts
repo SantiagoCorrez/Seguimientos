@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = '/api/auth';
+  private apiUrl = 'https://mecomprometoa.cundinamarca.gov.co/api/auth';
   private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient, private router: Router) { }

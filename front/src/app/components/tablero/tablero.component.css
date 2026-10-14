@@ -1,0 +1,239 @@
+/* Tablero de seguimiento de compromisos */
+.filtro-select {
+    margin-top: 0.25rem;
+    background: #fff;
+    border: 1px solid #D1D9E3;
+    border-radius: 0.25rem;
+    padding: 0.4rem 0.6rem;
+    font-weight: 400;
+    color: #374151;
+    outline: none;
+    cursor: pointer;
+}
+
+.filtro-select:focus {
+    box-shadow: 0 0 0 2px #93C5FD;
+}
+
+.kpi-card {
+    display: flex;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid #E3E8EF;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-icon {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.kpi-title {
+    font-weight: 600;
+    color: #0B3A6E;
+    line-height: 1.2;
+}
+
+.kpi-valor {
+    font-size: 2.25rem;
+    line-height: 1.1;
+    font-weight: 700;
+    color: #0B3A6E;
+    margin-top: 0.35rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #E3E8EF;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    min-width: 0;
+}
+
+.panel-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0B3A6E;
+    margin-bottom: 0.5rem;
+}
+
+.tabla-scroll {
+    max-height: 280px;
+    overflow: auto;
+}
+
+.tabla-resumen {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    color: #1F2937;
+}
+
+.tabla-resumen th {
+    position: sticky;
+    top: 0;
+    background: #0B3A6E;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.7rem;
+    padding: 0.5rem 0.4rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+    text-align: center;
+    z-index: 1;
+}
+
+.tabla-resumen .col-nombre {
+    text-align: left;
+    min-width: 9rem;
+}
+
+.tabla-resumen td {
+    padding: 0.25rem 0.4rem;
+    border: 1px solid #E5E7EB;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.tabla-resumen tbody tr:nth-child(even) {
+    background: #F7F9FC;
+}
+
+.donut-label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.donut-sublabel {
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.tabla-detalle-scroll {
+    max-height: 70vh;
+    overflow: auto;
+}
+
+.tabla-detalle {
+    width: 100%;
+    min-width: 1300px;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    color: #1F2937;
+}
+
+.tabla-detalle th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #0B3A6E;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+    text-align: center;
+}
+
+.tabla-detalle th.col-texto,
+.tabla-detalle td.col-texto {
+    min-width: 14rem;
+}
+
+.th-orden {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.75rem 0.6rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.th-orden:hover {
+    background: #124B88;
+}
+
+.flecha {
+    opacity: 0.45;
+    font-size: 0.65rem;
+}
+
+.flecha.activa {
+    opacity: 1;
+}
+
+.tabla-detalle td {
+    padding: 0.6rem;
+    border-bottom: 1px solid #E5E7EB;
+    border-right: 1px solid #E5E7EB;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.tabla-detalle tbody tr {
+    cursor: pointer;
+}
+
+.tabla-detalle tbody tr:hover {
+    background: #F5F8FC;
+}
+
+/* Textos largos: 3 líneas; clic en la fila para verlos completos */
+.clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tabla-detalle tr.expandida {
+    background: #EEF4FB;
+}
+
+.tabla-detalle tr.expandida .clamp {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+}
+
+.estado-badge {
+    display: inline-block;
+    min-width: 7rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: normal;
+}
+
+.pag-btn {
+    min-width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid #D1D9E3;
+    border-radius: 0.25rem;
+    background: #fff;
+    color: #0B3A6E;
+}
+
+.pag-btn.activo {
+    background: #0B3A6E;
+    border-color: #0B3A6E;
+    color: #fff;
+}
+
+.pag-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}

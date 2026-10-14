@@ -11,6 +11,7 @@ import { FichaTecnicaVisitaListComponent } from './components/fichas-tecnicas-vi
 import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
+import { TableroComponent } from './components/tablero/tablero.component';
 import { UserAdminComponent } from './components/user-admin/user-admin.component';
 
 export const routes: Routes = [
@@ -19,6 +20,7 @@ export const routes: Routes = [
     { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
     { path: 'mapa', component: MapaComponent, canActivate: [AuthGuard] },
     { path: 'ficha-tecnica', component: FichaTecnicaVisitaListComponent, canActivate: [AuthGuard] },
+    { path: 'tablero', component: TableroComponent, canActivate: [AuthGuard] },
     { path: 'compromisos', component: CompromisoListComponent, canActivate: [AuthGuard] },
     { path: 'compromisos/nuevo', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
     { path: 'compromisos/editar/:id', component: CompromisoFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['Administrador', 'Editor'] } },
