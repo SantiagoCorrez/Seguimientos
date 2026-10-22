@@ -18,13 +18,7 @@
 
         <!-- Filtros -->
         <div class="flex flex-col lg:flex-row gap-4 items-stretch">
-            <div class="flex-1 bg-[#E4EBF3] rounded-lg p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                <label class="flex flex-col text-sm font-semibold text-[#0B3A6E]">
-                    Tipo de registro
-                    <select [(ngModel)]="filtros.codigo" (change)="aplicarFiltros()" class="filtro-select" [disabled]="loading">
-                        @for (o of opcionesCodigo; track o.valor) { <option [value]="o.valor">{{ o.label }}</option> }
-                    </select>
-                </label>
+            <div class="flex-1 bg-[#E4EBF3] rounded-lg p-3 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <label class="flex flex-col text-sm font-semibold text-[#0B3A6E]">
                     Provincia
                     <select [(ngModel)]="filtros.provincia" (change)="onProvinciaChange()" class="filtro-select" [disabled]="loading">

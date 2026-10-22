@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/mapa/mapa.component.css"],
+  "sourcesContent": ["/* CSS Reset - Styles are mainly handled by Tailwind in HTML */\r\n#map {\r\n    width: 100%;\r\n    height: 100%;\r\n    border-radius: 1rem;\r\n}"],
+  "mappings": ";AACA,CAAC;AACG,SAAO;AACP,UAAQ;AACR,iBAAe;AACnB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/compromiso-list/compromiso-list.component.css"],
+  "sourcesContent": ["/* Compromiso List Component Styles */\r\n/* Most styles are handled via Tailwind util classes in HTML. */\r\n#filters {\r\n    display: flex;\r\n    flex-direction: row;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n    gap: 1rem;\r\n}\r\n\r\n#filters div {\r\n    flex: 1;\r\n}"],
+  "mappings": ";AAEA,CAAC;AACG,WAAS;AACT,kBAAgB;AAChB,mBAAiB;AACjB,eAAa;AACb,OAAK;AACT;AAEA,CARC,QAQQ;AACL,QAAM;AACV;",
+  "names": []
+}

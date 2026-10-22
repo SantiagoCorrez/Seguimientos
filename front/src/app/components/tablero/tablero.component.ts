@@ -9,7 +9,7 @@ import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { TableroDataService } from '../../services/tablero-data.service';
 import {
-    ColumnaDetalle, ESTADOS, EstadoKey, FilaResumen, Filtros, OPCIONES_CODIGO, filtrosVacios, Geografia, Registro, Resumen,
+    ColumnaDetalle, ESTADOS, EstadoKey, FilaResumen, Filtros, filtrosVacios, Geografia, Registro, Resumen,
     buscar, enriquecer, filtrar, formatoMoneda, opcionesFiltros, ordenar, porcentaje, resumir
 } from './tablero-logic';
 import { generarInformePdf } from './tablero-pdf';
@@ -42,7 +42,6 @@ export class TableroComponent implements OnInit {
     private registros: Registro[] = [];
     filtrados: Registro[] = [];
 
-    readonly opcionesCodigo = OPCIONES_CODIGO;
     filtros: Filtros = filtrosVacios();
     provincias: string[] = [];
     municipios: string[] = [];
@@ -69,7 +68,7 @@ export class TableroComponent implements OnInit {
     generandoExcel = false;
 
     readonly formatoMoneda = formatoMoneda;
-    private static readonly MAX_DETALLE_PDF = 2000;
+    private static readonly MAX_DETALLE_PDF = 5000;
 
     constructor(private datos: TableroDataService) { }
 

@@ -38,13 +38,6 @@ export function tieneCodigo(codigo: string | null | undefined): boolean {
     return /^[A-Z]{2,}\s*-?\s*\d+$/.test(normalizarTexto(codigo));
 }
 
-export type FiltroCodigo = 'todos' | 'con' | 'sin';
-
-export const OPCIONES_CODIGO: { valor: FiltroCodigo; label: string }[] = [
-    { valor: 'todos', label: 'Todos los registros' },
-    { valor: 'con', label: 'Con código (compromisos)' },
-    { valor: 'sin', label: 'Sin código (proyectos y acciones)' }
-];
 
 /**
  * Clasifica un estado solo por coincidencia exacta (sin distinguir mayúsculas, tildes ni espacios).
@@ -108,7 +101,6 @@ export interface Registro {
     entidad: string;
     estado: string;         // valor original del campo ESTADO
     estadoKey: EstadoKey;
-    tieneCodigo: boolean;
     valorInicial: number | null;
     valorContrato: number | null;
     textoBusqueda: string;
@@ -120,7 +112,8 @@ export interface Registro {
  * pero sin que "TAUSA" coincida con "SUTATAUSA").
  */
 export function enriquecer(compromisos: Compromiso[], geo: Geografia): Registro[] {
-    return compromisos.map(c => {
+    // El tablero solo muestra compromisos (registros con código); el resto son proyectos/acciones de las entidades.
+    return compromisos.filter(c => tieneCodigo(c.codigo)).map(c => {
         const texto = ` ${claveLugar(c.municipio)} `;
         const municipios: string[] = [];
         let restante = texto;
@@ -149,7 +142,6 @@ export function enriquecer(compromisos: Compromiso[], geo: Geografia): Registro[
             entidad,
             estado,
             estadoKey: clasificarEstado(c.estado),
-            tieneCodigo: tieneCodigo(c.codigo),
             valorInicial: aNumero(c.valor_total),
             valorContrato: aNumero(c.valor_documento),
             textoBusqueda: normalizarTexto([
@@ -163,19 +155,17 @@ export function enriquecer(compromisos: Compromiso[], geo: Geografia): Registro[
 // --- Filtros ---
 
 export interface Filtros {
-    codigo: FiltroCodigo;
     provincia: string;
     municipio: string;
     entidad: string;
 }
 
 export function filtrosVacios(): Filtros {
-    return { codigo: 'todos', provincia: '', municipio: '', entidad: '' };
+    return { provincia: '', municipio: '', entidad: '' };
 }
 
 export function filtrar(registros: Registro[], f: Filtros, ignorar?: keyof Filtros): Registro[] {
     return registros.filter(r =>
-        (f.codigo === 'todos' || r.tieneCodigo === (f.codigo === 'con')) &&
         (ignorar === 'provincia' || !f.provincia || r.provincias.includes(f.provincia)) &&
         (ignorar === 'municipio' || !f.municipio || r.municipios.includes(f.municipio)) &&
         (ignorar === 'entidad' || !f.entidad || r.entidad === f.entidad)
@@ -184,8 +174,7 @@ export function filtrar(registros: Registro[], f: Filtros, ignorar?: keyof Filtr
 
 /** Opciones dependientes: solo valores que existen en la fuente para la combinación elegida. */
 export function opcionesFiltros(registros: Registro[], geo: Geografia, f: Filtros) {
-    const porCodigo = filtrar(registros, { ...filtrosVacios(), codigo: f.codigo });
-    const conDatosProv = new Set(porCodigo.flatMap(r => r.provincias));
+    const conDatosProv = new Set(registros.flatMap(r => r.provincias));
     const provincias = geo.provincias.map(p => p.nombre).filter(p => conDatosProv.has(p));
 
     const porProvincia = filtrar(registros, { ...f, municipio: '', entidad: '' });

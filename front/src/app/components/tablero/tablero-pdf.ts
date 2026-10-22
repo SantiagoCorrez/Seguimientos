@@ -1,12 +1,12 @@
 // src/app/components/tablero/tablero-pdf.ts
 // Genera el informe PDF del tablero con la información visible en el momento de la descarga.
 
-import { ESTADOS, FiltroCodigo, OPCIONES_CODIGO, FilaResumen, Registro, Resumen, formatoMoneda, porcentaje } from './tablero-logic';
+import { ESTADOS, FilaResumen, Registro, Resumen, formatoMoneda, porcentaje } from './tablero-logic';
 
 export interface DatosInforme {
     resumen: Resumen;
     detalle: Registro[];
-    filtros: { codigo: FiltroCodigo; provincia: string; municipio: string; entidad: string; busqueda: string };
+    filtros: { provincia: string; municipio: string; entidad: string; busqueda: string };
     /** false: el informe solo incluye el resumen (útil cuando el detalle tiene miles de registros). */
     incluirDetalle: boolean;
 }
@@ -64,7 +64,6 @@ export async function generarInformePdf(d: DatosInforme): Promise<void> {
     // --- Filtros aplicados ---
     let y = 38;
     const filtros = [
-        `Registros: ${OPCIONES_CODIGO.find(o => o.valor === d.filtros.codigo)!.label}`,
         `Provincia: ${d.filtros.provincia || 'Todas'}`,
         `Municipio: ${d.filtros.municipio || 'Todos'}`,
         `Entidad líder: ${d.filtros.entidad || 'Todas'}`
