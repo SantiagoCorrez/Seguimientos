@@ -9,10 +9,11 @@ import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { TableroDataService } from '../../services/tablero-data.service';
 import {
-    ColumnaDetalle, ESTADOS, EstadoKey, FilaResumen, Filtros, Geografia, Registro, Resumen,
+    ColumnaDetalle, ESTADOS, EstadoKey, FilaResumen, Filtros, OPCIONES_CODIGO, filtrosVacios, Geografia, Registro, Resumen,
     buscar, enriquecer, filtrar, formatoMoneda, opcionesFiltros, ordenar, porcentaje, resumir
 } from './tablero-logic';
 import { generarInformePdf } from './tablero-pdf';
+import { generarReporteExcel } from './tablero-excel';
 
 registerLocaleData(localeEs, 'es');
 
@@ -41,7 +42,8 @@ export class TableroComponent implements OnInit {
     private registros: Registro[] = [];
     filtrados: Registro[] = [];
 
-    filtros: Filtros = { provincia: '', municipio: '', entidad: '' };
+    readonly opcionesCodigo = OPCIONES_CODIGO;
+    filtros: Filtros = filtrosVacios();
     provincias: string[] = [];
     municipios: string[] = [];
     entidades: string[] = [];
@@ -64,6 +66,7 @@ export class TableroComponent implements OnInit {
     loading = true;
     error: string | null = null;
     generandoPdf = false;
+    generandoExcel = false;
 
     readonly formatoMoneda = formatoMoneda;
     private static readonly MAX_DETALLE_PDF = 2000;
@@ -95,7 +98,7 @@ export class TableroComponent implements OnInit {
     }
 
     limpiarFiltros(): void {
-        this.filtros = { provincia: '', municipio: '', entidad: '' };
+        this.filtros = filtrosVacios();
         this.busqueda = '';
         this.ordenCol = null;
         this.ordenAsc = true;
@@ -105,6 +108,11 @@ export class TableroComponent implements OnInit {
     aplicarFiltros(): void {
         let opciones = opcionesFiltros(this.registros, this.geo, this.filtros);
         // Si una selección ya no existe para la combinación actual, se libera.
+        if (this.filtros.provincia && !opciones.provincias.includes(this.filtros.provincia)) {
+            this.filtros.provincia = '';
+            this.filtros.municipio = '';
+            opciones = opcionesFiltros(this.registros, this.geo, this.filtros);
+        }
         if (this.filtros.municipio && !opciones.municipios.includes(this.filtros.municipio)) this.filtros.municipio = '';
         if (this.filtros.entidad && !opciones.entidades.includes(this.filtros.entidad)) this.filtros.entidad = '';
         opciones = opcionesFiltros(this.registros, this.geo, this.filtros);
@@ -220,6 +228,20 @@ export class TableroComponent implements OnInit {
     }
 
     // --- Informe PDF ---
+
+    async descargarExcel(): Promise<void> {
+        if (this.generandoExcel) return;
+        this.generandoExcel = true;
+        await new Promise(r => setTimeout(r, 50));
+        try {
+            await generarReporteExcel(this.detalle);
+        } catch (err) {
+            console.error('Error al generar el reporte Excel:', err);
+            alert('No se pudo generar el reporte Excel. Intenta de nuevo.');
+        } finally {
+            this.generandoExcel = false;
+        }
+    }
 
     async descargarInforme(): Promise<void> {
         if (this.generandoPdf) return;

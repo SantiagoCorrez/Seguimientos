@@ -1,12 +1,12 @@
 // src/app/components/tablero/tablero-pdf.ts
 // Genera el informe PDF del tablero con la información visible en el momento de la descarga.
 
-import { ESTADOS, FilaResumen, Registro, Resumen, formatoMoneda, porcentaje } from './tablero-logic';
+import { ESTADOS, FiltroCodigo, OPCIONES_CODIGO, FilaResumen, Registro, Resumen, formatoMoneda, porcentaje } from './tablero-logic';
 
 export interface DatosInforme {
     resumen: Resumen;
     detalle: Registro[];
-    filtros: { provincia: string; municipio: string; entidad: string; busqueda: string };
+    filtros: { codigo: FiltroCodigo; provincia: string; municipio: string; entidad: string; busqueda: string };
     /** false: el informe solo incluye el resumen (útil cuando el detalle tiene miles de registros). */
     incluirDetalle: boolean;
 }
@@ -64,6 +64,7 @@ export async function generarInformePdf(d: DatosInforme): Promise<void> {
     // --- Filtros aplicados ---
     let y = 38;
     const filtros = [
+        `Registros: ${OPCIONES_CODIGO.find(o => o.valor === d.filtros.codigo)!.label}`,
         `Provincia: ${d.filtros.provincia || 'Todas'}`,
         `Municipio: ${d.filtros.municipio || 'Todos'}`,
         `Entidad líder: ${d.filtros.entidad || 'Todas'}`
@@ -76,7 +77,7 @@ export async function generarInformePdf(d: DatosInforme): Promise<void> {
     doc.setFont('helvetica', 'bold');
     doc.text('Filtros aplicados:', M + 3, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(filtros.join('     |     '), M + 31, y);
+    doc.text(filtros.join('   |   '), M + 31, y, { maxWidth: W - 2 * M - 34 });
 
     // --- Tarjetas KPI ---
     y += 6;
